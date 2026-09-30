@@ -321,14 +321,4 @@
 .punto.activo {
   background: #111827 !important;
 }
-/* Igualar el color de TODOS los puntos del dominó */
-.punto,
-.punto.activo,
-.cara .punto,
-.cara .punto.activo {
-  background: #172033 !important;
-  background-color: #172033 !important;
-  opacity: 1 !important;
-  filter: none !important;
-  box-shadow: none !important;
-}
+
