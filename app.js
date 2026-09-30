@@ -113,8 +113,8 @@ function crearPuntos(numero) {
   let html = '<span class="puntos">';
 
   for (let i = 1; i <= 9; i++) {
-    const activo = posiciones[numero].includes(i);
-    html += `<b class="${activo ? "punto activo" : "punto"}"></b>`;
+  const activo = posiciones[numero].includes(i);
+  html += `<i class="${activo ? "punto activo" : "punto"}"></i>`;
   }
 
   html += '</span>';
