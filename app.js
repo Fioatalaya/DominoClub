@@ -65,20 +65,19 @@ function abrirPartida(i) {
     </div>
   `;
   iniciarPartida();
-}
-function iniciarPartida() {
+  function iniciarPartida() {
   const fichas = document.querySelector('.mis-fichas');
 
   if (fichas) {
     fichas.innerHTML = `
-      <div class="ficha">⚀</div>
-      <div class="ficha">⚁</div>
-      <div class="ficha">⚂</div>
-      <div class="ficha">⚃</div>
-      <div class="ficha">⚄</div>
-      <div class="ficha">⚅</div>
-      <div class="ficha">⚀</div>
+      <div class="ficha-domino"><span>2</span><span>5</span></div>
+      <div class="ficha-domino"><span>6</span><span>1</span></div>
+      <div class="ficha-domino"><span>4</span><span>3</span></div>
+      <div class="ficha-domino"><span>5</span><span>5</span></div>
+      <div class="ficha-domino"><span>0</span><span>6</span></div>
+      <div class="ficha-domino"><span>3</span><span>1</span></div>
+      <div class="ficha-domino"><span>4</span><span>2</span></div>
     `;
   }
-}
+  }
 render();
