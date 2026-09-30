@@ -45,3 +45,55 @@
 .table button:active{
   transform:scale(.96);
 }
+/* Ventana al entrar a una mesa */
+.aviso-mesa {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 10, 20, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 9999;
+}
+
+.aviso-contenido {
+  width: 100%;
+  max-width: 360px;
+  background: linear-gradient(145deg, #182638, #101a29);
+  border: 1px solid #334760;
+  border-radius: 24px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 18px 50px rgba(0,0,0,.55);
+}
+
+.aviso-icono {
+  font-size: 52px;
+  margin-bottom: 12px;
+}
+
+.aviso-contenido h2 {
+  margin: 0 0 10px;
+  color: #f5f7fa;
+  font-size: 25px;
+}
+
+.aviso-contenido p {
+  margin: 0 0 25px;
+  color: #efb949;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.aviso-contenido button {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 20px;
+  background: #efb949;
+  color: #111827;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+}
