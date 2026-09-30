@@ -154,14 +154,41 @@ function jugarFicha(elemento) {
   const centro = document.querySelector(".centro-mesa");
   if (!centro || !elemento) return;
 
-  centro.innerHTML = `
-    <div class="ficha-domino ficha-jugada">
-      ${elemento.innerHTML}
-    </div>
-    <span>Ficha jugada</span>
-  `;
+  elemento.classList.remove("seleccionada");
+  elemento.style.transform = "";
+  elemento.style.borderColor = "";
+  elemento.style.boxShadow = "";
+  elemento.style.zIndex = "";
 
-  elemento.remove();
+  elemento.removeAttribute("onclick");
+  elemento.classList.add("ficha-jugada");
+
+  centro.innerHTML = "";
+  centro.appendChild(elemento);
+
+  const texto = document.createElement("span");
+  texto.textContent = "Ficha jugada";
+  centro.appendChild(texto);
+}
+function jugarFicha(elemento) {
+  const centro = document.querySelector(".centro-mesa");
+  if (!centro || !elemento) return;
+
+  elemento.classList.remove("seleccionada");
+  elemento.style.transform = "";
+  elemento.style.borderColor = "";
+  elemento.style.boxShadow = "";
+  elemento.style.zIndex = "";
+
+  elemento.removeAttribute("onclick");
+  elemento.classList.add("ficha-jugada");
+
+  centro.innerHTML = "";
+  centro.appendChild(elemento);
+
+  const texto = document.createElement("span");
+  texto.textContent = "Ficha jugada";
+  centro.appendChild(texto);
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
