@@ -322,3 +322,6 @@
   background: #111827 !important;
 }
 
+.cara[data-num="6"] .punto.activo {
+  background: #374151 !important;
+}
