@@ -64,5 +64,21 @@ function abrirPartida(i) {
       </div>
     </div>
   `;
+  iniciarPartida();
+}
+function iniciarPartida() {
+  const fichas = document.querySelector('.mis-fichas');
+
+  if (fichas) {
+    fichas.innerHTML = `
+      <div class="ficha">⚀</div>
+      <div class="ficha">⚁</div>
+      <div class="ficha">⚂</div>
+      <div class="ficha">⚃</div>
+      <div class="ficha">⚄</div>
+      <div class="ficha">⚅</div>
+      <div class="ficha">⚀</div>
+    `;
+  }
 }
 render();
