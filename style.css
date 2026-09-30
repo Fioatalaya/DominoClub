@@ -306,10 +306,10 @@
 }
 
 .punto {
-  width: 7px !important;
-  height: 7px !important;
-  min-width: 7px !important;
-  min-height: 7px !important;
+  width: 6px !important;
+  height: 6px !important;
+  min-width: 6px !important;
+  min-height: 6px !important;
   border-radius: 50% !important;
   background: transparent !important;
   display: block !important;
@@ -320,10 +320,4 @@
 
 .punto.activo {
   background: #111827 !important;
-}
-.cara[data-num="6"] .punto.activo {
-  width: 5px !important;
-  height: 5px !important;
-  min-width: 5px !important;
-  min-height: 5px !important;
 }
