@@ -17,7 +17,17 @@ function render() {
 }
 
 function joinTable(i) {
-  alert(`Entrando a ${tables[i].name}. Esta versión usa monedas virtuales.`);
+  const aviso = document.createElement('div');
+aviso.className = 'aviso-mesa';
+aviso.innerHTML = `
+  <div class="aviso-contenido">
+    <div class="aviso-icono">🎲</div>
+    <h2>Entrando a la mesa</h2>
+    <p>${tables[i].name}</p>
+    <button onclick="this.closest('.aviso-mesa').remove()">Continuar</button>
+  </div>
+`;
+document.body.appendChild(aviso);
 }
 
 function createTable() {
