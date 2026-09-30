@@ -67,19 +67,32 @@ function openGame(index) {
       </div>
 
       <div class="mis-fichas">
-        <div class="ficha-domino"><span>2</span><span>5</span></div>
-        <div class="ficha-domino"><span>6</span><span>1</span></div>
-        <div class="ficha-domino"><span>4</span><span>4</span></div>
-        <div class="ficha-domino"><span>5</span><span>3</span></div>
-        <div class="ficha-domino"><span>0</span><span>6</span></div>
-        <div class="ficha-domino"><span>3</span><span>2</span></div>
-        <div class="ficha-domino"><span>4</span><span>1</span></div>
-      </div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 2, 5)"><span>2</span><span>5</span></div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 6, 1)"><span>6</span><span>1</span></div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 4, 4)"><span>4</span><span>4</span></div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 5, 3)"><span>5</span><span>3</span></div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 0, 6)"><span>0</span><span>6</span></div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 3, 2)"><span>3</span><span>2</span></div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 4, 1)"><span>4</span><span>1</span></div>
+</div>
 
     </div>
   `;
 }
+function jugarFicha(elemento, ladoA, ladoB) {
+  const centro = document.querySelector(".centro-mesa");
+  if (!centro || !elemento) return;
 
+  centro.innerHTML = `
+    <div class="ficha-domino ficha-jugada">
+      <span>${ladoA}</span>
+      <span>${ladoB}</span>
+    </div>
+    <span>Ficha jugada</span>
+  `;
+
+  elemento.remove();
+}
 document.addEventListener("DOMContentLoaded", function () {
   render();
 
