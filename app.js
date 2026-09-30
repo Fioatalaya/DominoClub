@@ -1,57 +1,43 @@
 const tables = [
   { name: "Mesa Principiantes", entry: 100 },
-  { name: "Mesa Clásica", entry: 500 },
+  { name: "Mesa Clasica", entry: 500 },
   { name: "Mesa VIP", entry: 1000 }
 ];
 
 function render() {
-  const contenedor = document.querySelector("#tables");
+  const box = document.querySelector("#tables");
+  if (!box) return;
 
-  if (!contenedor) return;
-
-  contenedor.innerHTML = tables.map((t, i) => `
+  box.innerHTML = tables.map((table, index) => `
     <div class="table">
       <div>
-        <b>${t.name}</b><br>
-        <small>Entrada: ${t.entry} 🪙</small>
+        <b>${table.name}</b><br>
+        <small>Entrada: ${table.entry} monedas</small>
       </div>
-
-      <button type="button" onclick="joinTable(${i})">
-        Entrar
-      </button>
+      <button type="button" onclick="joinTable(${index})">Entrar</button>
     </div>
   `).join("");
 }
 
-function joinTable(i) {
-  const mesa = tables[i];
-
-  if (!mesa) return;
-
-  const avisoAnterior = document.querySelector(".aviso-mesa");
-  if (avisoAnterior) avisoAnterior.remove();
-
-  const aviso = document.createElement("div");
-  aviso.className = "aviso-mesa";
-
-  aviso.innerHTML = `
-    <div class="aviso-contenido">
-      <div class="aviso-icono">🎲</div>
-      <h2>Entrando a la mesa</h2>
-      <p>${mesa.name}</p>
-      <button type="button" onclick="abrirPartida(${i})">
-        Continuar
-      </button>
-    </div>
-  `;
-
-  document.body.appendChild(aviso);
+function joinTable(index) {
+  openGame(index);
 }
 
-function abrirPartida(i) {
-  const mesa = tables[i];
+function createTable() {
+  const stake = document.querySelector("#stake");
+  const entry = stake ? Number(stake.value) : 100;
 
-  if (!mesa) return;
+  tables.push({
+    name: "Mi Mesa",
+    entry: entry
+  });
+
+  render();
+}
+
+function openGame(index) {
+  const table = tables[index];
+  if (!table) return;
 
   document.body.innerHTML = `
     <div class="partida">
@@ -60,37 +46,24 @@ function abrirPartida(i) {
         <button type="button" onclick="location.reload()">← Salir</button>
 
         <div>
-          <strong>${mesa.name}</strong>
-          <small>Mesa de dominó</small>
+          <strong>${table.name}</strong>
+          <small>Mesa de domino</small>
         </div>
 
         <div>🪙 10,000</div>
       </div>
 
       <div class="mesa-domino">
-
-        <div class="jugador jugador-arriba">
-          👤 Jugador 2
-        </div>
-
-        <div class="jugador jugador-izquierda">
-          👤 Jugador 3
-        </div>
+        <div class="jugador jugador-arriba">👤 Jugador 2</div>
+        <div class="jugador jugador-izquierda">👤 Jugador 3</div>
 
         <div class="centro-mesa">
-          DOMINÓ
-          <br>
+          DOMINO<br>
           <span>Partida iniciada</span>
         </div>
 
-        <div class="jugador jugador-derecha">
-          👤 Jugador 4
-        </div>
-
-        <div class="jugador jugador-abajo">
-          👤 Tú
-        </div>
-
+        <div class="jugador jugador-derecha">👤 Jugador 4</div>
+        <div class="jugador jugador-abajo">👤 Tu</div>
       </div>
 
       <div class="mis-fichas">
@@ -105,18 +78,6 @@ function abrirPartida(i) {
 
     </div>
   `;
-}
-
-function createTable() {
-  const stake = document.querySelector("#stake");
-  const entrada = stake ? Number(stake.value) : 100;
-
-  tables.push({
-    name: "Mi mesa",
-    entry: entrada
-  });
-
-  render();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
