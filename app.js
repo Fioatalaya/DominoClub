@@ -154,21 +154,13 @@ function jugarFicha(elemento) {
   const centro = document.querySelector(".centro-mesa");
   if (!centro || !elemento) return;
 
-  const caras = elemento.querySelectorAll(".cara");
-  if (caras.length < 2) return;
-
-  const ladoA = Number(caras[0].dataset.num);
-  const ladoB = Number(caras[1].dataset.num);
-
   centro.innerHTML = `
     <div class="ficha-domino ficha-jugada">
-      <span class="cara" data-num="${ladoA}"></span>
-      <span class="cara" data-num="${ladoB}"></span>
+      ${elemento.innerHTML}
     </div>
     <span>Ficha jugada</span>
   `;
 
-  dibujarFichas();
   elemento.remove();
 }
 document.addEventListener("DOMContentLoaded", function () {
