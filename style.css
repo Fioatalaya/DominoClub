@@ -282,9 +282,6 @@
   background: transparent;
 }
 
-.punto.activo {
-  background: #111827;
-}
 /* Puntos del dominó */
 .cara {
   position: relative;
