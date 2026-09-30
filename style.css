@@ -317,3 +317,13 @@
 .punto.activo {
   background: #111827;
 }
+.ficha-domino {
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transform-origin: center bottom;
+}
+
+.ficha-domino:active {
+  transform: translateY(-10px) scale(1.06);
+  box-shadow: 0 10px 18px rgba(0,0,0,.45);
+}
