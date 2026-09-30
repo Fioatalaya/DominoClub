@@ -67,31 +67,31 @@ function openGame(index) {
       </div>
 
       <div class="mis-fichas">
-  <div class="ficha-domino" onclick="jugarFicha(this, 2, 5)">
+  <div class="ficha-domino" onclick="seleccionarFicha(this, 2, 5)">
     <span class="cara" data-num="2"></span><span class="cara" data-num="5"></span>
   </div>
 
-  <div class="ficha-domino" onclick="jugarFicha(this, 6, 1)">
+  <div class="ficha-domino" onclick="seleccionarFicha(this, 6, 1)">
     <span class="cara" data-num="6"></span><span class="cara" data-num="1"></span>
   </div>
 
-  <div class="ficha-domino" onclick="jugarFicha(this, 4, 4)">
+  <div class="ficha-domino" onclick="seleccionarFicha(this, 4, 4)">
     <span class="cara" data-num="4"></span><span class="cara" data-num="4"></span>
   </div>
 
-  <div class="ficha-domino" onclick="jugarFicha(this, 5, 3)">
+  <div class="ficha-domino" onclick="seleccionarFicha(this, 5, 3)">
     <span class="cara" data-num="5"></span><span class="cara" data-num="3"></span>
   </div>
 
-  <div class="ficha-domino" onclick="jugarFicha(this, 0, 6)">
+  <div class="ficha-domino" onclick="seleccionarFicha(this, 0, 6)">
     <span class="cara" data-num="0"></span><span class="cara" data-num="6"></span>
   </div>
 
-  <div class="ficha-domino" onclick="jugarFicha(this, 3, 2)">
+  <div class="ficha-domino" onclick="seleccionarFicha(this, 3, 2)">
     <span class="cara" data-num="3"></span><span class="cara" data-num="2"></span>
   </div>
 
-  <div class="ficha-domino" onclick="jugarFicha(this, 4, 1)">
+  <div class="ficha-domino" onclick="seleccionarFicha(this, 4, 1)">
     <span class="cara" data-num="4"></span><span class="cara" data-num="1"></span>
   </div>
 </div>
@@ -126,6 +126,20 @@ function dibujarFichas() {
     const numero = Number(cara.dataset.num);
     cara.innerHTML = crearPuntos(numero);
   });
+}
+function seleccionarFicha(elemento, ladoA, ladoB) {
+  const seleccionada = document.querySelector(".ficha-domino.seleccionada");
+
+  if (seleccionada === elemento) {
+    jugarFicha(elemento, ladoA, ladoB);
+    return;
+  }
+
+  if (seleccionada) {
+    seleccionada.classList.remove("seleccionada");
+  }
+
+  elemento.classList.add("seleccionada");
 }
 function jugarFicha(elemento, ladoA, ladoB) {
   const centro = document.querySelector(".centro-mesa");
