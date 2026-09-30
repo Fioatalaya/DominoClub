@@ -128,31 +128,47 @@ function dibujarFichas() {
   });
 }
 function seleccionarFicha(elemento, ladoA, ladoB) {
-  const seleccionada = document.querySelector(".ficha-domino.seleccionada");
+  const yaSeleccionada = elemento.classList.contains("seleccionada");
 
-  if (seleccionada === elemento) {
-    jugarFicha(elemento, ladoA, ladoB);
+  document.querySelectorAll(".mis-fichas .ficha-domino").forEach(ficha => {
+    ficha.classList.remove("seleccionada");
+    ficha.style.transform = "";
+    ficha.style.borderColor = "";
+    ficha.style.boxShadow = "";
+    ficha.style.zIndex = "";
+  });
+
+  if (yaSeleccionada) {
+    jugarFicha(elemento);
     return;
   }
 
-  if (seleccionada) {
-    seleccionada.classList.remove("seleccionada");
-  }
-
   elemento.classList.add("seleccionada");
+  elemento.style.transform = "translateY(-14px) scale(1.08)";
+  elemento.style.borderColor = "#f5c542";
+  elemento.style.boxShadow = "0 12px 22px rgba(0,0,0,.55)";
+  elemento.style.zIndex = "5";
 }
-function jugarFicha(elemento, ladoA, ladoB) {
+
+function jugarFicha(elemento) {
   const centro = document.querySelector(".centro-mesa");
   if (!centro || !elemento) return;
 
+  const caras = elemento.querySelectorAll(".cara");
+  if (caras.length < 2) return;
+
+  const ladoA = Number(caras[0].dataset.num);
+  const ladoB = Number(caras[1].dataset.num);
+
   centro.innerHTML = `
     <div class="ficha-domino ficha-jugada">
-  <span class="cara">${crearPuntos(ladoA)}</span>
-  <span class="cara">${crearPuntos(ladoB)}</span>
-</div>
+      <span class="cara" data-num="${ladoA}"></span>
+      <span class="cara" data-num="${ladoB}"></span>
+    </div>
     <span>Ficha jugada</span>
   `;
 
+  dibujarFichas();
   elemento.remove();
 }
 document.addEventListener("DOMContentLoaded", function () {
