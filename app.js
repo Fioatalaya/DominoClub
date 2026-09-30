@@ -81,3 +81,4 @@ function abrirPartida(i) {
   }
   }
 render();
+document.querySelector('#createBtn')?.addEventListener('click', createTable);
