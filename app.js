@@ -67,17 +67,65 @@ function openGame(index) {
       </div>
 
       <div class="mis-fichas">
-  <div class="ficha-domino" onclick="jugarFicha(this, 2, 5)"><span>2</span><span>5</span></div>
-  <div class="ficha-domino" onclick="jugarFicha(this, 6, 1)"><span>6</span><span>1</span></div>
-  <div class="ficha-domino" onclick="jugarFicha(this, 4, 4)"><span>4</span><span>4</span></div>
-  <div class="ficha-domino" onclick="jugarFicha(this, 5, 3)"><span>5</span><span>3</span></div>
-  <div class="ficha-domino" onclick="jugarFicha(this, 0, 6)"><span>0</span><span>6</span></div>
-  <div class="ficha-domino" onclick="jugarFicha(this, 3, 2)"><span>3</span><span>2</span></div>
-  <div class="ficha-domino" onclick="jugarFicha(this, 4, 1)"><span>4</span><span>1</span></div>
-</div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 2, 5)">
+    <span class="cara" data-num="2"></span><span class="cara" data-num="5"></span>
+  </div>
 
-    </div>
+  <div class="ficha-domino" onclick="jugarFicha(this, 6, 1)">
+    <span class="cara" data-num="6"></span><span class="cara" data-num="1"></span>
+  </div>
+
+  <div class="ficha-domino" onclick="jugarFicha(this, 4, 4)">
+    <span class="cara" data-num="4"></span><span class="cara" data-num="4"></span>
+  </div>
+
+  <div class="ficha-domino" onclick="jugarFicha(this, 5, 3)">
+    <span class="cara" data-num="5"></span><span class="cara" data-num="3"></span>
+  </div>
+
+  <div class="ficha-domino" onclick="jugarFicha(this, 0, 6)">
+    <span class="cara" data-num="0"></span><span class="cara" data-num="6"></span>
+  </div>
+
+  <div class="ficha-domino" onclick="jugarFicha(this, 3, 2)">
+    <span class="cara" data-num="3"></span><span class="cara" data-num="2"></span>
+  </div>
+
+  <div class="ficha-domino" onclick="jugarFicha(this, 4, 1)">
+    <span class="cara" data-num="4"></span><span class="cara" data-num="1"></span>
+  </div>
+</div>
   `;
+  
+  dibujarFichas();
+}
+function crearPuntos(numero) {
+  const posiciones = {
+    0: [],
+    1: [5],
+    2: [1, 9],
+    3: [1, 5, 9],
+    4: [1, 3, 7, 9],
+    5: [1, 3, 5, 7, 9],
+    6: [1, 3, 4, 6, 7, 9]
+  };
+
+  let html = '<span class="puntos">';
+
+  for (let i = 1; i <= 9; i++) {
+    const activo = posiciones[numero].includes(i);
+    html += `<i class="${activo ? "punto activo" : "punto"}"></i>`;
+  }
+
+  html += '</span>';
+  return html;
+}
+
+function dibujarFichas() {
+  document.querySelectorAll(".cara").forEach(cara => {
+    const numero = Number(cara.dataset.num);
+    cara.innerHTML = crearPuntos(numero);
+  });
 }
 function jugarFicha(elemento, ladoA, ladoB) {
   const centro = document.querySelector(".centro-mesa");
@@ -85,9 +133,9 @@ function jugarFicha(elemento, ladoA, ladoB) {
 
   centro.innerHTML = `
     <div class="ficha-domino ficha-jugada">
-      <span>${ladoA}</span>
-      <span>${ladoB}</span>
-    </div>
+  <span class="cara">${crearPuntos(ladoA)}</span>
+  <span class="cara">${crearPuntos(ladoB)}</span>
+</div>
     <span>Ficha jugada</span>
   `;
 
