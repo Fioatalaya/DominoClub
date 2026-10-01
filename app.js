@@ -390,89 +390,67 @@ function jugarBot(jugador) {
 }
 
 function ajustarCadena() {
-  const cadena = document.querySelector(".cadena-fichas");
-  if (!cadena) return;
-  const todas = Array.from(cadena.querySelectorAll(".ficha-domino"));
-  if (!todas.length) return;
-
+  const cadena=document.querySelector(".cadena-fichas");
+  if(!cadena) return;
+  const todas=Array.from(cadena.querySelectorAll(".ficha-domino"));
+  if(!todas.length) return;
   cadena.classList.add("cadena-serpiente");
-  const inicio = todas.find(f => f.dataset.inicio === "1") || todas[0];
-  const idx = todas.indexOf(inicio);
-  const izquierda = todas.slice(0, idx).reverse();
-  const derecha = todas.slice(idx + 1);
 
-  // Coordenadas locales del tablero. La salida queda en el centro real.
-  const cx = 150, cy = 215;
-  const largo = 62, ancho = 38;
-  const minX = 62, maxX = 238;
-  const minY = 92, maxY = 338;
+  const inicio=todas.find(f=>f.dataset.inicio==="1") || todas[0];
+  const idx=todas.indexOf(inicio);
+  const izquierda=todas.slice(0,idx).reverse();
+  const derecha=todas.slice(idx+1);
 
-  function colocar(f, x, y, direccion) {
-    const doble = f.classList.contains("doble");
-    const tramoVertical = direccion === "arriba" || direccion === "abajo";
+  const cx=160, cy=220, L=58, C=34;
+  const minX=55, maxX=265, minY=105, maxY=335;
 
-    // Una ficha normal sigue el eje del tramo.
-    // Un doble siempre queda transversal a ese eje.
-    const fichaVertical = doble ? !tramoVertical : tramoVertical;
-    const w = fichaVertical ? ancho : largo;
-    const h = fichaVertical ? largo : ancho;
-
-    f.style.setProperty("position", "absolute", "important");
-    f.style.setProperty("left", x + "px", "important");
-    f.style.setProperty("top", y + "px", "important");
-    f.style.setProperty("width", w + "px", "important");
-    f.style.setProperty("height", h + "px", "important");
-    f.style.setProperty("min-width", w + "px", "important");
-    f.style.setProperty("max-width", w + "px", "important");
-    f.style.setProperty("min-height", h + "px", "important");
-    f.style.setProperty("max-height", h + "px", "important");
-    f.style.setProperty("flex", "none", "important");
-    f.style.setProperty("transform", "translate(-50%,-50%)", "important");
-    f.style.setProperty("margin", "0", "important");
-    f.classList.toggle("giro-cadena", fichaVertical);
+  function pintar(f,x,y,vertical){
+    // TODAS las fichas tienen la misma medida física 58x34; sólo cambia orientación.
+    const w=vertical?C:L, h=vertical?L:C;
+    f.classList.toggle("giro-cadena",vertical);
     f.classList.remove("doble-tablero");
+    f.style.setProperty("position","absolute","important");
+    f.style.setProperty("left",x+"px","important");
+    f.style.setProperty("top",y+"px","important");
+    f.style.setProperty("width",w+"px","important");
+    f.style.setProperty("height",h+"px","important");
+    f.style.setProperty("min-width",w+"px","important");
+    f.style.setProperty("max-width",w+"px","important");
+    f.style.setProperty("min-height",h+"px","important");
+    f.style.setProperty("max-height",h+"px","important");
+    f.style.setProperty("transform","translate(-50%,-50%)","important");
+    f.style.setProperty("margin","0","important");
+    f.style.setProperty("flex","0 0 auto","important");
   }
 
-  // La salida se muestra horizontal salvo que sea doble.
-  colocar(inicio, cx, cy, "derecha");
+  pintar(inicio,cx,cy,inicio.classList.contains("doble"));
 
-  function avanzarBrazo(arr, lado) {
-    let x = cx, y = cy;
-    let dir = lado === "derecha" ? "derecha" : "izquierda";
+  function brazo(arr,lado){
+    let x=cx,y=cy;
+    let dir=lado==="derecha"?"R":"L";
+    arr.forEach(f=>{
+      const doble=f.classList.contains("doble");
+      let vertical=(dir==="U"||dir==="D");
+      // El doble se atraviesa al eje de la cadena, sin cambiar su escala.
+      let orientacion=doble?!vertical:vertical;
+      let paso=(L/2)+(orientacion?C/2:L/2);
+      let nx=x,ny=y;
+      if(dir==="R") nx+=paso;
+      if(dir==="L") nx-=paso;
+      if(dir==="D") ny+=paso;
+      if(dir==="U") ny-=paso;
 
-    arr.forEach(f => {
-      const doble = f.classList.contains("doble");
-      const tramoVertical = dir === "arriba" || dir === "abajo";
-      const paso = doble ? (ancho / 2 + largo / 2) : largo;
+      if(dir==="R" && nx>maxX){dir="D"; vertical=true; orientacion=doble?!vertical:vertical; paso=(L/2)+(orientacion?L/2:C/2); nx=x;ny=y+paso;}
+      else if(dir==="L" && nx<minX){dir="U"; vertical=true; orientacion=doble?!vertical:vertical; paso=(L/2)+(orientacion?L/2:C/2); nx=x;ny=y-paso;}
+      else if(dir==="D" && ny>maxY){dir="L";vertical=false;orientacion=doble?!vertical:vertical;paso=(L/2)+(orientacion?C/2:L/2);nx=x-paso;ny=y;}
+      else if(dir==="U" && ny<minY){dir="R";vertical=false;orientacion=doble?!vertical:vertical;paso=(L/2)+(orientacion?C/2:L/2);nx=x+paso;ny=y;}
 
-      let nx=x, ny=y;
-      if (dir === "derecha") nx += paso;
-      if (dir === "izquierda") nx -= paso;
-      if (dir === "abajo") ny += paso;
-      if (dir === "arriba") ny -= paso;
-
-      // La curva solo aparece por falta de espacio, como en una mesa real.
-      if (dir === "derecha" && nx > maxX) {
-        dir = lado === "derecha" ? "abajo" : "arriba";
-        nx = x; ny = y + (dir === "abajo" ? paso : -paso);
-      } else if (dir === "izquierda" && nx < minX) {
-        dir = lado === "izquierda" ? "arriba" : "abajo";
-        nx = x; ny = y + (dir === "abajo" ? paso : -paso);
-      } else if (dir === "abajo" && ny > maxY) {
-        dir = lado === "derecha" ? "izquierda" : "derecha";
-        nx = x + (dir === "derecha" ? paso : -paso); ny = y;
-      } else if (dir === "arriba" && ny < minY) {
-        dir = lado === "izquierda" ? "derecha" : "izquierda";
-        nx = x + (dir === "derecha" ? paso : -paso); ny = y;
-      }
-
-      x=nx; y=ny;
-      colocar(f,x,y,dir);
+      x=nx;y=ny;
+      pintar(f,x,y,orientacion);
     });
   }
-
-  avanzarBrazo(derecha, "derecha");
-  avanzarBrazo(izquierda, "izquierda");
+  brazo(derecha,"derecha");
+  brazo(izquierda,"izquierda");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
