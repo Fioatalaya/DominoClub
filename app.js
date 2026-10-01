@@ -1,6 +1,10 @@
 let extremoIzquierdo = null;
 let extremoDerecho = null;
 let manosJugadores = {};
+let turnoActual = "tu";
+let segundosTurno = 15;
+let relojTurno = null;
+const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
 const tables = [
   { name: "Mesa Principiantes", entry: 100 },
@@ -84,6 +88,7 @@ function openGame(index) {
         <div class="jugador jugador-arriba"><span class="avatar-juego">J2</span><span class="datos-jugador"><b>Jugador 2</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-izquierda"><span class="avatar-juego">J3</span><span class="datos-jugador"><b>Jugador 3</b><small>7 fichas</small></span></div>
         <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
+        <div class="reloj-turno"><span class="reloj-icono">⏱</span><b id="tiempoTurno">15</b><small id="nombreTurno">Tu turno</small></div>
         <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>Jugador 4</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><b>Tú</b><small>10,000 monedas</small></span></div>
@@ -92,6 +97,7 @@ function openGame(index) {
     </div>
   `;
   dibujarFichas();
+  iniciarTurno("tu");
 }
 
 function crearPuntos(numero) {
@@ -123,6 +129,10 @@ function dibujarFichas() {
   });
 }
 function seleccionarFicha(elemento, ladoA, ladoB) {
+  if (turnoActual !== "tu") {
+    mostrarMensaje("Espera tu turno");
+    return;
+  }
   const yaSeleccionada = elemento.classList.contains("seleccionada");
 
   document.querySelectorAll(".mis-fichas .ficha-domino").forEach(ficha => {
@@ -216,9 +226,116 @@ function jugarFicha(elemento, ladoA, ladoB) {
   // Animación corta de entrada sin alterar el tamaño de la mano.
   elemento.classList.add("entrada-ficha");
   setTimeout(() => elemento.classList.remove("entrada-ficha"), 280);
+
+  manosJugadores.tu = manosJugadores.tu.filter(f => !(f[0] === ladoA && f[1] === ladoB));
+  setTimeout(() => avanzarTurno(), 450);
 }
 
 
+
+
+function actualizarContadores() {
+  ["j2","j3","j4"].forEach((id, i) => {
+    const jugador = document.querySelector([".jugador-arriba",".jugador-izquierda",".jugador-derecha"][i]);
+    const small = jugador?.querySelector(".datos-jugador small");
+    if (small) small.textContent = manosJugadores[id].length + " fichas";
+  });
+}
+
+function iniciarTurno(jugador) {
+  clearInterval(relojTurno);
+  turnoActual = jugador;
+  segundosTurno = 15;
+  const nombres = {tu:"Tu turno", j2:"Turno J2", j3:"Turno J3", j4:"Turno J4"};
+  const tiempo = document.querySelector("#tiempoTurno");
+  const nombre = document.querySelector("#nombreTurno");
+  if (tiempo) tiempo.textContent = segundosTurno;
+  if (nombre) nombre.textContent = nombres[jugador];
+
+  document.querySelectorAll(".jugador").forEach(x => x.classList.remove("turno-activo"));
+  const selector = {tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
+  document.querySelector(selector)?.classList.add("turno-activo");
+
+  relojTurno = setInterval(() => {
+    segundosTurno--;
+    if (tiempo) tiempo.textContent = segundosTurno;
+    if (segundosTurno <= 0) {
+      clearInterval(relojTurno);
+      mostrarMensaje(jugador === "tu" ? "Tiempo agotado · turno pasado" : "Tiempo agotado");
+      setTimeout(avanzarTurno, 500);
+    }
+  }, 1000);
+
+  if (jugador !== "tu") setTimeout(() => jugarBot(jugador), 900 + Math.floor(Math.random() * 900));
+}
+
+function avanzarTurno() {
+  clearInterval(relojTurno);
+  const i = ordenTurnos.indexOf(turnoActual);
+  iniciarTurno(ordenTurnos[(i + 1) % ordenTurnos.length]);
+}
+
+function fichaValida(ficha) {
+  if (extremoIzquierdo === null) return true;
+  return ficha[0] === extremoIzquierdo || ficha[1] === extremoIzquierdo ||
+         ficha[0] === extremoDerecho || ficha[1] === extremoDerecho;
+}
+
+function jugarBot(jugador) {
+  if (turnoActual !== jugador) return;
+  const mano = manosJugadores[jugador];
+  const indice = mano.findIndex(fichaValida);
+  if (indice < 0) {
+    mostrarMensaje(jugador.toUpperCase() + " pasa");
+    setTimeout(avanzarTurno, 700);
+    return;
+  }
+
+  const ficha = mano[indice];
+  let [a,b] = ficha;
+  let lado = "derecha", invertir = false;
+
+  if (extremoIzquierdo === null) {
+    extremoIzquierdo = a; extremoDerecho = b;
+  } else if (a === extremoDerecho) {
+    extremoDerecho = b;
+  } else if (b === extremoDerecho) {
+    extremoDerecho = a; invertir = true;
+  } else if (b === extremoIzquierdo) {
+    extremoIzquierdo = a; lado = "izquierda";
+  } else if (a === extremoIzquierdo) {
+    extremoIzquierdo = b; lado = "izquierda"; invertir = true;
+  }
+
+  const cont = document.createElement("div");
+  cont.innerHTML = htmlFicha(ficha);
+  const elemento = cont.firstElementChild;
+  elemento.removeAttribute("onclick");
+  elemento.classList.add("ficha-jugada");
+  elemento.classList.toggle("doble", a === b);
+  if (invertir) {
+    const caras = Array.from(elemento.querySelectorAll(".cara"));
+    elemento.insertBefore(caras[1], caras[0]);
+  }
+  const cadena = document.querySelector(".cadena-fichas");
+  if (lado === "izquierda" && cadena.firstChild) cadena.insertBefore(elemento, cadena.firstChild);
+  else cadena.appendChild(elemento);
+
+  mano.splice(indice,1);
+  dibujarFichas();
+  ajustarCadena();
+  actualizarContadores();
+  document.querySelector(".centro-mesa")?.classList.add("oculto");
+  elemento.classList.add("entrada-ficha");
+  setTimeout(() => elemento.classList.remove("entrada-ficha"), 280);
+
+  if (mano.length === 0) {
+    clearInterval(relojTurno);
+    mostrarMensaje(jugador.toUpperCase() + " ganó la partida");
+    return;
+  }
+  setTimeout(avanzarTurno, 700);
+}
 
 function ajustarCadena() {
   const cadena = document.querySelector(".cadena-fichas");
