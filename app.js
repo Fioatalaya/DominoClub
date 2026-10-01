@@ -121,7 +121,7 @@ function openGame(index) {
         <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
         <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>J4</b><small>7 fichas</small></span></div>
-        <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><small>10,000 monedas</small></span></div>
+        <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><small>10,000 monedas · <b class="conteo-tu">7 fichas</b></small></span></div>
       </div>
       <div class="mis-fichas">${manosJugadores.tu.map((f,i)=>htmlFicha(f,i)).join("")}</div>
     </div>
@@ -308,6 +308,8 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido=null, indiceMano=null) {
 
 
 function actualizarContadores() {
+  const ct=document.querySelector(".conteo-tu");
+  if(ct) ct.textContent=manosJugadores.tu.length+" fichas";
   ["j2","j3","j4"].forEach((id, i) => {
     const jugador = document.querySelector([".jugador-arriba",".jugador-izquierda",".jugador-derecha"][i]);
     const small = jugador?.querySelector(".datos-jugador small");
@@ -510,32 +512,32 @@ function ajustarCadena(){
  const c=document.querySelector(".cadena-fichas"); if(!c)return;
  const fs=[...c.querySelectorAll(".ficha-domino")]; if(!fs.length)return;
  const r=c.getBoundingClientRect(),W=r.width||520,H=r.height||390,L=42,C=26,G=1;
- const left=82,right=W-82,top=72,bottom=H-82;
- let x=W/2,y=H/2,dir=0;
- const put=(f,x,y,vertical)=>{
-   const w=vertical?C:L,h=vertical?L:C;
-   f.classList.toggle("giro-cadena",vertical); f.classList.toggle("doble-tablero",f.classList.contains("doble")&&vertical);
-   [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([k,v])=>f.style.setProperty(k,v,"important"));
+ const bounds={l:78,r:W-78,t:70,b:H-78}, ax=Math.max(0,Math.min(indiceInicioCadena,fs.length-1));
+ const put=(f,x,y,d)=>{
+   const isD=f.classList.contains("doble"), pathV=d===1||d===3, v=isD?!pathV:pathV;
+   const w=v?C:L,h=v?L:C;
+   f.classList.toggle("giro-cadena",v); f.classList.toggle("doble-tablero",isD&&v);
+   [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
+   ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
+   ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([k,z])=>f.style.setProperty(k,z,"important"));
  };
- // Start from the true first-play tile, then lay logical right side and logical left side independently but continuously.
- const anchor=Math.max(0,Math.min(indiceInicioCadena,fs.length-1));
- put(fs[anchor],x,y,fs[anchor].classList.contains("doble"));
- const walk=(arr,startDir)=>{
-   let px=x,py=y,d=startDir;
+ const cx=W/2,cy=H/2; put(fs[ax],cx,cy,0);
+ function arm(arr,d){
+   let x=cx,y=cy,prevHalf=fs[ax].classList.contains("doble")?C/2:L/2;
    for(const f of arr){
-     const isDouble=f.classList.contains("doble");
-     let pathVertical=d===1||d===3, visualVertical=isDouble?!pathVertical:pathVertical;
-     const along=isDouble?C:L, step=L/2+along/2+G;
-     let nx=px+(d===0?step:d===2?-step:0),ny=py+(d===1?step:d===3?-step:0);
-     if(nx<left||nx>right||ny<top||ny>bottom){
-       d=(d+1)%4; pathVertical=d===1||d===3; visualVertical=isDouble?!pathVertical:pathVertical;
-       nx=px+(d===0?step:d===2?-step:0);ny=py+(d===1?step:d===3?-step:0);
+     const isD=f.classList.contains("doble"),curHalf=isD?C/2:L/2;
+     let step=prevHalf+curHalf+G;
+     let nx=x+(d===0?step:d===2?-step:0),ny=y+(d===1?step:d===3?-step:0);
+     if(nx<bounds.l||nx>bounds.r||ny<bounds.t||ny>bounds.b){
+       d=(d+1)%4;
+       // At a corner, connect from the previous tile's endpoint in the new direction.
+       step=prevHalf+curHalf+G;
+       nx=x+(d===0?step:d===2?-step:0);ny=y+(d===1?step:d===3?-step:0);
      }
-     put(f,nx,ny,visualVertical);px=nx;py=ny;
+     put(f,nx,ny,d); x=nx;y=ny;prevHalf=curHalf;
    }
- };
- walk(fs.slice(anchor+1),0);
- walk(fs.slice(0,anchor).reverse(),2);
+ }
+ arm(fs.slice(ax+1),0); arm(fs.slice(0,ax).reverse(),2);
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
