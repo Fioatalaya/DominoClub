@@ -1315,3 +1315,53 @@
     flex-basis: 38px !important;
   }
 }
+
+
+/* ===== PUNTO MEDIO: MESA Y MANO CON MAS PRESENCIA ===== */
+@media (max-width: 520px) {
+  .mesa-domino {
+    height: 555px !important;
+    min-height: 555px !important;
+    max-height: 555px !important;
+  }
+
+  .jugador-arriba { top: 14px !important; }
+  .jugador-izquierda,
+  .jugador-derecha { top: 50% !important; }
+  .jugador-abajo { bottom: 15px !important; }
+
+  .centro-mesa,
+  .tablero-fichas { top: 43% !important; }
+
+  .mis-fichas {
+    width: calc(100% - 62px) !important;
+    min-height: 108px !important;
+    margin-top: -10px !important;
+    padding: 12px 11px 10px !important;
+    gap: 4px !important;
+  }
+
+  .mis-fichas .ficha-domino {
+    width: 43px !important;
+    height: 80px !important;
+    flex: 0 0 43px !important;
+  }
+
+  .mis-fichas .punto {
+    width: 6px !important;
+    height: 6px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .mesa-domino {
+    height: 525px !important;
+    min-height: 525px !important;
+    max-height: 525px !important;
+  }
+  .mis-fichas .ficha-domino {
+    width: 41px !important;
+    height: 76px !important;
+    flex-basis: 41px !important;
+  }
+}
