@@ -2029,3 +2029,38 @@
   width:auto !important;
   padding:7px 12px !important;
 }
+
+
+/* ===== AJUSTE DE TAMAÑO: FICHAS UN POCO MÁS GRANDES ===== */
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.doble-tablero) {
+  width: 58px !important;
+  height: 34px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero {
+  width: 34px !important;
+  height: 58px !important;
+}
+.cadena-fichas.cadena-serpiente .punto {
+  width: 5.5px !important;
+  height: 5.5px !important;
+}
+
+@media (max-width: 520px) {
+  .mis-fichas .ficha-domino {
+    width: 49px !important;
+    height: 94px !important;
+    flex: 0 0 49px !important;
+  }
+  .mis-fichas .punto {
+    width: 7px !important;
+    height: 7px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .mis-fichas .ficha-domino {
+    width: 47px !important;
+    height: 90px !important;
+    flex-basis: 47px !important;
+  }
+}
