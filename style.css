@@ -595,3 +595,151 @@
   width: 30px !important;
   height: 50px !important;
 }
+
+
+/* ===== REDISEÑO DE PARTIDA: MESA TIPO APP ===== */
+.partida {
+  min-height: 100vh;
+  background: #090f19;
+  padding: 0 10px 18px;
+  overflow-x: hidden;
+}
+
+.nueva-barra {
+  max-width: 760px;
+  margin: 0 auto;
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 46px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+}
+
+.salir-partida {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #334760;
+  background: #142238;
+  color: #fff;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.bote-partida {
+  justify-self: start;
+  background: #17243a;
+  border: 1px solid #344969;
+  border-radius: 12px;
+  padding: 6px 11px;
+}
+.bote-partida small { display:block; font-size:9px; color:#a9b7ca; font-weight:800; }
+.bote-partida strong { font-size:14px; color:#f4c451; }
+
+.mesa-titulo { text-align:right; }
+.mesa-titulo strong { display:block; font-size:14px; }
+.mesa-titulo small { display:block; font-size:10px; color:#8fa0b5; }
+.saldo-partida { font-weight:800; white-space:nowrap; }
+
+.mesa-domino {
+  width: min(96vw, 760px) !important;
+  max-width: 760px !important;
+  height: min(64vh, 590px) !important;
+  min-height: 500px;
+  margin: 0 auto !important;
+  border-radius: 34px !important;
+  border: 7px solid #49301f !important;
+  background:
+    radial-gradient(ellipse at center, rgba(28,119,91,.95) 0%, rgba(10,83,61,.98) 60%, #064531 100%) !important;
+  box-shadow: inset 0 0 60px rgba(0,0,0,.32), 0 14px 34px rgba(0,0,0,.42) !important;
+  overflow: hidden;
+}
+
+.jugador {
+  z-index: 8 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  background: rgba(10,20,37,.94) !important;
+  border: 1px solid #334c6e !important;
+  border-radius: 13px !important;
+  padding: 5px 9px 5px 5px !important;
+  min-width: 118px;
+  box-shadow: 0 5px 14px rgba(0,0,0,.3);
+  color: #fff !important;
+}
+
+.avatar-juego {
+  width: 35px;
+  height: 35px;
+  flex: 0 0 35px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg,#2c77b8,#173b68);
+  border: 2px solid #79b8e9;
+  font-size: 10px;
+  font-weight: 900;
+}
+.avatar-tu {
+  background: linear-gradient(145deg,#e5b64c,#a36d14);
+  border-color:#ffe091;
+  color:#111827;
+}
+.datos-jugador { display:block; text-align:left; line-height:1.05; }
+.datos-jugador b { display:block; font-size:12px; white-space:nowrap; }
+.datos-jugador small { display:block; margin-top:4px; font-size:9px; color:#a9b8ca; white-space:nowrap; }
+
+.jugador-arriba { top: 14px !important; left: 50% !important; transform: translateX(-50%) !important; }
+.jugador-izquierda { left: 10px !important; top: 50% !important; transform: translateY(-50%) !important; }
+.jugador-derecha { right: 10px !important; top: 50% !important; transform: translateY(-50%) !important; }
+.jugador-abajo { bottom: 14px !important; left: 18px !important; transform:none !important; }
+
+.centro-mesa { top:50% !important; opacity:.25; font-size:20px !important; }
+
+.tablero-fichas {
+  top: 45% !important;
+  left: 50% !important;
+  width: 58% !important;
+  min-height: 120px !important;
+  transform: translate(-50%,-50%) !important;
+  z-index: 4 !important;
+}
+
+.cadena-fichas {
+  width: 100% !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+}
+
+.mis-fichas {
+  position: relative;
+  max-width: 610px !important;
+  width: calc(100% - 30px) !important;
+  margin: -6px auto 0 !important;
+  padding: 18px 12px 12px !important;
+  min-height: 112px;
+  border-radius: 10px 10px 22px 22px !important;
+  background: linear-gradient(#243b59,#101d30) !important;
+  border: 1px solid #48607d !important;
+  box-shadow: 0 -5px 20px rgba(0,0,0,.38), inset 0 3px 0 rgba(255,255,255,.06);
+  z-index: 10;
+  overflow-x: auto !important;
+}
+
+.mis-fichas .ficha-domino {
+  width: 52px;
+  height: 94px;
+}
+
+@media (max-width: 520px) {
+  .nueva-barra { grid-template-columns: 42px 1fr auto; }
+  .mesa-titulo { display:none; }
+  .mesa-domino { min-height: 500px; height: 60vh !important; border-radius:30px !important; }
+  .jugador { min-width: 104px; }
+  .jugador-izquierda { left: 6px !important; }
+  .jugador-derecha { right: 6px !important; }
+  .tablero-fichas { width: 54% !important; top:44% !important; }
+  .mis-fichas { width: calc(100% - 44px) !important; }
+}
