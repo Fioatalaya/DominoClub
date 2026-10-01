@@ -1964,3 +1964,47 @@
   width:5px !important;
   height:5px !important;
 }
+
+
+/* ===== MAS ESPACIO LIBRE PARA LA CADENA ===== */
+/* Rivales pegados a los bordes: no invaden el recorrido central */
+.jugador-arriba { top: 10px !important; }
+.jugador-izquierda {
+  left: 4px !important;
+  top: 48% !important;
+  transform: translateY(-50%) !important;
+}
+.jugador-derecha {
+  right: 4px !important;
+  top: 48% !important;
+  transform: translateY(-50%) !important;
+}
+.jugador:not(.jugador-abajo) {
+  min-width: 52px !important;
+  padding: 4px 5px !important;
+}
+.jugador:not(.jugador-abajo) .avatar-juego {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+}
+.jugador-abajo {
+  min-width: 0 !important;
+  width: auto !important;
+  padding: 7px 12px !important;
+}
+.jugador-abajo .datos-jugador {
+  min-width: 0 !important;
+}
+.jugador-abajo .datos-jugador small {
+  font-size: 11px !important;
+  white-space: nowrap !important;
+}
+/* Reserva una franja central que no entra debajo de J3/J4 */
+.cadena-fichas,
+.cadena-fichas.cadena-serpiente {
+  width: 280px !important;
+}
+@media (max-width:390px) {
+  .cadena-fichas,.cadena-fichas.cadena-serpiente { width: 255px !important; }
+}
