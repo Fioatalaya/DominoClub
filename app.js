@@ -62,9 +62,9 @@ function crearMazoDomino() {
   return mazo;
 }
 
-function htmlFicha(ficha) {
+function htmlFicha(ficha, indice = null) {
   const [a, b] = ficha;
-  return `<div class="ficha-domino"
+  return `<div class="ficha-domino"${indice !== null ? ` data-hand-index="${indice}"` : ""}
     onclick="seleccionarFicha(this, ${a}, ${b})"
     onpointerdown="iniciarArrastreFicha(event,this,${a},${b})">
     <span class="cara" data-num="${a}"></span><span class="cara" data-num="${b}"></span>
@@ -102,7 +102,7 @@ function openGame(index) {
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>J4</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><small>10,000 monedas</small></span></div>
       </div>
-      <div class="mis-fichas">${manosJugadores.tu.map(htmlFicha).join("")}</div>
+      <div class="mis-fichas">${manosJugadores.tu.map((f,i)=>htmlFicha(f,i)).join("")}</div>
     </div>
   `;
   dibujarFichas();
@@ -151,7 +151,7 @@ function iniciarArrastreFicha(e, elemento, ladoA, ladoB) {
   e.preventDefault();
   elemento.setPointerCapture?.(e.pointerId);
   const r=elemento.getBoundingClientRect();
-  arrastreFicha={elemento,ladoA,ladoB,pointerId:e.pointerId,movio:false,
+  arrastreFicha={elemento,ladoA,ladoB,indiceMano:Number(elemento.dataset.handIndex),pointerId:e.pointerId,movio:false,
     ox:e.clientX-r.left,oy:e.clientY-r.top,
     css:{position:elemento.style.position,left:elemento.style.left,top:elemento.style.top,
       width:elemento.style.width,height:elemento.style.height,zIndex:elemento.style.zIndex,
@@ -204,7 +204,7 @@ function soltarArrastreFicha(e){
   else if(puedeDer) lado="derecha";
   if(!lado){restaurarArrastre(d);return;}
   restaurarArrastre(d);
-  jugarFicha(d.elemento,d.ladoA,d.ladoB,lado);
+  jugarFicha(d.elemento,d.ladoA,d.ladoB,lado,d.indiceMano);
 }
 
 function actualizarGuiaTurno() {
@@ -232,7 +232,7 @@ function mostrarMensaje(texto) {
   mostrarMensaje.timer = setTimeout(() => aviso.classList.remove("visible"), 1500);
 }
 
-function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
+function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null, indiceMano = null) {
   const cadena = document.querySelector(".cadena-fichas");
   if (!cadena || !elemento || turnoActual !== "tu" || turnoBloqueado) return;
 
@@ -300,10 +300,18 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
   setTimeout(() => elementoTablero.classList.remove("entrada-ficha"), 280);
 
   // Quitar exactamente la ficha jugada de la mano lógica.
-  const indiceJugado = manosJugadores.tu.findIndex(f =>
-    (f[0] === ladoA && f[1] === ladoB) || (f[0] === ladoB && f[1] === ladoA)
-  );
-  if (indiceJugado >= 0) manosJugadores.tu.splice(indiceJugado, 1);
+  const indiceJugado = Number.isInteger(indiceMano) && indiceMano >= 0 &&
+    manosJugadores.tu[indiceMano] &&
+    manosJugadores.tu[indiceMano][0] === ladoA &&
+    manosJugadores.tu[indiceMano][1] === ladoB
+      ? indiceMano
+      : manosJugadores.tu.findIndex(f => f[0] === ladoA && f[1] === ladoB);
+  if (indiceJugado < 0) {
+    console.error("No se encontró la ficha exacta jugada", ladoA, ladoB, indiceMano);
+    mostrarMensaje("Error al identificar la ficha");
+    return;
+  }
+  manosJugadores.tu.splice(indiceJugado, 1);
   dibujarFichas();
 
   // Si esta era la última ficha, la partida termina aquí; no se entrega otro turno.
