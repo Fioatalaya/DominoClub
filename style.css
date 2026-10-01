@@ -1941,3 +1941,26 @@
   width:4.5px !important;
   height:4.5px !important;
 }
+
+
+/* ===== AJUSTE DEFINITIVO: TABLERO + RELOJ PRIVADO ===== */
+.reloj-turno { display:none !important; width:0 !important; height:0 !important; overflow:hidden !important; }
+.jugador-abajo .avatar-tu.avatar-urgente {
+  background:#d94a45 !important;
+  color:#fff !important;
+  border-color:#ffb0aa !important;
+  transform:scale(1.06);
+}
+/* fichas jugadas más visibles, manteniendo espacio entre recorridos */
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.doble-tablero) {
+  width:54px !important;
+  height:32px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero {
+  width:32px !important;
+  height:54px !important;
+}
+.cadena-fichas.cadena-serpiente .punto {
+  width:5px !important;
+  height:5px !important;
+}
