@@ -2166,3 +2166,26 @@
 /* Jugadores laterales visibles, pero fuera del corredor de juego */
 .jugador-izquierda{left:2px !important;transform:translate(-18%,-50%) !important}
 .jugador-derecha{right:2px !important;transform:translate(18%,-50%) !important}
+
+
+/* ===== AJUSTE FINAL DE ALTURA Y CORREDOR ===== */
+@media (max-width:520px){
+  .mesa-domino{
+    height:500px !important;
+    min-height:500px !important;
+    max-height:500px !important;
+  }
+  .tablero-fichas{
+    height:76% !important;
+    top:46% !important;
+  }
+}
+/* Elección manual clara cuando una ficha sirve en los dos extremos */
+.selector-extremo.visible{
+  display:flex !important;
+  position:absolute !important;
+  left:50% !important;
+  bottom:118px !important;
+  transform:translateX(-50%) !important;
+  z-index:300 !important;
+}
