@@ -357,6 +357,8 @@ function jugarBot(jugador) {
     extremoIzquierdo = b; lado = "izquierda"; invertir = true;
   }
 
+  const cadena = document.querySelector(".cadena-fichas");
+  if (!cadena) return;
   const cont = document.createElement("div");
   cont.innerHTML = htmlFicha(ficha);
   const elemento = cont.firstElementChild;
@@ -368,7 +370,6 @@ function jugarBot(jugador) {
     const caras = Array.from(elemento.querySelectorAll(".cara"));
     elemento.insertBefore(caras[1], caras[0]);
   }
-  const cadena = document.querySelector(".cadena-fichas");
   if (lado === "izquierda" && cadena.firstChild) cadena.insertBefore(elemento, cadena.firstChild);
   else cadena.appendChild(elemento);
 
