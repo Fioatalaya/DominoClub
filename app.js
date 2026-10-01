@@ -472,8 +472,11 @@ function jugarBot(jugador) {
   ajustarCadena();
   actualizarContadores();
   document.querySelector(".centro-mesa")?.classList.add("oculto");
-  elemento.classList.add("entrada-ficha");
-  setTimeout(() => elemento.classList.remove("entrada-ficha"), 280);
+  const fichaNueva=document.querySelector(".cadena-fichas .ficha-domino:last-child");
+  if(fichaNueva){
+    fichaNueva.classList.add("entrada-ficha");
+    setTimeout(() => fichaNueva.classList.remove("entrada-ficha"), 280);
+  }
 
   if (mano.length === 0) {
     clearInterval(relojTurno);
