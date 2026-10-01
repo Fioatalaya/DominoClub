@@ -11,6 +11,7 @@ let ultimaJugadaHumanaId = -1;
 let fichaPendiente = null;
 let arrastreFicha = null;
 let cadenaLogica = [];
+let indiceInicioCadena = 0;
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
 const tables = [
@@ -75,6 +76,7 @@ function openGame(index) {
   extremoIzquierdo = null;
   extremoDerecho = null;
   cadenaLogica = [];
+  indiceInicioCadena = 0;
   const table = tables[index];
   if (!table) return;
 
@@ -268,13 +270,13 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null, indiceMano = nul
     mostrarMensaje("Esa ficha no coincide con los extremos"); return;
   }
   const invertir=orientada[0]!==ladoA||orientada[1]!==ladoB;
-  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]);
+  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]); const inicioAntes=indiceInicioCadena;
   if(!cadenaLogica.length) cadenaLogica.push(orientada);
-  else if(lado==="izquierda") cadenaLogica.unshift(orientada);
+  else if(lado==="izquierda"){ cadenaLogica.unshift(orientada); indiceInicioCadena++; }
   else cadenaLogica.push(orientada);
   sincronizarExtremos();
   if(!confirmarCadena("jugador")){
-    cadenaLogica=cadenaAntes;sincronizarExtremos();
+    cadenaLogica=cadenaAntes;indiceInicioCadena=inicioAntes;sincronizarExtremos();
     turnoBloqueado=false;ultimaJugadaHumanaId=-1;
     document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
     return;
@@ -451,13 +453,13 @@ function jugarBot(jugador) {
   const orientada=orientarFicha(a,b,lado);
   if(!orientada){mostrarMensaje(jugador.toUpperCase()+" pasa");setTimeout(avanzarTurno,700);return;}
   const invertir=orientada[0]!==a||orientada[1]!==b;
-  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]);
+  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]); const inicioAntes=indiceInicioCadena;
   if(!cadenaLogica.length) cadenaLogica.push(orientada);
-  else if(lado==="izquierda") cadenaLogica.unshift(orientada);
+  else if(lado==="izquierda"){ cadenaLogica.unshift(orientada); indiceInicioCadena++; }
   else cadenaLogica.push(orientada);
   sincronizarExtremos();
   if(!confirmarCadena(jugador)){
-    cadenaLogica=cadenaAntes;sincronizarExtremos();
+    cadenaLogica=cadenaAntes;indiceInicioCadena=inicioAntes;sincronizarExtremos();
     mostrarMensaje(jugador.toUpperCase()+" no puede colocar esa ficha");
     setTimeout(avanzarTurno,700);return;
   }
@@ -482,6 +484,7 @@ function jugarBot(jugador) {
 }
 
 function renderizarCadenaLogica() {
+  if(cadenaLogica.length) indiceInicioCadena=Math.max(0,Math.min(indiceInicioCadena,cadenaLogica.length-1));
   const cadena=document.querySelector(".cadena-fichas");
   if(!cadena) return;
   cadena.innerHTML="";
@@ -498,7 +501,8 @@ function renderizarCadenaLogica() {
   });
   // Anchor the logical first-play position: closest split between left/right additions.
   // Geometry no longer decides tile values or legality.
-  if(cadena.firstElementChild) cadena.firstElementChild.dataset.inicio="1";
+  const ancla=cadena.children[indiceInicioCadena];
+  if(ancla) ancla.dataset.inicio="1";
   dibujarFichas();
   ajustarCadena();
 }
