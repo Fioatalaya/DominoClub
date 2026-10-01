@@ -268,36 +268,29 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
   else cadenaLogica.push(orientada);
   sincronizarExtremos();
 
-  elemento.classList.remove("seleccionada");
-  elemento.style.transform = "";
-  elemento.style.borderColor = "";
-  elemento.style.boxShadow = "";
-  elemento.style.zIndex = "";
-  elemento.removeAttribute("onclick");
-  elemento.classList.add("ficha-jugada");
-  if (cadena.children.length === 0) elemento.dataset.inicio = "1";
+  const fichaTablero=document.createElement("div");
+  fichaTablero.innerHTML=htmlFicha(orientada);
+  const elementoTablero=fichaTablero.firstElementChild;
+  elementoTablero.removeAttribute("onclick");
+  elementoTablero.removeAttribute("onpointerdown");
+  elementoTablero.classList.add("ficha-jugada");
+  elementoTablero.dataset.a=String(orientada[0]);
+  elementoTablero.dataset.b=String(orientada[1]);
+  if(cadena.children.length===0) elementoTablero.dataset.inicio="1";
+  elementoTablero.classList.toggle("doble",orientada[0]===orientada[1]);
 
-  const intro = document.querySelector(".centro-mesa");
-  if (intro) intro.classList.add("oculto");
-  elemento.classList.toggle("doble", ladoA === ladoB);
-
-  if (invertir) {
-    const caras = Array.from(elemento.querySelectorAll(".cara"));
-    if (caras.length === 2) elemento.insertBefore(caras[1], caras[0]);
-  }
-
-  if (lado === "izquierda" && cadena.firstChild) {
-    cadena.insertBefore(elemento, cadena.firstChild);
-  } else {
-    cadena.appendChild(elemento);
-  }
+  const intro=document.querySelector(".centro-mesa");
+  if(intro) intro.classList.add("oculto");
+  if(lado==="izquierda"&&cadena.firstChild) cadena.insertBefore(elementoTablero,cadena.firstChild);
+  else cadena.appendChild(elementoTablero);
+  elemento.remove();
 
   // Mantiene la cadena proporcionada a medida que se agregan fichas.
   ajustarCadena();
 
   // Animación corta de entrada sin alterar el tamaño de la mano.
-  elemento.classList.add("entrada-ficha");
-  setTimeout(() => elemento.classList.remove("entrada-ficha"), 280);
+  elementoTablero.classList.add("entrada-ficha");
+  setTimeout(() => elementoTablero.classList.remove("entrada-ficha"), 280);
 
   // Quitar exactamente la ficha jugada de la mano lógica.
   const indiceJugado = manosJugadores.tu.findIndex(f =>
@@ -452,17 +445,16 @@ function jugarBot(jugador) {
 
   const cadena = document.querySelector(".cadena-fichas");
   if (!cadena) return;
-  const cont = document.createElement("div");
-  cont.innerHTML = htmlFicha(ficha);
-  const elemento = cont.firstElementChild;
+  const cont=document.createElement("div");
+  cont.innerHTML=htmlFicha(orientada);
+  const elemento=cont.firstElementChild;
   elemento.removeAttribute("onclick");
+  elemento.removeAttribute("onpointerdown");
   elemento.classList.add("ficha-jugada");
-  if (cadena.children.length === 0) elemento.dataset.inicio = "1";
-  elemento.classList.toggle("doble", a === b);
-  if (invertir) {
-    const caras = Array.from(elemento.querySelectorAll(".cara"));
-    elemento.insertBefore(caras[1], caras[0]);
-  }
+  elemento.dataset.a=String(orientada[0]);
+  elemento.dataset.b=String(orientada[1]);
+  if(cadena.children.length===0) elemento.dataset.inicio="1";
+  elemento.classList.toggle("doble",orientada[0]===orientada[1]);
   if (lado === "izquierda" && cadena.firstChild) cadena.insertBefore(elemento, cadena.firstChild);
   else cadena.appendChild(elemento);
 
