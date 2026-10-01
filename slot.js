@@ -8,7 +8,7 @@ function groups(){const map={};grid.forEach((col,c)=>col.forEach((s,r)=>(map[s]?
 async function tumble(){
  let total=0,round=0;
  while(round<8){
-  const g=groups();if(!g.length)break; const crown=g.find(([s,a])=>s==="👑"&&a.length>=5); if(crown){freeSpins+=10; $("#msg").textContent="👑 Premio mayor: +10 giros gratis";}
+  const g=groups();if(!g.length)break; const crown=g.find(([s,a])=>s==="👑"&&a.length>=4); if(crown){const count=crown[1].length,award=count>=5?15:10;freeSpins+=award;$("#crownText").textContent=(count>=5?"5 coronas · 15":"4 coronas · 10")+" giros gratis";$("#crownPrize").style.display="grid";await new Promise(resolve=>{$("#crownOk").onclick=()=>{$("#crownPrize").style.display="none";resolve()}});$("#msg").textContent="👑 "+award+" giros gratis";}
   const cells=[...new Map(g.flatMap(([,a])=>a).map(x=>[x.join("-"),x])).values()];
   const base=MULT[Math.min(MULT.length-1,round+1)];
   $("#multiplier").textContent="MULTIPLICADOR ×"+base;
@@ -16,7 +16,7 @@ async function tumble(){
   total+=bet*base;await wait(600);
   const remove=new Set(cells.map(x=>x.join("-")));
   for(let c=0;c<5;c++){let keep=[];for(let r=2;r>=0;r--)if(!remove.has(c+"-"+r))keep.unshift(grid[c][r]);while(keep.length<3)keep.unshift(rnd());grid[c]=keep}
-  draw();document.querySelectorAll(".symbol").forEach(e=>e.animate([{transform:"translateY(-70px)",opacity:.2},{transform:"translateY(0)",opacity:1}],{duration:420,easing:"ease-out"}));
+  draw();document.querySelectorAll(".symbol").forEach((e)=>e.animate([{transform:"translateY(-95px)",opacity:.15},{transform:"translateY(0)",opacity:1}],{duration:520,easing:"cubic-bezier(.2,.8,.2,1)"}));
   await wait(480);round++;
  }
  return total;
