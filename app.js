@@ -375,10 +375,12 @@ function ajustarCadena() {
   cadena.classList.add("cadena-serpiente");
 
   // Cadena continua tipo dominó: filas unidas y giro en los extremos.
-  const normalW = 44, normalH = 27;
-  const dobleW = 27, dobleH = 44;
-  const porFila = 5;
-  const pasoY = 54;
+  const normalW = 38, normalH = 24;
+  const dobleW = 24, dobleH = 38;
+  // En móvil, tres fichas por tramo mantienen toda la cadena
+  // dentro del pasillo central y lejos de las tarjetas J3/J4.
+  const porFila = 3;
+  const pasoY = 39;
   const filas = Math.max(1, Math.ceil(fichas.length / porFila));
   const cx = cadena.clientWidth / 2;
   const cy = cadena.clientHeight / 2;
