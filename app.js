@@ -380,11 +380,11 @@ function iniciarTurno(jugador) {
 }
 
 function avanzarTurno() {
-  if (turnoBloqueado && turnoActual !== "tu") return;
   clearInterval(relojTurno);
   turnoBloqueado = false;
   const i = ordenTurnos.indexOf(turnoActual);
-  iniciarTurno(ordenTurnos[(i + 1) % ordenTurnos.length]);
+  const siguiente = ordenTurnos[(i + 1) % ordenTurnos.length];
+  iniciarTurno(siguiente);
 }
 
 function validarCadenaLogica(){
@@ -480,10 +480,14 @@ function jugarBot(jugador) {
 
   if (mano.length === 0) {
     clearInterval(relojTurno);
+    turnoBloqueado = true;
     mostrarMensaje(jugador.toUpperCase() + " ganó la partida");
     return;
   }
-  setTimeout(avanzarTurno, 700);
+  turnoBloqueado = false;
+  setTimeout(() => {
+    if (turnoActual === jugador) avanzarTurno();
+  }, 700);
 }
 
 function renderizarCadenaLogica() {
