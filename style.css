@@ -1541,3 +1541,71 @@
     height: 42px !important;
   }
 }
+
+
+/* ===== RELOJ VISUAL 10s + CADENA CONTINUA ===== */
+.jugador .reloj-turno {
+  min-width: 46px !important;
+  padding: 4px 6px !important;
+  background: rgba(5,20,38,.92) !important;
+}
+.reloj-circulo {
+  --progreso: var(--progreso-turno,100%);
+  width: 31px;
+  height: 31px;
+  margin: 0 auto 2px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(#f2c14e var(--progreso), rgba(255,255,255,.13) 0);
+  position: relative;
+}
+.reloj-circulo::after {
+  content:"";
+  position:absolute;
+  inset:4px;
+  border-radius:50%;
+  background:#07182a;
+}
+.reloj-icono {
+  position:relative;
+  z-index:2;
+  font-size:15px;
+}
+.jugador .reloj-turno small {
+  font-size:8px !important;
+  margin:0 !important;
+}
+.reloj-turno.reloj-urgente .reloj-circulo {
+  background: conic-gradient(#ef4444 var(--progreso-turno,30%), rgba(239,68,68,.16) 0);
+  animation: pulsoReloj .55s ease-in-out infinite alternate;
+}
+.reloj-turno.reloj-urgente::after {
+  content:"¡Apúrate!";
+  display:block;
+  font-size:8px;
+  font-weight:800;
+  color:#ff6b6b;
+  margin-top:1px;
+}
+@keyframes pulsoReloj {
+  from { transform:scale(1); }
+  to { transform:scale(1.12); }
+}
+
+/* Fichas de mesa: compactas, continuas y sin saltos exagerados */
+.cadena-fichas.cadena-serpiente .ficha-domino {
+  width:42px !important;
+  height:25px !important;
+  border-radius:5px !important;
+  box-shadow:0 2px 5px rgba(0,0,0,.35) !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble {
+  width:25px !important;
+  height:42px !important;
+}
+.cadena-fichas.cadena-serpiente .puntos { padding:3px !important; }
+.cadena-fichas.cadena-serpiente .punto {
+  width:4px !important;
+  height:4px !important;
+}
