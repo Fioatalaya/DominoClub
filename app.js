@@ -163,15 +163,23 @@ function dibujarFichas() {
     });
   });
 }
+let ultimoToqueFicha={el:null,t:0};
 function seleccionarFicha(elemento, ladoA, ladoB) {
-  // En móvil la jugada se hace arrastrando. El toque simple no decide el extremo.
-  if (arrastreFicha?.movio) return;
-  if (turnoActual !== "tu" || turnoBloqueado) return;
-  if (!fichaValida([ladoA,ladoB])) mostrarMensaje("Esa ficha no coincide");
+  if (arrastreFicha?.movio || turnoActual !== "tu" || turnoBloqueado) return;
+  const ahora=Date.now();
+  const doble=ultimoToqueFicha.el===elemento && ahora-ultimoToqueFicha.t<380;
+  document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.classList.remove("ficha-levantada"));
+  if(doble){
+    elemento.classList.add("ficha-levantada");
+    if(!fichaValida([ladoA,ladoB])) mostrarMensaje("Puedes moverla, pero no encaja en la mesa");
+    ultimoToqueFicha={el:null,t:0};
+  }else{
+    ultimoToqueFicha={el:elemento,t:ahora};
+  }
 }
 
 function iniciarArrastreFicha(e, elemento, ladoA, ladoB) {
-  if (turnoActual !== "tu" || turnoBloqueado || !fichaValida([ladoA,ladoB])) return;
+  if (turnoActual !== "tu" || turnoBloqueado) return;
   const existe=manosJugadores.tu.some(f=>(f[0]===ladoA&&f[1]===ladoB)||(f[0]===ladoB&&f[1]===ladoA));
   if(!existe) return;
   e.preventDefault();
@@ -218,22 +226,25 @@ function soltarArrastreFicha(e){
   if(!mr || e.clientX<mr.left || e.clientX>mr.right || e.clientY<mr.top || e.clientY>mr.bottom){
     restaurarArrastre(d); return;
   }
-  const puedeIzq=extremoIzquierdo!==null&&(d.ladoA===extremoIzquierdo||d.ladoB===extremoIzquierdo);
-  const puedeDer=extremoDerecho!==null&&(d.ladoA===extremoDerecho||d.ladoB===extremoDerecho);
+  sincronizarExtremos();
+  const opciones=ladosValidos([d.ladoA,d.ladoB]);
+  const puedeIzq=opciones.includes("izquierda");
+  const puedeDer=opciones.includes("derecha");
   let lado=null;
-  if(extremoIzquierdo===null) lado="derecha";
+  if(opciones.includes("inicio")) lado="derecha";
   else if(puedeIzq&&puedeDer){
     // Sin botones ni señales: la mitad donde se suelta decide el extremo.
     const cr=document.querySelector(".cadena-fichas")?.getBoundingClientRect();
     lado=e.clientX < (cr ? cr.left+cr.width/2 : mr.left+mr.width/2) ? "izquierda" : "derecha";
   } else if(puedeIzq) lado="izquierda";
   else if(puedeDer) lado="derecha";
-  if(!lado){restaurarArrastre(d);return;}
+  if(!lado){restaurarArrastre(d);mostrarMensaje("Esa ficha no encaja en ningún extremo");return;}
   restaurarArrastre(d);
   jugarFicha(d.elemento,d.ladoA,d.ladoB,lado,d.indiceMano);
 }
 
 function actualizarGuiaTurno() {
+  sincronizarExtremos();
   const fichas = Array.from(document.querySelectorAll(".mis-fichas .ficha-domino"));
   fichas.forEach(ficha => {
     const caras = ficha.querySelectorAll(".cara");
