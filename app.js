@@ -69,9 +69,7 @@ function openGame(index) {
         </div>
 
         <div class="tablero-fichas">
-          <div class="extremo extremo-izquierdo"></div>
           <div class="cadena-fichas"></div>
-          <div class="extremo extremo-derecho"></div>
         </div>
 
         <div class="jugador jugador-derecha">👤 Jugador 4</div>
@@ -227,10 +225,6 @@ function jugarFicha(elemento, ladoA, ladoB) {
 }
 
 function actualizarExtremos() {
-  const izq = document.querySelector(".extremo-izquierdo");
-  const der = document.querySelector(".extremo-derecho");
-  if (izq) izq.textContent = extremoIzquierdo === null ? "" : extremoIzquierdo;
-  if (der) der.textContent = extremoDerecho === null ? "" : extremoDerecho;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
