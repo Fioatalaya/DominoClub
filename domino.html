@@ -16,24 +16,10 @@
         <div class="brand">DOMINÓ <span>CLUB</span></div>
         <div class="sub">Sala de juegos</div>
       </div>
-      <button class="avatar" id="profileBtn" aria-label="Perfil">F</button>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-weight:900;color:#f5c542">🪙 <strong id="balance">10,000</strong></span><button class="avatar" id="profileBtn" aria-label="Perfil">F</button></div>
     </header>
 
-    <main><section class="hero">
-        <div>
-          <p class="eyebrow">BIENVENIDO</p>
-          <h1>Juega con monedas virtuales</h1>
-          <p class="muted">Crea una mesa o entra a una partida disponible.</p>
-        </div>
-        <div class="wallet">
-          <span>🪙</span>
-          <strong id="balance">10,000</strong>
-          <small>monedas</small>
-        </div>
-      </section>
-
-      
-      <section class="section">
+    <main><section class="section"><div class="section-head"><h2>¿Cómo quieres jugar?</h2></div><div class="create-card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="primary">👥 Con amigos</button><button class="primary">🌐 Online</button><button class="primary">🪙 Monedas virtuales</button><button class="primary" disabled title="Próximamente, sujeto a habilitación legal">💵 Dinero real · Próximamente</button></div></section><section class="section">
         <div class="section-head">
           <h2>Mesas y torneos</h2>
           <button class="text-btn" id="refreshBtn">Actualizar</button><a class="text-btn" href="#tables">Torneos</a>
@@ -42,7 +28,7 @@
       </section>
 
       <section class="section">
-        <div class="section-head"><h2>Crear una mesa</h2></div>
+        <div class="section-head"><h2>Crear sala</h2></div>
         <div class="create-card">
           <label>Entrada
             <select id="stake">
@@ -51,7 +37,7 @@
               <option value="1000">1,000 monedas</option>
             </select>
           </label>
-          <button class="primary" id="createBtn">Crear mesa</button>
+          <button class="primary" id="createBtn">Crear sala</button>
         </div>
       </section>
     </main>
