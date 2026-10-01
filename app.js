@@ -489,40 +489,42 @@ function ajustarCadena() {
   if(!todas.length) return;
   cadena.classList.add("cadena-serpiente");
   const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
-  const k=todas.indexOf(inicio), izq=todas.slice(0,k).reverse(), der=todas.slice(k+1);
+  const k=todas.indexOf(inicio),izq=todas.slice(0,k).reverse(),der=todas.slice(k+1);
   const L=42,C=26,r=cadena.getBoundingClientRect(),W=r.width||520,H=r.height||390,cx=W/2,cy=H/2;
   function dbl(f){return f.classList.contains("doble");}
-  function dim(v){return v?{w:C,h:L}:{w:L,h:C};}
   function put(f,x,y,v){
-    const d=dim(v);f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",dbl(f)&&v);
-    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",d.w+"px"],["height",d.h+"px"],
-    ["min-width",d.w+"px"],["max-width",d.w+"px"],["min-height",d.h+"px"],["max-height",d.h+"px"],
-    ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
+    const w=v?C:L,h=v?L:C;
+    f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",dbl(f)&&v);
+    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
+     ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
+     ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
-  const iv=dbl(inicio);put(inicio,cx,cy,iv);
+  put(inicio,cx,cy,dbl(inicio));
 
-  // Ruta determinista: centro -> borde -> giro -> siguiente carril.
-  // Nunca se recorta una ficha ni se reinicia desde el centro.
-  function brazo(arr,lado){
-    let x=cx,y=cy,pv=iv;
-    let dir=lado==="derecha"?"R":"L";
-    const xmin=125,xmax=W-125,ymin=90,ymax=H-125;
-    const turns=lado==="derecha"?["R","D","L","D","R"]:["L","U","R","U","L"];
-    let ti=0;
-    function half(v,d){const z=dim(v);return(d==="R"||d==="L"?z.w:z.h)/2;}
-    function step(d,n){return{x:x+(d==="R"?n:d==="L"?-n:0),y:y+(d==="D"?n:d==="U"?-n:0)};}
-    function ori(f,d){const pathV=d==="U"||d==="D";return dbl(f)?!pathV:pathV;}
-    function fits(p,v){const z=dim(v);return p.x-z.w/2>=xmin&&p.x+z.w/2<=xmax&&p.y-z.h/2>=ymin&&p.y+z.h/2<=ymax;}
-    for(const f of arr){
-      let v=ori(f,dir),p=step(dir,half(pv,dir)+half(v,dir));
-      let guard=0;
-      while(!fits(p,v)&&guard++<4&&ti<turns.length-1){
-        dir=turns[++ti];v=ori(f,dir);p=step(dir,half(pv,dir)+half(v,dir));
+  // Coordenadas absolutas por pasos: evita acumulación de errores y ramas visuales.
+  function renderBrazo(arr,lado){
+    const sign=lado==="derecha"?1:-1;
+    const span=Math.max(2,Math.floor((W-250)/(L)));
+    arr.forEach((f,i)=>{
+      const n=i+1;
+      const row=Math.floor((n-1)/span);
+      const col=(n-1)%span+1;
+      let x,y,v=false;
+      if(row===0){x=cx+sign*col*L;y=cy;}
+      else if(row%2===1){
+        x=cx+sign*(span-col)*L;
+        y=cy+(lado==="derecha"?1:-1)*row*(C+8);
+      }else{
+        x=cx+sign*col*L;
+        y=cy+(lado==="derecha"?1:-1)*row*(C+8);
       }
-      x=p.x;y=p.y;pv=v;put(f,x,y,v);
-    }
+      // El primer elemento de una fila nueva actúa como conector vertical.
+      if(row>0&&col===1){v=!dbl(f);x=cx+sign*span*L;}
+      else v=dbl(f);
+      put(f,x,y,v);
+    });
   }
-  brazo(der,"derecha");brazo(izq,"izquierda");
+  renderBrazo(der,"derecha");renderBrazo(izq,"izquierda");
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
