@@ -262,6 +262,8 @@ function iniciarTurno(jugador) {
   const selector = {tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
   const jugadorActivo = document.querySelector(selector);
   jugadorActivo?.classList.add("turno-activo");
+  const avatarTu = document.querySelector(".jugador-abajo .avatar-tu");
+  if (avatarTu) avatarTu.textContent = "TÚ";
 
   actualizarGuiaTurno();
   if (jugador === "tu") {
@@ -288,7 +290,10 @@ function iniciarTurno(jugador) {
     segundosTurno--;
     if (reloj && jugador === "tu") {
       reloj.style.setProperty("--progreso-turno", Math.max(0, segundosTurno * 10) + "%");
+      reloj.classList.toggle("reloj-cuenta-visible", segundosTurno <= 5);
       reloj.classList.toggle("reloj-urgente", segundosTurno <= 3);
+      const avatarTu = document.querySelector(".jugador-abajo .avatar-tu");
+      if (avatarTu) avatarTu.textContent = segundosTurno <= 5 ? segundosTurno : "TÚ";
     }
     if (segundosTurno <= 0) {
       clearInterval(relojTurno);
