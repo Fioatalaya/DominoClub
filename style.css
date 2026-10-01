@@ -426,3 +426,20 @@
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+
+/* Mantener visibles todas las fichas de la cadena */
+.cadena-fichas {
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  flex-wrap: nowrap !important;
+}
+
+.cadena-fichas .ficha-domino {
+  position: relative !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
