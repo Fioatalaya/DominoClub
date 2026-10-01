@@ -220,6 +220,13 @@ function jugarFicha(elemento, ladoA, ladoB) {
   } else {
     cadena.appendChild(elemento);
   }
+
+  // Mantiene la cadena proporcionada a medida que se agregan fichas.
+  ajustarCadena();
+
+  // Animación corta de entrada sin alterar el tamaño de la mano.
+  elemento.classList.add("entrada-ficha");
+  setTimeout(() => elemento.classList.remove("entrada-ficha"), 280);
 }
 
 
