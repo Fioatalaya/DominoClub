@@ -1254,3 +1254,64 @@
     max-height: 590px !important;
   }
 }
+
+
+/* ===== TODO EL JUEGO VISIBLE EN UNA PANTALLA MOVIL ===== */
+@media (max-width: 520px) {
+  .partida-superior {
+    min-height: 56px !important;
+    margin-bottom: 5px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .mesa-domino {
+    height: 500px !important;
+    min-height: 500px !important;
+    max-height: 500px !important;
+  }
+
+  .jugador-arriba {
+    top: 12px !important;
+  }
+
+  .jugador-izquierda,
+  .jugador-derecha {
+    top: 50% !important;
+  }
+
+  .jugador-abajo {
+    bottom: 12px !important;
+  }
+
+  .centro-mesa,
+  .tablero-fichas {
+    top: 43% !important;
+  }
+
+  .mis-fichas {
+    margin-top: -8px !important;
+    min-height: 96px !important;
+    padding-top: 9px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .mis-fichas .ficha-domino {
+    height: 74px !important;
+    width: 40px !important;
+    flex-basis: 40px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .mesa-domino {
+    height: 470px !important;
+    min-height: 470px !important;
+    max-height: 470px !important;
+  }
+  .mis-fichas .ficha-domino {
+    width: 38px !important;
+    height: 70px !important;
+    flex-basis: 38px !important;
+  }
+}
