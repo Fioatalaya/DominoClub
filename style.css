@@ -2085,3 +2085,23 @@
     min-height: 410px !important;
   }
 }
+
+
+/* ===== FICHAS DE MESA GRANDES Y ALINEADAS ===== */
+.cadena-fichas,.cadena-fichas.cadena-serpiente{
+  width:320px !important;
+  height:440px !important;
+  min-height:440px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.doble-tablero){
+  width:64px !important;
+  height:38px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero{
+  width:38px !important;
+  height:64px !important;
+}
+.cadena-fichas.cadena-serpiente .punto{
+  width:6px !important;
+  height:6px !important;
+}
