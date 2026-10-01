@@ -133,26 +133,25 @@ function seleccionarFicha(elemento, ladoA, ladoB) {
     mostrarMensaje("Espera tu turno");
     return;
   }
-  const yaSeleccionada = elemento.classList.contains("seleccionada");
 
-  document.querySelectorAll(".mis-fichas .ficha-domino").forEach(ficha => {
-    ficha.classList.remove("seleccionada");
-    ficha.style.transform = "";
-    ficha.style.borderColor = "";
-    ficha.style.boxShadow = "";
-    ficha.style.zIndex = "";
-  });
-
-  if (yaSeleccionada) {
-    jugarFicha(elemento, ladoA, ladoB);
+  // Un solo toque juega la ficha. No hace falta tocarla dos veces.
+  if (!fichaValida([ladoA, ladoB])) {
+    mostrarMensaje("No coincide. Juega una ficha iluminada.");
     return;
   }
+  jugarFicha(elemento, ladoA, ladoB);
+}
 
-  elemento.classList.add("seleccionada");
-  elemento.style.transform = "translateY(-14px) scale(1.08)";
-  elemento.style.borderColor = "#f5c542";
-  elemento.style.boxShadow = "0 12px 22px rgba(0,0,0,.55)";
-  elemento.style.zIndex = "5";
+function actualizarGuiaTurno() {
+  const fichas = Array.from(document.querySelectorAll(".mis-fichas .ficha-domino"));
+  fichas.forEach(ficha => {
+    const caras = ficha.querySelectorAll(".cara");
+    const valores = caras.length === 2
+      ? [Number(caras[0].dataset.num), Number(caras[1].dataset.num)]
+      : null;
+    ficha.classList.toggle("ficha-disponible", turnoActual === "tu" && valores && fichaValida(valores));
+    ficha.classList.toggle("ficha-bloqueada", turnoActual === "tu" && valores && !fichaValida(valores));
+  });
 }
 
 function mostrarMensaje(texto) {
@@ -263,6 +262,17 @@ function iniciarTurno(jugador) {
   const selector = {tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
   const jugadorActivo = document.querySelector(selector);
   jugadorActivo?.classList.add("turno-activo");
+
+  actualizarGuiaTurno();
+  if (jugador === "tu") {
+    const hayJugada = manosJugadores.tu.some(fichaValida);
+    mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · pasas turno");
+    if (!hayJugada) {
+      clearInterval(relojTurno);
+      setTimeout(avanzarTurno, 1200);
+      return;
+    }
+  }
 
   // El usuario solo ve SU propio cronómetro. Los turnos rivales se indican únicamente con el borde.
   if (reloj) {
