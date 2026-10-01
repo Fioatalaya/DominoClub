@@ -1609,3 +1609,25 @@
   width:4px !important;
   height:4px !important;
 }
+
+
+/* El cronómetro privado desaparece por completo durante turnos rivales */
+.reloj-turno.reloj-oculto { display:none !important; }
+
+/* Cadena de dominó: piezas tocándose y dobles atravesados */
+.cadena-fichas.cadena-serpiente .ficha-domino {
+  margin:0 !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero {
+  width:25px !important;
+  height:42px !important;
+  flex-direction:column !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero > .cara {
+  width:100% !important;
+  height:50% !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero > .cara:first-child {
+  border-right:0 !important;
+  border-bottom:2px solid #111827 !important;
+}
