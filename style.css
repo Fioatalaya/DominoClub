@@ -2239,3 +2239,18 @@
     padding-bottom:70px !important;
   }
 }
+
+
+/* ===== DOMINO CORE VISUAL V2 =====
+   Un solo tono y tamaño de punto: ningún número usa un negro distinto. */
+.ficha-domino .punto.activo{
+  background:#151515 !important;
+  opacity:1 !important;
+  filter:none !important;
+  box-shadow:none !important;
+}
+.cadena-fichas .punto,
+.cadena-fichas.cadena-serpiente .punto{
+  width:4.25px !important;
+  height:4.25px !important;
+}
