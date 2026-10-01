@@ -1407,3 +1407,38 @@
     flex-basis: 45px !important;
   }
 }
+
+
+/* ===== CORRECCION REAL: 7 FICHAS GRANDES COMPLETAS ===== */
+@media (max-width: 520px) {
+  .mis-fichas {
+    width: calc(100% - 16px) !important;
+    max-width: none !important;
+    min-height: 124px !important;
+    box-sizing: border-box !important;
+    padding: 14px 6px 11px !important;
+    gap: 3px !important;
+    overflow: visible !important;
+    justify-content: center !important;
+  }
+
+  .mis-fichas .ficha-domino {
+    width: 46px !important;
+    height: 90px !important;
+    flex: 0 0 46px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .mis-fichas {
+    width: calc(100% - 10px) !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    gap: 2px !important;
+  }
+  .mis-fichas .ficha-domino {
+    width: 44px !important;
+    height: 86px !important;
+    flex-basis: 44px !important;
+  }
+}
