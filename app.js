@@ -220,12 +220,9 @@ function jugarFicha(elemento, ladoA, ladoB) {
   } else {
     cadena.appendChild(elemento);
   }
-
-  actualizarExtremos();
 }
 
-function actualizarExtremos() {
-}
+
 
 document.addEventListener("DOMContentLoaded", function () {
   render();
