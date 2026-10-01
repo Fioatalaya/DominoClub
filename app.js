@@ -481,74 +481,64 @@ function ajustarCadena() {
   const izquierda=todas.slice(0,k).reverse();
   const derecha=todas.slice(k+1);
 
-  // Escala única para todas las fichas del tablero.
-  const L=50,C=30;
+  const L=50,C=30,G=4;
   const rect=cadena.getBoundingClientRect();
   const ancho=rect.width||Math.min(window.innerWidth*.86,560);
   const alto=rect.height||360;
-  const cx=ancho/2, cy=alto/2;
+  const cx=ancho/2,cy=alto/2;
 
   function doble(f){return f.classList.contains("doble");}
   function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function pintar(f,x,y,v){
     const d=dims(v);
     f.classList.toggle("giro-cadena",v);
-    f.classList.toggle("doble-tablero", doble(f) && v);
+    f.classList.toggle("doble-tablero",doble(f)&&v);
     const p={position:"absolute",left:x+"px",top:y+"px",width:d.w+"px",height:d.h+"px",
       "min-width":d.w+"px","max-width":d.w+"px","min-height":d.h+"px","max-height":d.h+"px",
       transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"};
     Object.entries(p).forEach(([q,val])=>f.style.setProperty(q,val,"important"));
   }
   function verticalPara(f,dir){
-    const ejeVertical=dir==="U"||dir==="D";
-    return doble(f)?!ejeVertical:ejeVertical;
+    const ejeV=dir==="U"||dir==="D";
+    return doble(f)?!ejeV:ejeV;
   }
-  function mitad(v,dir){
-    const d=dims(v); return (dir==="L"||dir==="R"?d.w:d.h)/2;
-  }
-  function mover(x,y,dir,n){
-    return {x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};
-  }
+  function mitad(v,dir){const d=dims(v);return(dir==="L"||dir==="R"?d.w:d.h)/2;}
+  function mover(x,y,dir,n){return{x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};}
+  function caja(x,y,v){const d=dims(v);return{l:x-d.w/2-G,r:x+d.w/2+G,t:y-d.h/2-G,b:y+d.h/2+G};}
+  function choca(b,ocupadas){return ocupadas.some(o=>!(b.r<=o.l||b.l>=o.r||b.b<=o.t||b.t>=o.b));}
 
   const inicioV=doble(inicio);
   pintar(inicio,cx,cy,inicioV);
+  const ocupadas=[caja(cx,cy,inicioV)];
 
-  // Cada brazo tiene su propio carril. No se cruzan ni se amontonan en el centro.
   function construir(arr,lado){
-    let x=cx,y=cy;
+    let x=cx,y=cy,prevV=inicioV;
     let dir=lado==="derecha"?"R":"L";
-    let prevV=inicioV;
-    const margenX=88, margenY=54;
-    const limiteL=margenX, limiteR=ancho-margenX;
-    const limiteT=margenY, limiteB=alto-margenY;
+    const giros=lado==="derecha"?{R:"D",D:"L",L:"D",U:"R"}:{L:"U",U:"R",R:"U",D:"L"};
+    const lim={l:62,r:ancho-62,t:38,b:alto-38};
 
     for(const f of arr){
-      let v=verticalPara(f,dir);
-      let paso=mitad(prevV,dir)+mitad(v,dir);
-      let p=mover(x,y,dir,paso);
-
-      const d=dims(v);
-      const fuera=p.x-d.w/2<limiteL||p.x+d.w/2>limiteR||
-                  p.y-d.h/2<limiteT||p.y+d.h/2>limiteB;
-      if(fuera){
-        // El brazo derecho baja; el izquierdo sube. Después ambos regresan horizontalmente.
-        if(lado==="derecha"){
-          if(dir==="R") dir="D";
-          else if(dir==="D") dir="L";
-          else if(dir==="L") dir="D";
-          else dir="R";
-        }else{
-          if(dir==="L") dir="U";
-          else if(dir==="U") dir="R";
-          else if(dir==="R") dir="U";
-          else dir="L";
-        }
-        v=verticalPara(f,dir);
-        paso=mitad(prevV,dir)+mitad(v,dir);
-        p=mover(x,y,dir,paso);
+      let elegido=null;
+      // Busca una posición libre; si está ocupada o fuera, gira antes de pintar.
+      for(let intento=0;intento<4&&!elegido;intento++){
+        const v=verticalPara(f,dir);
+        const paso=mitad(prevV,dir)+mitad(v,dir)+G;
+        const p=mover(x,y,dir,paso);
+        const b=caja(p.x,p.y,v);
+        const dentro=b.l>=lim.l&&b.r<=lim.r&&b.t>=lim.t&&b.b<=lim.b;
+        if(dentro&&!choca(b,ocupadas)) elegido={p,v,b};
+        else dir=giros[dir];
       }
-      x=p.x;y=p.y;prevV=v;
-      pintar(f,x,y,v);
+      // Si una esquina está saturada, abre el recorrido alejándose del centro.
+      if(!elegido){
+        const v=verticalPara(f,dir);
+        const paso=mitad(prevV,dir)+mitad(v,dir)+G;
+        const p=mover(x,y,dir,paso);
+        elegido={p,v,b:caja(p.x,p.y,v)};
+      }
+      x=elegido.p.x;y=elegido.p.y;prevV=elegido.v;
+      ocupadas.push(elegido.b);
+      pintar(f,x,y,elegido.v);
     }
   }
   construir(derecha,"derecha");
