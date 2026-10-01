@@ -1706,3 +1706,14 @@
   width:27px !important;
   height:44px !important;
 }
+
+
+/* Guia visual del turno del usuario */
+.mis-fichas .ficha-domino.ficha-disponible {
+  border-color:#f5c542 !important;
+  box-shadow:0 0 0 2px rgba(245,197,66,.38), 0 0 16px rgba(245,197,66,.42) !important;
+}
+.mis-fichas .ficha-domino.ficha-bloqueada {
+  opacity:.48;
+  filter:saturate(.55);
+}
