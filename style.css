@@ -1717,3 +1717,23 @@
   opacity:.48;
   filter:saturate(.55);
 }
+
+
+/* Área segura del tablero: evita que la cadena quede debajo de J3/J4 */
+.cadena-fichas {
+  position: absolute !important;
+  left: 20% !important;
+  right: 20% !important;
+  top: 24% !important;
+  bottom: 25% !important;
+  width: auto !important;
+  height: auto !important;
+}
+@media (max-width: 520px) {
+  .cadena-fichas {
+    left: 24% !important;
+    right: 24% !important;
+    top: 23% !important;
+    bottom: 25% !important;
+  }
+}
