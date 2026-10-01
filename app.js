@@ -390,64 +390,84 @@ function jugarBot(jugador) {
 }
 
 function ajustarCadena() {
-  const cadena=document.querySelector(".cadena-fichas");
-  if(!cadena) return;
-  const todas=Array.from(cadena.querySelectorAll(".ficha-domino"));
-  if(!todas.length) return;
+  const cadena = document.querySelector(".cadena-fichas");
+  if (!cadena) return;
+  const todas = Array.from(cadena.querySelectorAll(".ficha-domino"));
+  if (!todas.length) return;
+
   cadena.classList.add("cadena-serpiente");
+  const inicio = todas.find(f => f.dataset.inicio === "1") || todas[0];
+  const idx = todas.indexOf(inicio);
+  const izquierda = todas.slice(0, idx).reverse();
+  const derecha = todas.slice(idx + 1);
 
-  const inicio=todas.find(f=>f.dataset.inicio==="1") || todas[0];
-  const idx=todas.indexOf(inicio);
-  const izquierda=todas.slice(0,idx).reverse();
-  const derecha=todas.slice(idx+1);
-  const cx=150, cy=215, paso=58;
+  // Coordenadas locales del tablero. La salida queda en el centro real.
+  const cx = 150, cy = 215;
+  const largo = 62, ancho = 38;
+  const minX = 62, maxX = 238;
+  const minY = 92, maxY = 338;
 
-  function colocar(f,x,y,vertical=false){
-    const doble=f.classList.contains("doble");
-    // Los dobles se cruzan sobre la cadena; el resto sigue la dirección del tramo.
-    const cruzado=doble && !vertical;
-    f.classList.toggle("giro-cadena",vertical);
-    f.classList.toggle("doble-tablero",cruzado);
-    const w=vertical?38:(cruzado?38:64);
-    const h=vertical?64:(cruzado?64:38);
-    f.style.setProperty("position","absolute","important");
-    f.style.setProperty("left",x+"px","important");
-    f.style.setProperty("top",y+"px","important");
-    f.style.setProperty("width",w+"px","important");
-    f.style.setProperty("height",h+"px","important");
-    f.style.setProperty("transform","translate(-50%,-50%)","important");
-    f.style.setProperty("margin","0","important");
+  function colocar(f, x, y, direccion) {
+    const doble = f.classList.contains("doble");
+    const tramoVertical = direccion === "arriba" || direccion === "abajo";
+
+    // Una ficha normal sigue el eje del tramo.
+    // Un doble siempre queda transversal a ese eje.
+    const fichaVertical = doble ? !tramoVertical : tramoVertical;
+    const w = fichaVertical ? ancho : largo;
+    const h = fichaVertical ? largo : ancho;
+
+    f.style.setProperty("position", "absolute", "important");
+    f.style.setProperty("left", x + "px", "important");
+    f.style.setProperty("top", y + "px", "important");
+    f.style.setProperty("width", w + "px", "important");
+    f.style.setProperty("height", h + "px", "important");
+    f.style.setProperty("transform", "translate(-50%,-50%)", "important");
+    f.style.setProperty("margin", "0", "important");
+    f.classList.toggle("giro-cadena", fichaVertical);
+    f.classList.remove("doble-tablero");
   }
 
-  colocar(inicio,cx,cy,false);
+  // La salida se muestra horizontal salvo que sea doble.
+  colocar(inicio, cx, cy, "derecha");
 
-  // Cadena real: nace exactamente en el centro. Cada brazo permanece unido
-  // y solo gira al alcanzar el borde seguro del tablero.
-  function brazo(arr,dir){
-    let x=cx, y=cy;
-    let dx=dir, dy=0;
-    const limiteIzq=48, limiteDer=252;
-    const limiteSup=105, limiteInf=325;
+  function avanzarBrazo(arr, lado) {
+    let x = cx, y = cy;
+    let dir = lado === "derecha" ? "derecha" : "izquierda";
 
-    arr.forEach((f)=>{
-      const vertical = dy !== 0;
-      const avance = vertical ? 50 : paso;
+    arr.forEach(f => {
+      const doble = f.classList.contains("doble");
+      const tramoVertical = dir === "arriba" || dir === "abajo";
+      const paso = doble ? (ancho / 2 + largo / 2) : largo;
 
-      let nx=x + dx*avance;
-      let ny=y + dy*avance;
+      let nx=x, ny=y;
+      if (dir === "derecha") nx += paso;
+      if (dir === "izquierda") nx -= paso;
+      if (dir === "abajo") ny += paso;
+      if (dir === "arriba") ny -= paso;
 
-      // Al llegar al borde, la cadena dobla 90 grados y sigue conectada.
-      if (dx>0 && nx>limiteDer) { dx=0; dy=1; nx=x; ny=y+50; }
-      else if (dx<0 && nx<limiteIzq) { dx=0; dy=-1; nx=x; ny=y-50; }
-      else if (dy>0 && ny>limiteInf) { dx=-1; dy=0; nx=x-58; ny=y; }
-      else if (dy<0 && ny<limiteSup) { dx=1; dy=0; nx=x+58; ny=y; }
+      // La curva solo aparece por falta de espacio, como en una mesa real.
+      if (dir === "derecha" && nx > maxX) {
+        dir = lado === "derecha" ? "abajo" : "arriba";
+        nx = x; ny = y + (dir === "abajo" ? paso : -paso);
+      } else if (dir === "izquierda" && nx < minX) {
+        dir = lado === "izquierda" ? "arriba" : "abajo";
+        nx = x; ny = y + (dir === "abajo" ? paso : -paso);
+      } else if (dir === "abajo" && ny > maxY) {
+        dir = lado === "derecha" ? "izquierda" : "derecha";
+        nx = x + (dir === "derecha" ? paso : -paso); ny = y;
+      } else if (dir === "arriba" && ny < minY) {
+        dir = lado === "izquierda" ? "derecha" : "izquierda";
+        nx = x + (dir === "derecha" ? paso : -paso); ny = y;
+      }
 
       x=nx; y=ny;
-      colocar(f,x,y,dy!==0);
+      colocar(f,x,y,dir);
     });
   }
-  brazo(derecha,1);
-  brazo(izquierda,-1);
+
+  avanzarBrazo(derecha, "derecha");
+  avanzarBrazo(izquierda, "izquierda");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
