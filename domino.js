@@ -336,12 +336,13 @@ function iniciarTurno(jugador) {
   document.querySelector(selector)?.classList.add("turno-activo");
 
   actualizarGuiaTurno();
+  activarAroTurno(jugador,10000);
   if (jugador === "tu") {
     const hayJugada = manosJugadores.tu.some(fichaValida);
-    mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · espera 5 segundos");
+    mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · pase automático");
     if (!hayJugada) {
       clearInterval(relojTurno);
-      setTimeout(avanzarTurno, 5000);
+      activarAroTurno(jugador,3000); setTimeout(avanzarTurno, 3000);
       return;
     }
   }
@@ -351,8 +352,7 @@ function iniciarTurno(jugador) {
     if (jugador === "tu") {
       const avatar = document.querySelector(".jugador-abajo .avatar-tu");
       if (avatar) {
-        avatar.textContent = segundosTurno <= 5 ? String(segundosTurno) : "TÚ";
-        avatar.classList.toggle("avatar-urgente", segundosTurno <= 3);
+        avatar.textContent = "TÚ";
       }
     }
     if (segundosTurno <= 0) {
@@ -363,6 +363,12 @@ function iniciarTurno(jugador) {
   }, 1000);
 
   if (jugador !== "tu") setTimeout(() => jugarBot(jugador), 900 + Math.floor(Math.random() * 900));
+}
+
+function activarAroTurno(jugador,duracion){
+  document.querySelectorAll(".jugador").forEach(x=>{x.style.setProperty("--turn-duration",(duracion/1000)+"s");x.classList.remove("aro-activo");});
+  const selector={tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
+  const el=document.querySelector(selector); if(el){void el.offsetWidth;el.classList.add("aro-activo");}
 }
 
 function avanzarTurno() {
@@ -422,9 +428,9 @@ function jugarBot(jugador) {
   if (indice < 0) {
     clearInterval(relojTurno);
     // Pase automático del bot: mensaje privado, no visible.
-    setTimeout(() => {
+    activarAroTurno(jugador,3000); setTimeout(() => {
       if (turnoActual === jugador) avanzarTurno();
-    }, 5000);
+    }, 3000);
     return;
   }
 
