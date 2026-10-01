@@ -1,5 +1,6 @@
 let extremoIzquierdo = null;
-let extremoDerecho = null;\nlet manosJugadores = {};
+let extremoDerecho = null;
+let manosJugadores = {};
 
 const tables = [
   { name: "Mesa Principiantes", entry: 100 },
