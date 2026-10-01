@@ -2284,3 +2284,26 @@
 .mis-fichas .punto,.cadena-fichas .punto{position:absolute!important;width:7px!important;height:7px!important;margin:0!important}
 .puntos .punto:nth-child(1){left:18%;top:18%}.puntos .punto:nth-child(2){left:50%;top:18%;transform:translateX(-50%)}.puntos .punto:nth-child(3){right:18%;top:18%}.puntos .punto:nth-child(4){left:18%;top:50%;transform:translateY(-50%)}.puntos .punto:nth-child(5){left:50%;top:50%;transform:translate(-50%,-50%)}.puntos .punto:nth-child(6){right:18%;top:50%;transform:translateY(-50%)}.puntos .punto:nth-child(7){left:18%;bottom:18%}.puntos .punto:nth-child(8){left:50%;bottom:18%;transform:translateX(-50%)}.puntos .punto:nth-child(9){right:18%;bottom:18%}
 .create-card[style]{gap:12px!important;background:transparent!important;border:0!important;padding:0!important;margin-bottom:16px!important}.create-card[style] .primary{min-height:58px;border-radius:16px!important;font-size:14px}
+
+/* ===== DOMINO TABLE VISUAL V4: geometría única ===== */
+.cadena-fichas.cadena-serpiente .ficha-domino{
+  background:linear-gradient(145deg,#fffef9,#e9e4d8)!important;
+  border:1.5px solid #bdb6a7!important;border-radius:5px!important;
+  box-shadow:0 3px 7px rgba(0,0,0,.38)!important;overflow:hidden!important;
+  padding:0!important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.giro-cadena){
+  width:46px!important;height:28px!important;min-width:46px!important;max-width:46px!important;
+  min-height:28px!important;max-height:28px!important;flex-direction:row!important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.giro-cadena{
+  width:28px!important;height:46px!important;min-width:28px!important;max-width:28px!important;
+  min-height:46px!important;max-height:46px!important;flex-direction:column!important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.giro-cadena)>.cara{width:50%!important;height:100%!important}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.giro-cadena)>.cara:first-child{border-right:1.5px solid #222!important;border-bottom:0!important}
+.cadena-fichas.cadena-serpiente .ficha-domino.giro-cadena>.cara{width:100%!important;height:50%!important}
+.cadena-fichas.cadena-serpiente .ficha-domino.giro-cadena>.cara:first-child{border-bottom:1.5px solid #222!important;border-right:0!important}
+.cadena-fichas.cadena-serpiente .puntos{position:relative!important;width:100%!important;height:100%!important;padding:0!important}
+.cadena-fichas.cadena-serpiente .punto{width:4px!important;height:4px!important;background:transparent!important}
+.cadena-fichas.cadena-serpiente .punto.activo{background:#111!important}
