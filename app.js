@@ -8,6 +8,7 @@ let turnoBloqueado = false;
 let turnoToken = 0;
 let turnoHumanoId = 0;
 let ultimaJugadaHumanaId = -1;
+let fichaPendiente = null;
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
 const tables = [
@@ -137,12 +138,39 @@ function seleccionarFicha(elemento, ladoA, ladoB) {
     return;
   }
 
-  // Un solo toque juega la ficha. No hace falta tocarla dos veces.
   if (!fichaValida([ladoA, ladoB])) {
     mostrarMensaje("No coincide. Juega una ficha iluminada.");
     return;
   }
-  jugarFicha(elemento, ladoA, ladoB);
+
+  const puedeIzq = extremoIzquierdo !== null && (ladoA === extremoIzquierdo || ladoB === extremoIzquierdo);
+  const puedeDer = extremoDerecho !== null && (ladoA === extremoDerecho || ladoB === extremoDerecho);
+
+  // Si la ficha sirve en ambos extremos, el jugador decide dónde ponerla.
+  if (puedeIzq && puedeDer && extremoIzquierdo !== extremoDerecho) {
+    fichaPendiente = {elemento,ladoA,ladoB};
+    document.querySelectorAll(".ficha-domino").forEach(f=>f.classList.remove("seleccionada"));
+    elemento.classList.add("seleccionada");
+    mostrarSelectorExtremo();
+    return;
+  }
+  jugarFicha(elemento, ladoA, ladoB, puedeIzq && !puedeDer ? "izquierda" : "derecha");
+}
+
+function mostrarSelectorExtremo(){
+  let c=document.querySelector(".selector-extremo");
+  if(!c){
+    c=document.createElement("div"); c.className="selector-extremo";
+    c.innerHTML='<button type="button" onclick="elegirExtremo(\'izquierda\')">← IZQUIERDA</button><button type="button" onclick="elegirExtremo(\'derecha\')">DERECHA →</button>';
+    document.querySelector(".mesa-domino")?.appendChild(c);
+  }
+  c.classList.add("visible");
+  mostrarMensaje("Esta ficha sirve en ambos lados · elige dónde jugar");
+}
+function elegirExtremo(lado){
+  const p=fichaPendiente; fichaPendiente=null;
+  document.querySelector(".selector-extremo")?.classList.remove("visible");
+  if(p) jugarFicha(p.elemento,p.ladoA,p.ladoB,lado);
 }
 
 function actualizarGuiaTurno() {
@@ -170,7 +198,7 @@ function mostrarMensaje(texto) {
   mostrarMensaje.timer = setTimeout(() => aviso.classList.remove("visible"), 1500);
 }
 
-function jugarFicha(elemento, ladoA, ladoB) {
+function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
   const cadena = document.querySelector(".cadena-fichas");
   if (!cadena || !elemento || turnoActual !== "tu" || turnoBloqueado) return;
 
@@ -187,9 +215,16 @@ function jugarFicha(elemento, ladoA, ladoB) {
   let lado = "derecha";
   let invertir = false;
 
+  const coincideIzq = extremoIzquierdo !== null && (ladoA === extremoIzquierdo || ladoB === extremoIzquierdo);
+  const coincideDer = extremoDerecho !== null && (ladoA === extremoDerecho || ladoB === extremoDerecho);
+
   if (extremoIzquierdo === null) {
     extremoIzquierdo = ladoA;
     extremoDerecho = ladoB;
+  } else if (ladoElegido === "izquierda" && coincideIzq) {
+    lado = "izquierda";
+    if (ladoB === extremoIzquierdo) extremoIzquierdo = ladoA;
+    else { extremoIzquierdo = ladoB; invertir = true; }
   } else if (ladoA === extremoDerecho) {
     extremoDerecho = ladoB;
     lado = "derecha";
