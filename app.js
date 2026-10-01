@@ -482,7 +482,7 @@ function ajustarCadena() {
   const derecha=todas.slice(k+1);
 
   // Escala única para todas las fichas del tablero.
-  const L=58,C=34;
+  const L=50,C=30;
   const rect=cadena.getBoundingClientRect();
   const ancho=rect.width||Math.min(window.innerWidth*.86,560);
   const alto=rect.height||360;
@@ -493,7 +493,7 @@ function ajustarCadena() {
   function pintar(f,x,y,v){
     const d=dims(v);
     f.classList.toggle("giro-cadena",v);
-    f.classList.remove("doble-tablero");
+    f.classList.toggle("doble-tablero", doble(f) && v);
     const p={position:"absolute",left:x+"px",top:y+"px",width:d.w+"px",height:d.h+"px",
       "min-width":d.w+"px","max-width":d.w+"px","min-height":d.h+"px","max-height":d.h+"px",
       transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"};
@@ -518,7 +518,7 @@ function ajustarCadena() {
     let x=cx,y=cy;
     let dir=lado==="derecha"?"R":"L";
     let prevV=inicioV;
-    const margenX=72, margenY=42;
+    const margenX=88, margenY=54;
     const limiteL=margenX, limiteR=ancho-margenX;
     const limiteT=margenY, limiteB=alto-margenY;
 
