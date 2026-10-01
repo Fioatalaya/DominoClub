@@ -507,43 +507,60 @@ function ajustarCadena() {
   const todas=[...cadena.querySelectorAll(".ficha-domino")];
   if(!todas.length) return;
   cadena.classList.add("cadena-serpiente");
-  const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
-  const k=todas.indexOf(inicio),izq=todas.slice(0,k).reverse(),der=todas.slice(k+1);
-  const L=42,C=26,r=cadena.getBoundingClientRect(),W=r.width||520,H=r.height||390,cx=W/2,cy=H/2;
-  function dbl(f){return f.classList.contains("doble");}
-  function put(f,x,y,v){
-    const w=v?C:L,h=v?L:C;
-    f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",dbl(f)&&v);
-    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
-     ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
-     ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
-  }
-  put(inicio,cx,cy,dbl(inicio));
 
-  // Coordenadas absolutas por pasos: evita acumulación de errores y ramas visuales.
-  function renderBrazo(arr,lado){
-    const sign=lado==="derecha"?1:-1;
-    const span=Math.max(2,Math.floor((W-250)/(L)));
-    arr.forEach((f,i)=>{
-      const n=i+1;
-      const row=Math.floor((n-1)/span);
-      const col=(n-1)%span+1;
-      let x,y,v=false;
-      if(row===0){x=cx+sign*col*L;y=cy;}
-      else if(row%2===1){
-        x=cx+sign*(span-col)*L;
-        y=cy+(lado==="derecha"?1:-1)*row*(C+8);
-      }else{
-        x=cx+sign*col*L;
-        y=cy+(lado==="derecha"?1:-1)*row*(C+8);
-      }
-      // El primer elemento de una fila nueva actúa como conector vertical.
-      if(row>0&&col===1){v=!dbl(f);x=cx+sign*span*L;}
-      else v=dbl(f);
-      put(f,x,y,v);
-    });
+  const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
+  const k=todas.indexOf(inicio);
+  const izquierda=todas.slice(0,k).reverse();
+  const derecha=todas.slice(k+1);
+  const r=cadena.getBoundingClientRect(),W=r.width||520,H=r.height||390;
+  const cx=W/2,cy=H/2,L=42,C=26,G=1;
+  const minX=72,maxX=W-72,minY=62,maxY=H-70;
+
+  function esDoble(f){return f.classList.contains("doble");}
+  function poner(f,x,y,vertical){
+    const w=vertical?C:L,h=vertical?L:C;
+    f.classList.toggle("giro-cadena",vertical);
+    f.classList.toggle("doble-tablero",esDoble(f)&&vertical);
+    const props={position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
+      "min-width":w+"px","max-width":w+"px","min-height":h+"px","max-height":h+"px",
+      transform:"translate(-50%,-50%)",margin:"0"};
+    Object.entries(props).forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
-  renderBrazo(der,"derecha");renderBrazo(izq,"izquierda");
+
+  // Cada brazo sigue una sola ruta continua. Nunca crea filas independientes.
+  function brazo(arr,dirInicial,verticalInicial){
+    let x=cx,y=cy,dir=dirInicial; // 0 derecha, 1 abajo, 2 izquierda, 3 arriba
+    let prevVertical=verticalInicial;
+    for(const f of arr){
+      let vertical=(dir===1||dir===3);
+      // Los dobles se dibujan perpendiculares al sentido de la cadena.
+      if(esDoble(f)) vertical=!vertical;
+
+      const prevAlong=prevVertical?C:L;
+      const curAlong=vertical?C:L;
+      let paso=(prevAlong+curAlong)/2+G;
+      let nx=x+(dir===0?paso:dir===2?-paso:0);
+      let ny=y+(dir===1?paso:dir===3?-paso:0);
+
+      // Giro real al llegar al borde seguro.
+      const hw=(vertical?C:L)/2,hh=(vertical?L:C)/2;
+      if(nx-hw<minX||nx+hw>maxX||ny-hh<minY||ny+hh>maxY){
+        dir=(dir+1)%4;
+        vertical=(dir===1||dir===3);
+        if(esDoble(f)) vertical=!vertical;
+        const cur2=vertical?C:L;
+        paso=(prevAlong+cur2)/2+G;
+        nx=x+(dir===0?paso:dir===2?-paso:0);
+        ny=y+(dir===1?paso:dir===3?-paso:0);
+      }
+      x=nx;y=ny;poner(f,x,y,vertical);prevVertical=vertical;
+    }
+  }
+
+  poner(inicio,cx,cy,esDoble(inicio));
+  // Los dos extremos salen en direcciones opuestas desde la ficha inicial.
+  brazo(derecha,0,esDoble(inicio));
+  brazo(izquierda,2,esDoble(inicio));
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
