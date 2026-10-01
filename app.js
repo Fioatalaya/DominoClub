@@ -1,5 +1,5 @@
 let extremoIzquierdo = null;
-let extremoDerecho = null;
+let extremoDerecho = null;\nlet manosJugadores = {};
 
 const tables = [
   { name: "Mesa Principiantes", entry: 100 },
@@ -38,73 +38,61 @@ function createTable() {
   render();
 }
 
+function crearMazoDomino() {
+  const mazo = [];
+  for (let a = 0; a <= 6; a++) {
+    for (let b = a; b <= 6; b++) mazo.push([a, b]);
+  }
+  for (let i = mazo.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [mazo[i], mazo[j]] = [mazo[j], mazo[i]];
+  }
+  return mazo;
+}
+
+function htmlFicha(ficha) {
+  const [a, b] = ficha;
+  return `<div class="ficha-domino" onclick="seleccionarFicha(this, ${a}, ${b})">
+    <span class="cara" data-num="${a}"></span><span class="cara" data-num="${b}"></span>
+  </div>`;
+}
+
 function openGame(index) {
   extremoIzquierdo = null;
   extremoDerecho = null;
-
   const table = tables[index];
   if (!table) return;
 
+  const mazo = crearMazoDomino();
+  manosJugadores = {
+    tu: mazo.splice(0, 7),
+    j2: mazo.splice(0, 7),
+    j3: mazo.splice(0, 7),
+    j4: mazo.splice(0, 7)
+  };
+
   document.body.innerHTML = `
     <div class="partida">
-
       <div class="partida-superior nueva-barra">
         <button class="salir-partida" type="button" onclick="location.reload()">‹</button>
         <div class="bote-partida"><small>BOTE</small><strong>🪙 ${table.entry * 4}</strong></div>
         <div class="mesa-titulo"><strong>${table.name}</strong><small>Dominó Club</small></div>
         <div class="saldo-partida">🪙 10,000</div>
       </div>
-
       <div class="mesa-domino">
         <div class="jugador jugador-arriba"><span class="avatar-juego">J2</span><span class="datos-jugador"><b>Jugador 2</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-izquierda"><span class="avatar-juego">J3</span><span class="datos-jugador"><b>Jugador 3</b><small>7 fichas</small></span></div>
-
-        <div class="centro-mesa">
-          DOMINO<br>
-          <span>Partida iniciada</span>
-        </div>
-
-        <div class="tablero-fichas">
-          <div class="cadena-fichas"></div>
-        </div>
-
+        <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
+        <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>Jugador 4</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><b>Tú</b><small>10,000 monedas</small></span></div>
       </div>
-
-      <div class="mis-fichas">
-  <div class="ficha-domino" onclick="seleccionarFicha(this, 2, 5)">
-    <span class="cara" data-num="2"></span><span class="cara" data-num="5"></span>
-  </div>
-
-  <div class="ficha-domino" onclick="seleccionarFicha(this, 6, 1)">
-    <span class="cara" data-num="6"></span><span class="cara" data-num="1"></span>
-  </div>
-
-  <div class="ficha-domino" onclick="seleccionarFicha(this, 4, 4)">
-    <span class="cara" data-num="4"></span><span class="cara" data-num="4"></span>
-  </div>
-
-  <div class="ficha-domino" onclick="seleccionarFicha(this, 5, 3)">
-    <span class="cara" data-num="5"></span><span class="cara" data-num="3"></span>
-  </div>
-
-  <div class="ficha-domino" onclick="seleccionarFicha(this, 0, 6)">
-    <span class="cara" data-num="0"></span><span class="cara" data-num="6"></span>
-  </div>
-
-  <div class="ficha-domino" onclick="seleccionarFicha(this, 3, 2)">
-    <span class="cara" data-num="3"></span><span class="cara" data-num="2"></span>
-  </div>
-
-  <div class="ficha-domino" onclick="seleccionarFicha(this, 4, 1)">
-    <span class="cara" data-num="4"></span><span class="cara" data-num="1"></span>
-  </div>
-</div>
+      <div class="mis-fichas">${manosJugadores.tu.map(htmlFicha).join("")}</div>
+    </div>
   `;
-  
   dibujarFichas();
 }
+
 function crearPuntos(numero) {
   const posiciones = {
     0: [],
