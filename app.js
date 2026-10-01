@@ -442,7 +442,8 @@ function ajustarCadena() {
   // Limites calculados desde el ancho REAL disponible, no desde 320px fijos.
   // Dejamos una franja libre a ambos lados para que la cadena no pase debajo de J3/J4.
   // Zona central libre de las tarjetas laterales J3/J4.
-  const lim={l:105,r:anchoCadena-105,t:55,b:385};
+  // J3/J4 ahora están desplazados hacia los bordes: recuperamos ancho de juego.
+  const lim={l:58,r:anchoCadena-58,t:55,b:385};
 
   function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function pintar(f,x,y,v){
