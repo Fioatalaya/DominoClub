@@ -2266,3 +2266,15 @@
   transform:none !important;
   z-index:1000 !important;
 }
+
+/* V3: aro de turno sin números */
+.jugador .avatar-juego{position:relative;z-index:1}
+.jugador.aro-activo .avatar-juego::before{
+ content:"";position:absolute;inset:-6px;border-radius:50%;padding:3px;
+ background:conic-gradient(#f5c542 360deg,rgba(245,197,66,.12) 0);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ -webkit-mask-composite:xor;mask-composite:exclude;
+ animation:consumirAro var(--turn-duration,10s) linear forwards;pointer-events:none
+}
+@keyframes consumirAro{to{transform:rotate(360deg);background:conic-gradient(rgba(245,197,66,.12) 360deg,rgba(245,197,66,.12) 0)}}
+.jugador-abajo .avatar-tu.avatar-urgente{background:#172239!important;color:#fff!important;transform:none!important}
