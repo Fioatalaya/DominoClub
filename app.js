@@ -506,7 +506,7 @@ function ajustarCadena() {
   // La geometría se construye desde la cabeza de cada extremo, no desde el centro.
   function brazo(arr,lado){
     let x=cx,y=cy,dir=lado==="derecha"?"R":"L",pv=iv;
-    const minX=100,maxX=W-100,minY=64,maxY=H-88;
+    const minX=88,maxX=W-88,minY=92,maxY=H-145;
     const turn=lado==="derecha"?{R:"D",D:"L",L:"D"}:{L:"U",U:"R",R:"U"};
     function half(v,d){const z=dims(v);return(d==="R"||d==="L"?z.w:z.h)/2;}
     function step(px,py,d,n){return{x:px+(d==="R"?n:d==="L"?-n:0),y:py+(d==="D"?n:d==="U"?-n:0)};}
