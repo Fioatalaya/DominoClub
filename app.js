@@ -250,7 +250,7 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
   const opciones=ladosValidos([ladoA,ladoB]);
   let lado=ladoElegido;
   if(!cadenaLogica.length) lado="derecha";
-  else if(!opciones.includes(lado)) lado=opciones.length===1?opciones[0]:null;
+  else if(!opciones.includes(lado)) lado=null;
   if(!lado){
     turnoBloqueado=false;ultimaJugadaHumanaId=-1;
     document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
@@ -361,7 +361,7 @@ function iniciarTurno(jugador) {
     mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · espera 3 segundos");
     if (!hayJugada) {
       clearInterval(relojTurno);
-      setTimeout(avanzarTurno, 3000);
+      setTimeout(avanzarTurno, 5000);
       return;
     }
   }
@@ -426,13 +426,13 @@ function jugarBot(jugador) {
   const indice = mano.findIndex(fichaValida);
   if (indice < 0) {
     clearInterval(relojTurno);
-    mostrarMensaje(jugador.toUpperCase() + " no tiene jugada · pasa en 3 segundos");
+    mostrarMensaje(jugador.toUpperCase() + " no tiene jugada · pasa en 5 segundos");
     setTimeout(() => {
       if (turnoActual === jugador) {
         mostrarMensaje(jugador.toUpperCase() + " pasa");
         setTimeout(avanzarTurno, 450);
       }
-    }, 3000);
+    }, 5000);
     return;
   }
 
