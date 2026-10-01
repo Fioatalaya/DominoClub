@@ -422,6 +422,11 @@ function ajustarCadena() {
     f.style.setProperty("top", y + "px", "important");
     f.style.setProperty("width", w + "px", "important");
     f.style.setProperty("height", h + "px", "important");
+    f.style.setProperty("min-width", w + "px", "important");
+    f.style.setProperty("max-width", w + "px", "important");
+    f.style.setProperty("min-height", h + "px", "important");
+    f.style.setProperty("max-height", h + "px", "important");
+    f.style.setProperty("flex", "none", "important");
     f.style.setProperty("transform", "translate(-50%,-50%)", "important");
     f.style.setProperty("margin", "0", "important");
     f.classList.toggle("giro-cadena", fichaVertical);
