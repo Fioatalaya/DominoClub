@@ -1365,3 +1365,45 @@
     flex-basis: 41px !important;
   }
 }
+
+
+/* ===== MANO 8/10: FICHAS MAS PROTAGONISTAS ===== */
+@media (max-width: 520px) {
+  .mis-fichas {
+    width: calc(100% - 44px) !important;
+    max-width: 600px !important;
+    min-height: 124px !important;
+    padding: 14px 10px 11px !important;
+    gap: 4px !important;
+    margin-top: -10px !important;
+  }
+
+  .mis-fichas .ficha-domino {
+    width: 48px !important;
+    height: 90px !important;
+    flex: 0 0 48px !important;
+  }
+
+  .mis-fichas .puntos {
+    padding: 5px !important;
+  }
+
+  .mis-fichas .punto {
+    width: 7px !important;
+    height: 7px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .mis-fichas {
+    width: calc(100% - 36px) !important;
+    gap: 3px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  .mis-fichas .ficha-domino {
+    width: 45px !important;
+    height: 86px !important;
+    flex-basis: 45px !important;
+  }
+}
