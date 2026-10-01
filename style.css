@@ -514,3 +514,36 @@
 .tablero-fichas {
   width: 78% !important;
 }
+
+
+/* Mesa limpia: cadena separada de los jugadores */
+.centro-mesa.oculto {
+  display: none !important;
+}
+
+.tablero-fichas {
+  top: 43% !important;
+  left: 50% !important;
+  width: 72% !important;
+  min-height: 120px !important;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: none;
+}
+
+.cadena-fichas {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 82px;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-content: center !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  overflow: visible !important;
+}
+
+/* Mantener la cadena por delante del texto de la mesa y por detras de jugadores */
+.centro-mesa { z-index: 1; }
+.tablero-fichas { z-index: 2 !important; }
+.jugador { z-index: 5; }
