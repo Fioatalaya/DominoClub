@@ -455,3 +455,62 @@
 
 /* Correccion definitiva: no mostrar etiquetas numericas de extremos */
 .tablero-fichas > .extremo { display:none !important; width:0 !important; min-width:0 !important; height:0 !important; overflow:hidden !important; }
+
+
+/* Cadena visual estilo domino */
+.cadena-fichas {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  overflow: visible !important;
+  white-space: nowrap;
+}
+
+.cadena-fichas .ficha-domino {
+  width: 76px !important;
+  height: 42px !important;
+  flex-direction: row !important;
+  border-radius: 7px !important;
+  flex: 0 0 auto !important;
+}
+
+.cadena-fichas .ficha-domino > .cara {
+  width: 50% !important;
+  height: 100% !important;
+}
+
+.cadena-fichas .ficha-domino > .cara:first-child {
+  border-bottom: 0 !important;
+  border-right: 2px solid #111827 !important;
+}
+
+.cadena-fichas .ficha-domino.doble {
+  width: 42px !important;
+  height: 76px !important;
+  flex-direction: column !important;
+}
+
+.cadena-fichas .ficha-domino.doble > .cara {
+  width: 100% !important;
+  height: 50% !important;
+}
+
+.cadena-fichas .ficha-domino.doble > .cara:first-child {
+  border-right: 0 !important;
+  border-bottom: 2px solid #111827 !important;
+}
+
+.cadena-fichas .puntos {
+  padding: 4px !important;
+}
+
+.cadena-fichas .punto {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.tablero-fichas {
+  width: 78% !important;
+}
