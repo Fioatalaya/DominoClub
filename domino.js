@@ -12,22 +12,24 @@ let fichaPendiente = null;
 let arrastreFicha = null;
 let cadenaLogica = [];
 let indiceInicioCadena = 0;
-let siguienteFichaId = 1;
 let estadoPartida = null;
 
 function crearEstadoPartida(){
   const fichas=[];
-  for(let a=0;a<=6;a++) for(let b=a;b<=6;b++) fichas.push({id:siguienteFichaId++,a,b});
-  for(let i=fichas.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[fichas[i],fichas[j]]=[fichas[j],fichas[i]];}
+  for(let a=0;a<=6;a++) for(let b=a;b<=6;b++) fichas.push([a,b]);
+  for(let i=fichas.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [fichas[i],fichas[j]]=[fichas[j],fichas[i]];
+  }
+  const claves=new Set(fichas.map(f=>f.join("-")));
+  if(fichas.length!==28 || claves.size!==28) throw new Error("Mazo inválido");
   return {
     manos:{
       tu:fichas.slice(0,7), j2:fichas.slice(7,14),
       j3:fichas.slice(14,21), j4:fichas.slice(21,28)
-    },
-    cadena:[], inicioId:null
+    }
   };
 }
-function valoresFicha(f){ return Array.isArray(f)?f:[f.a,f.b]; }
 
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
