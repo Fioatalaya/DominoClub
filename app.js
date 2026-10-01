@@ -228,6 +228,10 @@ function jugarFicha(elemento, ladoA, ladoB) {
   setTimeout(() => elemento.classList.remove("entrada-ficha"), 280);
 
   manosJugadores.tu = manosJugadores.tu.filter(f => !(f[0] === ladoA && f[1] === ladoB));
+
+  // Detener el reloj inmediatamente al hacer una jugada válida.
+  // Evita que el temporizador venza durante la animación y salte dos turnos.
+  clearInterval(relojTurno);
   setTimeout(() => avanzarTurno(), 450);
 }
 
@@ -251,6 +255,10 @@ function iniciarTurno(jugador) {
   const nombre = document.querySelector("#nombreTurno");
   if (tiempo) tiempo.textContent = segundosTurno;
   if (nombre) nombre.textContent = nombres[jugador];
+
+  // En este prototipo cada jugador solo ve su propio reloj.
+  const reloj = document.querySelector(".reloj-turno");
+  if (reloj) reloj.classList.toggle("reloj-oculto", jugador !== "tu");
 
   document.querySelectorAll(".jugador").forEach(x => x.classList.remove("turno-activo"));
   const selector = {tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
@@ -292,6 +300,7 @@ function jugarBot(jugador) {
   }
 
   const ficha = mano[indice];
+  clearInterval(relojTurno);
   let [a,b] = ficha;
   let lado = "derecha", invertir = false;
 
