@@ -256,13 +256,17 @@ function iniciarTurno(jugador) {
   if (tiempo) tiempo.textContent = segundosTurno;
   if (nombre) nombre.textContent = nombres[jugador];
 
-  // En este prototipo cada jugador solo ve su propio reloj.
-  const reloj = document.querySelector(".reloj-turno");
-  if (reloj) reloj.classList.toggle("reloj-oculto", jugador !== "tu");
-
   document.querySelectorAll(".jugador").forEach(x => x.classList.remove("turno-activo"));
   const selector = {tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
-  document.querySelector(selector)?.classList.add("turno-activo");
+  const jugadorActivo = document.querySelector(selector);
+  jugadorActivo?.classList.add("turno-activo");
+
+  // El reloj acompaña únicamente al jugador cuyo turno está activo.
+  const reloj = document.querySelector(".reloj-turno");
+  if (reloj && jugadorActivo) {
+    jugadorActivo.appendChild(reloj);
+    reloj.classList.remove("reloj-oculto");
+  }
 
   relojTurno = setInterval(() => {
     segundosTurno--;
@@ -350,11 +354,34 @@ function ajustarCadena() {
   const cadena = document.querySelector(".cadena-fichas");
   if (!cadena) return;
 
-  const total = cadena.querySelectorAll(".ficha-domino").length;
-  cadena.classList.remove("cadena-media", "cadena-larga");
+  const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
+  cadena.classList.add("cadena-serpiente");
 
-  if (total >= 4) cadena.classList.add("cadena-media");
-  if (total >= 6) cadena.classList.add("cadena-larga");
+  // Reparte la cadena en varias líneas dentro de la mesa, en forma de serpiente.
+  // Así no sigue creciendo fuera de la pantalla.
+  const porFila = window.innerWidth <= 520 ? 6 : 8;
+  const pasoX = window.innerWidth <= 520 ? 43 : 49;
+  const pasoY = window.innerWidth <= 520 ? 42 : 47;
+  const filas = Math.max(1, Math.ceil(fichas.length / porFila));
+  const anchoFila = (Math.min(porFila, Math.max(1, fichas.length)) - 1) * pasoX;
+  const altoTotal = (filas - 1) * pasoY;
+  const centroX = cadena.clientWidth / 2;
+  const centroY = cadena.clientHeight / 2;
+
+  fichas.forEach((ficha, indice) => {
+    const fila = Math.floor(indice / porFila);
+    const pos = indice % porFila;
+    const cantidadFila = Math.min(porFila, fichas.length - fila * porFila);
+    const anchoActual = (cantidadFila - 1) * pasoX;
+    const haciaDerecha = fila % 2 === 0;
+    const columnaVisual = haciaDerecha ? pos : (cantidadFila - 1 - pos);
+
+    ficha.style.position = "absolute";
+    ficha.style.left = (centroX - anchoActual / 2 + columnaVisual * pasoX) + "px";
+    ficha.style.top = (centroY - altoTotal / 2 + fila * pasoY) + "px";
+    ficha.style.transform = "translate(-50%, -50%)";
+    ficha.style.zIndex = String(20 + indice);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", function () {
