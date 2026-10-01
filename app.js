@@ -229,10 +229,10 @@ function ajustarCadena() {
   if (!cadena) return;
 
   const total = cadena.querySelectorAll(".ficha-domino").length;
-  cadena.classList.remove("cadena-mediana", "cadena-larga");
+  cadena.classList.remove("cadena-media", "cadena-larga");
 
-  if (total >= 5) cadena.classList.add("cadena-mediana");
-  if (total >= 7) cadena.classList.add("cadena-larga");
+  if (total >= 4) cadena.classList.add("cadena-media");
+  if (total >= 6) cadena.classList.add("cadena-larga");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
