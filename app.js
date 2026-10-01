@@ -10,6 +10,7 @@ let turnoHumanoId = 0;
 let ultimaJugadaHumanaId = -1;
 let fichaPendiente = null;
 let arrastreFicha = null;
+let cadenaLogica = [];
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
 const tables = [
@@ -73,6 +74,7 @@ function htmlFicha(ficha) {
 function openGame(index) {
   extremoIzquierdo = null;
   extremoDerecho = null;
+  cadenaLogica = [];
   const table = tables[index];
   if (!table) return;
 
@@ -244,40 +246,27 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
   });
   const tokenJugada = ++turnoToken;
 
-  let lado = "derecha";
-  let invertir = false;
-
-  const coincideIzq = extremoIzquierdo !== null && (ladoA === extremoIzquierdo || ladoB === extremoIzquierdo);
-  const coincideDer = extremoDerecho !== null && (ladoA === extremoDerecho || ladoB === extremoDerecho);
-
-  if (extremoIzquierdo === null) {
-    extremoIzquierdo = ladoA;
-    extremoDerecho = ladoB;
-  } else if (ladoElegido === "izquierda" && coincideIzq) {
-    lado = "izquierda";
-    if (ladoB === extremoIzquierdo) extremoIzquierdo = ladoA;
-    else { extremoIzquierdo = ladoB; invertir = true; }
-  } else if (ladoA === extremoDerecho) {
-    extremoDerecho = ladoB;
-    lado = "derecha";
-  } else if (ladoB === extremoDerecho) {
-    extremoDerecho = ladoA;
-    lado = "derecha";
-    invertir = true;
-  } else if (ladoB === extremoIzquierdo) {
-    extremoIzquierdo = ladoA;
-    lado = "izquierda";
-  } else if (ladoA === extremoIzquierdo) {
-    extremoIzquierdo = ladoB;
-    lado = "izquierda";
-    invertir = true;
-  } else {
-    turnoBloqueado = false;
-    ultimaJugadaHumanaId = -1;
-    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f => f.style.pointerEvents = "");
-    mostrarMensaje("Esa ficha no coincide con los extremos");
-    return;
+  sincronizarExtremos();
+  const opciones=ladosValidos([ladoA,ladoB]);
+  let lado=ladoElegido;
+  if(!cadenaLogica.length) lado="derecha";
+  else if(!opciones.includes(lado)) lado=opciones.length===1?opciones[0]:null;
+  if(!lado){
+    turnoBloqueado=false;ultimaJugadaHumanaId=-1;
+    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
+    mostrarMensaje("Esa ficha no coincide con los extremos"); return;
   }
+  const orientada=orientarFicha(ladoA,ladoB,lado);
+  if(!orientada){
+    turnoBloqueado=false;ultimaJugadaHumanaId=-1;
+    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
+    mostrarMensaje("Esa ficha no coincide con los extremos"); return;
+  }
+  const invertir=orientada[0]!==ladoA||orientada[1]!==ladoB;
+  if(!cadenaLogica.length) cadenaLogica.push(orientada);
+  else if(lado==="izquierda") cadenaLogica.unshift(orientada);
+  else cadenaLogica.push(orientada);
+  sincronizarExtremos();
 
   elemento.classList.remove("seleccionada");
   elemento.style.transform = "";
@@ -404,10 +393,31 @@ function avanzarTurno() {
   iniciarTurno(ordenTurnos[(i + 1) % ordenTurnos.length]);
 }
 
-function fichaValida(ficha) {
-  if (extremoIzquierdo === null) return true;
-  return ficha[0] === extremoIzquierdo || ficha[1] === extremoIzquierdo ||
-         ficha[0] === extremoDerecho || ficha[1] === extremoDerecho;
+function sincronizarExtremos(){
+  if(!cadenaLogica.length){extremoIzquierdo=null;extremoDerecho=null;return;}
+  extremoIzquierdo=cadenaLogica[0][0];
+  extremoDerecho=cadenaLogica[cadenaLogica.length-1][1];
+}
+function ladosValidos(ficha){
+  sincronizarExtremos();
+  if(!cadenaLogica.length) return ["inicio"];
+  const [a,b]=ficha,l=[];
+  if(a===extremoIzquierdo||b===extremoIzquierdo) l.push("izquierda");
+  if(a===extremoDerecho||b===extremoDerecho) l.push("derecha");
+  return l;
+}
+function fichaValida(ficha){return ladosValidos(ficha).length>0;}
+function orientarFicha(a,b,lado){
+  sincronizarExtremos();
+  if(!cadenaLogica.length) return [a,b];
+  if(lado==="izquierda"){
+    if(b===extremoIzquierdo) return [a,b];
+    if(a===extremoIzquierdo) return [b,a];
+  }else{
+    if(a===extremoDerecho) return [a,b];
+    if(b===extremoDerecho) return [b,a];
+  }
+  return null;
 }
 
 function jugarBot(jugador) {
@@ -423,19 +433,16 @@ function jugarBot(jugador) {
   const ficha = mano[indice];
   clearInterval(relojTurno);
   let [a,b] = ficha;
-  let lado = "derecha", invertir = false;
-
-  if (extremoIzquierdo === null) {
-    extremoIzquierdo = a; extremoDerecho = b;
-  } else if (a === extremoDerecho) {
-    extremoDerecho = b;
-  } else if (b === extremoDerecho) {
-    extremoDerecho = a; invertir = true;
-  } else if (b === extremoIzquierdo) {
-    extremoIzquierdo = a; lado = "izquierda";
-  } else if (a === extremoIzquierdo) {
-    extremoIzquierdo = b; lado = "izquierda"; invertir = true;
-  }
+  const opciones=ladosValidos(ficha);
+  let lado=opciones.includes("derecha")?"derecha":opciones[0];
+  if(lado==="inicio") lado="derecha";
+  const orientada=orientarFicha(a,b,lado);
+  if(!orientada){mostrarMensaje(jugador.toUpperCase()+" pasa");setTimeout(avanzarTurno,700);return;}
+  const invertir=orientada[0]!==a||orientada[1]!==b;
+  if(!cadenaLogica.length) cadenaLogica.push(orientada);
+  else if(lado==="izquierda") cadenaLogica.unshift(orientada);
+  else cadenaLogica.push(orientada);
+  sincronizarExtremos();
 
   const cadena = document.querySelector(".cadena-fichas");
   if (!cadena) return;
