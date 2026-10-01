@@ -209,6 +209,7 @@ function jugarFicha(elemento, ladoA, ladoB) {
   elemento.style.zIndex = "";
   elemento.removeAttribute("onclick");
   elemento.classList.add("ficha-jugada");
+  elemento.classList.toggle("doble", ladoA === ladoB);
 
   if (invertir) {
     const caras = Array.from(elemento.querySelectorAll(".cara"));
