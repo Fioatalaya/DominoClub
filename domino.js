@@ -501,33 +501,34 @@ function renderizarCadenaLogica() {
 function ajustarCadena(){
  const c=document.querySelector(".cadena-fichas"); if(!c)return;
  const fs=[...c.querySelectorAll(".ficha-domino")]; if(!fs.length)return;
- const r=c.getBoundingClientRect(),W=r.width||520,H=r.height||390,L=42,C=26,G=1;
- const bounds={l:78,r:W-78,t:70,b:H-78}, ax=Math.max(0,Math.min(indiceInicioCadena,fs.length-1));
- const put=(f,x,y,d)=>{
-   const isD=f.classList.contains("doble"), pathV=d===1||d===3, v=isD?!pathV:pathV;
+ const r=c.getBoundingClientRect(),W=r.width||520,H=r.height||390;
+ const L=46,C=28,G=2, ax=Math.max(0,Math.min(indiceInicioCadena,fs.length-1));
+ const cx=W/2,cy=H/2, left=54,right=W-54,top=60,bottom=H-60;
+ const place=(f,x,y,vertical)=>{
+   const isD=f.classList.contains("doble");
+   const v=isD ? !vertical : vertical;
    const w=v?C:L,h=v?L:C;
-   f.classList.toggle("giro-cadena",v); f.classList.toggle("doble-tablero",isD&&v);
-   [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
-   ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
-   ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([k,z])=>f.style.setProperty(k,z,"important"));
+   f.classList.toggle("giro-cadena",v);
+   f.classList.toggle("doble-tablero",isD&&v);
+   f.style.cssText+=";position:absolute!important;left:"+x+"px!important;top:"+y+"px!important;width:"+w+"px!important;height:"+h+"px!important;min-width:"+w+"px!important;max-width:"+w+"px!important;min-height:"+h+"px!important;max-height:"+h+"px!important;transform:translate(-50%,-50%)!important;margin:0!important;";
  };
- const cx=W/2,cy=H/2; put(fs[ax],cx,cy,0);
- function arm(arr,d){
-   let x=cx,y=cy,prevHalf=fs[ax].classList.contains("doble")?C/2:L/2;
+ place(fs[ax],cx,cy,false);
+ const walk=(arr,dir)=>{
+   let x=cx,y=cy,vertical=false,half=L/2;
    for(const f of arr){
-     const isD=f.classList.contains("doble"),curHalf=isD?C/2:L/2;
-     let step=prevHalf+curHalf+G;
-     let nx=x+(d===0?step:d===2?-step:0),ny=y+(d===1?step:d===3?-step:0);
-     if(nx<bounds.l||nx>bounds.r||ny<bounds.t||ny>bounds.b){
-       d=(d+1)%4;
-       // At a corner, connect from the previous tile's endpoint in the new direction.
-       step=prevHalf+curHalf+G;
-       nx=x+(d===0?step:d===2?-step:0);ny=y+(d===1?step:d===3?-step:0);
+     const isD=f.classList.contains("doble");
+     let nextHalf=isD?C/2:L/2, step=half+nextHalf+G;
+     let nx=x+(dir>0?step:-step), ny=y;
+     if(dir>0 && nx>right){ vertical=true; nx=x; ny=y+step; }
+     if(dir<0 && nx<left){ vertical=true; nx=x; ny=y-step; }
+     if(vertical){
+       nx=x; ny=y+(dir>0?step:-step);
+       if(ny>bottom||ny<top){ vertical=false; dir=-dir; nx=x+(dir>0?step:-step); ny=y; }
      }
-     put(f,nx,ny,d); x=nx;y=ny;prevHalf=curHalf;
+     place(f,nx,ny,vertical); x=nx;y=ny;half=nextHalf;
    }
- }
- arm(fs.slice(ax+1),0); arm(fs.slice(0,ax).reverse(),2);
+ };
+ walk(fs.slice(ax+1),1); walk(fs.slice(0,ax).reverse(),-1);
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
