@@ -493,7 +493,7 @@ function renderizarCadenaLogica() {
     el.removeAttribute("onclick");
     el.removeAttribute("onpointerdown");
     el.classList.add("ficha-jugada");
-    el.classList.toggle("doble",f[0]===f[1]);
+    el.classList.toggle("doble",f[0]===f[1]); el.dataset.valorA=String(f[0]); el.dataset.valorB=String(f[1]);
     el.dataset.a=String(f[0]); el.dataset.b=String(f[1]);
     cadena.appendChild(el);
   });
@@ -513,7 +513,7 @@ function ajustarCadena(){
  const cx=W/2,cy=H/2,left=42,right=W-42,top=46,bottom=H-46;
  const place=(f,x,y,vertical)=>{
    const isD=f.classList.contains("doble");
-   const v=isD?!vertical:vertical,w=v?C:L,h=v?L:C;
+   const v=vertical,w=v?C:L,h=v?L:C;
    f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",isD&&v);
    Object.assign(f.style,{position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
     minWidth:w+"px",maxWidth:w+"px",minHeight:h+"px",maxHeight:h+"px",transform:"translate(-50%,-50%)",margin:"0"});
