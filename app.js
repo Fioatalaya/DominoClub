@@ -219,6 +219,7 @@ function jugarFicha(elemento, ladoA, ladoB) {
   elemento.style.zIndex = "";
   elemento.removeAttribute("onclick");
   elemento.classList.add("ficha-jugada");
+  if (cadena.children.length === 0) elemento.dataset.inicio = "1";
 
   const intro = document.querySelector(".centro-mesa");
   if (intro) intro.classList.add("oculto");
@@ -361,6 +362,7 @@ function jugarBot(jugador) {
   const elemento = cont.firstElementChild;
   elemento.removeAttribute("onclick");
   elemento.classList.add("ficha-jugada");
+  if (cadena.children.length === 0) elemento.dataset.inicio = "1";
   elemento.classList.toggle("doble", a === b);
   if (invertir) {
     const caras = Array.from(elemento.querySelectorAll(".cara"));
@@ -387,51 +389,51 @@ function jugarBot(jugador) {
 }
 
 function ajustarCadena() {
-  const cadena = document.querySelector(".cadena-fichas");
-  if (!cadena) return;
-  const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
+  const cadena=document.querySelector(".cadena-fichas");
+  if(!cadena) return;
+  const todas=Array.from(cadena.querySelectorAll(".ficha-domino"));
+  if(!todas.length) return;
   cadena.classList.add("cadena-serpiente");
 
-  // La primera ficha nace exactamente en el centro.
-  // Después la cadena crece continua en zigzag, sin huecos.
-  const cx=160, y0=220, W=64, H=38, VW=38, VH=64;
-  const posiciones=[
-    [cx,y0,"h"],
-    [cx+64,y0,"h"],
-    [cx+115,y0+32,"v"],
-    [cx+83,y0+64,"h"],
-    [cx+19,y0+64,"h"],
-    [cx-45,y0+64,"h"],
-    [cx-96,y0+96,"v"],
-    [cx-64,y0+128,"h"],
-    [cx,y0+128,"h"],
-    [cx+64,y0+128,"h"],
-    [cx+115,y0+160,"v"],
-    [cx+83,y0+192,"h"],
-    [cx+19,y0+192,"h"],
-    [cx-45,y0+192,"h"],
-    [cx-96,y0+224,"v"]
-  ];
+  // La ficha que abrió la partida siempre queda en el centro.
+  const inicio=todas.find(f=>f.dataset.inicio==="1") || todas[0];
+  const idx=todas.indexOf(inicio);
+  const izquierda=todas.slice(0,idx).reverse();
+  const derecha=todas.slice(idx+1);
 
-  fichas.forEach((ficha,i)=>{
-    const p=posiciones[i] || posiciones[posiciones.length-1];
-    const vertical=p[2]==="v";
-    ficha.classList.toggle("giro-cadena",vertical);
-    // Los dobles quedan atravesados respecto al tramo, como en dominó real.
-    const esDoble=ficha.classList.contains("doble");
-    ficha.classList.toggle("doble-tablero",esDoble && !vertical);
-    let ancho=vertical?VW:W, alto=vertical?VH:H;
-    if(esDoble && !vertical){ ancho=38; alto=64; }
+  const cx=160, cy=220, W=64, H=38, VW=38, VH=64;
+  function colocar(f,x,y,vertical=false){
+    const doble=f.classList.contains("doble");
+    f.classList.toggle("giro-cadena",vertical);
+    f.classList.toggle("doble-tablero",doble && !vertical);
+    const w=vertical?VW:(doble?38:W);
+    const h=vertical?VH:(doble?64:H);
+    f.style.setProperty("position","absolute","important");
+    f.style.setProperty("left",x+"px","important");
+    f.style.setProperty("top",y+"px","important");
+    f.style.setProperty("width",w+"px","important");
+    f.style.setProperty("height",h+"px","important");
+    f.style.setProperty("transform","translate(-50%,-50%)","important");
+    f.style.setProperty("margin","0","important");
+  }
+  colocar(inicio,cx,cy,false);
 
-    ficha.style.setProperty("position","absolute","important");
-    ficha.style.setProperty("left",p[0]+"px","important");
-    ficha.style.setProperty("top",p[1]+"px","important");
-    ficha.style.setProperty("width",ancho+"px","important");
-    ficha.style.setProperty("height",alto+"px","important");
-    ficha.style.setProperty("transform","translate(-50%,-50%)","important");
-    ficha.style.setProperty("margin","0","important");
-    ficha.style.zIndex=String(20+i);
-  });
+  // Cada extremo crece desde el centro. Las piezas quedan pegadas y sólo
+  // doblan cuando se acercan a los bordes, como una cadena real.
+  function lado(arr,dir){
+    let x=cx, y=cy;
+    arr.forEach((f,n)=>{
+      const tramo=Math.floor(n/3), pos=n%3;
+      const hacia=tramo%2===0?dir:-dir;
+      if(pos===0){ x += hacia*64; }
+      else if(pos===1){ x += hacia*64; }
+      else { x += hacia*51; y += 51; }
+      const vertical=pos===2;
+      colocar(f,x,y,vertical);
+    });
+  }
+  lado(derecha,1);
+  lado(izquierda,-1);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
