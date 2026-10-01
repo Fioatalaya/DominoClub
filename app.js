@@ -9,6 +9,7 @@ let turnoToken = 0;
 let turnoHumanoId = 0;
 let ultimaJugadaHumanaId = -1;
 let fichaPendiente = null;
+let arrastreFicha = null;
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
 const tables = [
@@ -62,7 +63,9 @@ function crearMazoDomino() {
 
 function htmlFicha(ficha) {
   const [a, b] = ficha;
-  return `<div class="ficha-domino" onclick="seleccionarFicha(this, ${a}, ${b})">
+  return `<div class="ficha-domino"
+    onclick="seleccionarFicha(this, ${a}, ${b})"
+    onpointerdown="iniciarArrastreFicha(event,this,${a},${b})">
     <span class="cara" data-num="${a}"></span><span class="cara" data-num="${b}"></span>
   </div>`;
 }
@@ -133,54 +136,73 @@ function dibujarFichas() {
   });
 }
 function seleccionarFicha(elemento, ladoA, ladoB) {
-  if (turnoActual !== "tu" || turnoBloqueado || ultimaJugadaHumanaId === turnoHumanoId) {
-    mostrarMensaje("Espera tu turno");
-    return;
-  }
-
-  // La mano lógica es la autoridad. Nunca permitir una ficha que ya no esté en la mano.
-  const indiceReal = manosJugadores.tu.findIndex(f =>
-    (f[0] === ladoA && f[1] === ladoB) || (f[0] === ladoB && f[1] === ladoA)
-  );
-  if (indiceReal < 0) {
-    dibujarFichas();
-    mostrarMensaje("Esa ficha ya no está en tu mano");
-    return;
-  }
-
-  if (!fichaValida([ladoA, ladoB])) {
-    mostrarMensaje("No coincide. Juega una ficha iluminada.");
-    return;
-  }
-
-  const puedeIzq = extremoIzquierdo !== null && (ladoA === extremoIzquierdo || ladoB === extremoIzquierdo);
-  const puedeDer = extremoDerecho !== null && (ladoA === extremoDerecho || ladoB === extremoDerecho);
-
-  // Si la ficha sirve en ambos extremos, el jugador decide dónde ponerla.
-  if (puedeIzq && puedeDer) {
-    fichaPendiente = {elemento,ladoA,ladoB};
-    document.querySelectorAll(".ficha-domino").forEach(f=>f.classList.remove("seleccionada"));
-    elemento.classList.add("seleccionada");
-    mostrarSelectorExtremo();
-    return;
-  }
-  jugarFicha(elemento, ladoA, ladoB, puedeIzq && !puedeDer ? "izquierda" : "derecha");
+  // En móvil la jugada se hace arrastrando. El toque simple no decide el extremo.
+  if (arrastreFicha?.movio) return;
+  if (turnoActual !== "tu" || turnoBloqueado) return;
+  if (!fichaValida([ladoA,ladoB])) mostrarMensaje("Esa ficha no coincide");
 }
 
-function mostrarSelectorExtremo(){
-  let c=document.querySelector(".selector-extremo");
-  if(!c){
-    c=document.createElement("div"); c.className="selector-extremo";
-    c.innerHTML='<button type="button" onclick="elegirExtremo(\'izquierda\')">← IZQUIERDA</button><button type="button" onclick="elegirExtremo(\'derecha\')">DERECHA →</button>';
-    document.querySelector(".mesa-domino")?.appendChild(c);
-  }
-  c.classList.add("visible");
-  mostrarMensaje("Esta ficha sirve en ambos lados · elige dónde jugar");
+function iniciarArrastreFicha(e, elemento, ladoA, ladoB) {
+  if (turnoActual !== "tu" || turnoBloqueado || !fichaValida([ladoA,ladoB])) return;
+  const existe=manosJugadores.tu.some(f=>(f[0]===ladoA&&f[1]===ladoB)||(f[0]===ladoB&&f[1]===ladoA));
+  if(!existe) return;
+  e.preventDefault();
+  elemento.setPointerCapture?.(e.pointerId);
+  const r=elemento.getBoundingClientRect();
+  arrastreFicha={elemento,ladoA,ladoB,pointerId:e.pointerId,movio:false,
+    ox:e.clientX-r.left,oy:e.clientY-r.top,
+    css:{position:elemento.style.position,left:elemento.style.left,top:elemento.style.top,
+      width:elemento.style.width,height:elemento.style.height,zIndex:elemento.style.zIndex,
+      transform:elemento.style.transform,pointerEvents:elemento.style.pointerEvents}};
+  elemento.classList.add("ficha-arrastrando");
+  elemento.style.position="fixed";
+  elemento.style.width=r.width+"px"; elemento.style.height=r.height+"px";
+  elemento.style.left=(e.clientX-arrastreFicha.ox)+"px";
+  elemento.style.top=(e.clientY-arrastreFicha.oy)+"px";
+  elemento.style.zIndex="1000";
+  elemento.style.pointerEvents="none";
+  window.addEventListener("pointermove",moverArrastreFicha,{passive:false});
+  window.addEventListener("pointerup",soltarArrastreFicha,{once:true});
+  window.addEventListener("pointercancel",cancelarArrastreFicha,{once:true});
 }
-function elegirExtremo(lado){
-  const p=fichaPendiente; fichaPendiente=null;
-  document.querySelector(".selector-extremo")?.classList.remove("visible");
-  if(p) jugarFicha(p.elemento,p.ladoA,p.ladoB,lado);
+function moverArrastreFicha(e){
+  const d=arrastreFicha;if(!d)return;
+  e.preventDefault(); d.movio=true;
+  d.elemento.style.left=(e.clientX-d.ox)+"px";
+  d.elemento.style.top=(e.clientY-d.oy)+"px";
+}
+function restaurarArrastre(d){
+  if(!d)return;
+  Object.assign(d.elemento.style,d.css);
+  d.elemento.classList.remove("ficha-arrastrando");
+}
+function cancelarArrastreFicha(){
+  const d=arrastreFicha;arrastreFicha=null;
+  window.removeEventListener("pointermove",moverArrastreFicha);
+  restaurarArrastre(d);
+}
+function soltarArrastreFicha(e){
+  const d=arrastreFicha;arrastreFicha=null;
+  window.removeEventListener("pointermove",moverArrastreFicha);
+  if(!d)return;
+  const mesa=document.querySelector(".tablero-fichas");
+  const mr=mesa?.getBoundingClientRect();
+  if(!mr || e.clientX<mr.left || e.clientX>mr.right || e.clientY<mr.top || e.clientY>mr.bottom){
+    restaurarArrastre(d); return;
+  }
+  const puedeIzq=extremoIzquierdo!==null&&(d.ladoA===extremoIzquierdo||d.ladoB===extremoIzquierdo);
+  const puedeDer=extremoDerecho!==null&&(d.ladoA===extremoDerecho||d.ladoB===extremoDerecho);
+  let lado=null;
+  if(extremoIzquierdo===null) lado="derecha";
+  else if(puedeIzq&&puedeDer){
+    // Sin botones ni señales: la mitad donde se suelta decide el extremo.
+    const cr=document.querySelector(".cadena-fichas")?.getBoundingClientRect();
+    lado=e.clientX < (cr ? cr.left+cr.width/2 : mr.left+mr.width/2) ? "izquierda" : "derecha";
+  } else if(puedeIzq) lado="izquierda";
+  else if(puedeDer) lado="derecha";
+  if(!lado){restaurarArrastre(d);return;}
+  restaurarArrastre(d);
+  jugarFicha(d.elemento,d.ladoA,d.ladoB,lado);
 }
 
 function actualizarGuiaTurno() {
