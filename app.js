@@ -85,12 +85,12 @@ function openGame(index) {
         <div class="saldo-partida">🪙 10,000</div>
       </div>
       <div class="mesa-domino">
-        <div class="jugador jugador-arriba"><span class="avatar-juego">J2</span><span class="datos-jugador"><b>Jugador 2</b><small>7 fichas</small></span></div>
-        <div class="jugador jugador-izquierda"><span class="avatar-juego">J3</span><span class="datos-jugador"><b>Jugador 3</b><small>7 fichas</small></span></div>
+        <div class="jugador jugador-arriba"><span class="avatar-juego">J2</span><span class="datos-jugador"><b>J2</b><small>7 fichas</small></span></div>
+        <div class="jugador jugador-izquierda"><span class="avatar-juego">J3</span><span class="datos-jugador"><b>J3</b><small>7 fichas</small></span></div>
         <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
         <div class="reloj-turno" aria-label="Tiempo de turno"><span class="reloj-circulo"><span class="reloj-icono">⏱</span></span><small id="nombreTurno">Tu turno</small></div>
         <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
-        <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>Jugador 4</b><small>7 fichas</small></span></div>
+        <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>J4</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><b>Tú</b><small>10,000 monedas</small></span></div>
       </div>
       <div class="mis-fichas">${manosJugadores.tu.map(htmlFicha).join("")}</div>
@@ -277,9 +277,11 @@ function iniciarTurno(jugador) {
   // El usuario solo ve SU propio cronómetro. Los turnos rivales se indican únicamente con el borde.
   if (reloj) {
     const tu = document.querySelector(".jugador-abajo");
-    if (tu && reloj.parentElement !== tu) tu.appendChild(reloj);
+    const datosTu = tu?.querySelector(".datos-jugador");
+    if (datosTu && reloj.parentElement !== datosTu) datosTu.appendChild(reloj);
     reloj.classList.toggle("reloj-oculto", jugador !== "tu");
-    if (nombre) nombre.textContent = "Tu turno";
+    tu?.classList.toggle("mostrando-reloj", jugador === "tu");
+    if (nombre) nombre.textContent = "";
   }
 
   relojTurno = setInterval(() => {
