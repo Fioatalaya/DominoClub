@@ -94,7 +94,7 @@ function openGame(index) {
         <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
         <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>J4</b><small>7 fichas</small></span></div>
-        <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><b>Tú</b><small>10,000 monedas</small></span></div>
+        <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><small>10,000 monedas</small></span></div>
       </div>
       <div class="mis-fichas">${manosJugadores.tu.map(htmlFicha).join("")}</div>
     </div>
