@@ -364,33 +364,36 @@ function ajustarCadena() {
   const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
   cadena.classList.add("cadena-serpiente");
 
-  const movil = window.innerWidth <= 520;
-  const w = movil ? 44 : 50;
-  const h = movil ? 27 : 30;
-  const porTramo = movil ? 5 : 7;
-  const giro = movil ? 43 : 48;
-  const cx = cadena.clientWidth / 2;
-  const cy = cadena.clientHeight / 2;
+  // Cada tramo queda realmente unido: sin huecos ni diagonales arbitrarias.
+  const anchoNormal = 44;
+  const anchoDoble = 27;
+  const porTramo = 6;
+  const altoTramo = 48;
   const filas = Math.max(1, Math.ceil(fichas.length / porTramo));
-  const y0 = cy - ((filas - 1) * giro) / 2;
+  const centroX = cadena.clientWidth / 2;
+  const centroY = cadena.clientHeight / 2;
+  const inicioY = centroY - ((filas - 1) * altoTramo) / 2;
 
-  fichas.forEach((ficha, i) => {
-    const fila = Math.floor(i / porTramo);
-    const pos = i % porTramo;
-    const n = Math.min(porTramo, fichas.length - fila * porTramo);
+  for (let fila = 0; fila < filas; fila++) {
+    const tramo = fichas.slice(fila * porTramo, (fila + 1) * porTramo);
     const derecha = fila % 2 === 0;
-    const x0 = cx - ((n - 1) * w) / 2;
-    const x = derecha ? x0 + pos * w : x0 + (n - 1 - pos) * w;
-    const y = y0 + fila * giro;
-    const doble = ficha.classList.contains("doble");
+    const visual = derecha ? tramo : [...tramo].reverse();
+    const anchos = visual.map(f => f.classList.contains("doble") ? anchoDoble : anchoNormal);
+    const total = anchos.reduce((a,b) => a + b, 0);
+    let cursor = centroX - total / 2;
 
-    ficha.style.position = "absolute";
-    ficha.style.left = x + "px";
-    ficha.style.top = y + "px";
-    ficha.style.transform = "translate(-50%, -50%)";
-    ficha.style.zIndex = String(20 + i);
-    ficha.classList.toggle("doble-tablero", doble);
-  });
+    visual.forEach((ficha, j) => {
+      const ancho = anchos[j];
+      ficha.style.setProperty("position", "absolute", "important");
+      ficha.style.setProperty("left", (cursor + ancho / 2) + "px", "important");
+      ficha.style.setProperty("top", (inicioY + fila * altoTramo) + "px", "important");
+      ficha.style.setProperty("transform", "translate(-50%, -50%)", "important");
+      ficha.style.setProperty("margin", "0", "important");
+      ficha.style.zIndex = String(20 + fila * porTramo + j);
+      ficha.classList.toggle("doble-tablero", ficha.classList.contains("doble"));
+      cursor += ancho;
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
