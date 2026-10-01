@@ -6,6 +6,8 @@ let segundosTurno = 10;
 let relojTurno = null;
 let turnoBloqueado = false;
 let turnoToken = 0;
+let turnoHumanoId = 0;
+let ultimaJugadaHumanaId = -1;
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
 const tables = [
@@ -90,7 +92,6 @@ function openGame(index) {
         <div class="jugador jugador-arriba"><span class="avatar-juego">J2</span><span class="datos-jugador"><b>J2</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-izquierda"><span class="avatar-juego">J3</span><span class="datos-jugador"><b>J3</b><small>7 fichas</small></span></div>
         <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
-        <div class="reloj-turno" aria-label="Tiempo de turno"><span class="reloj-circulo"><span class="reloj-icono">⏱</span></span><small id="nombreTurno">Tu turno</small></div>
         <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>J4</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><b>Tú</b><small>10,000 monedas</small></span></div>
@@ -131,7 +132,7 @@ function dibujarFichas() {
   });
 }
 function seleccionarFicha(elemento, ladoA, ladoB) {
-  if (turnoActual !== "tu" || turnoBloqueado) {
+  if (turnoActual !== "tu" || turnoBloqueado || ultimaJugadaHumanaId === turnoHumanoId) {
     mostrarMensaje("Espera tu turno");
     return;
   }
@@ -176,6 +177,11 @@ function jugarFicha(elemento, ladoA, ladoB) {
   // Bloquea el turno en el mismo instante del primer movimiento válido.
   // Así un toque doble o varios toques rápidos nunca pueden jugar 2+ fichas.
   turnoBloqueado = true;
+  ultimaJugadaHumanaId = turnoHumanoId;
+  document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f => {
+    f.style.pointerEvents = "none";
+    f.classList.remove("ficha-disponible");
+  });
   const tokenJugada = ++turnoToken;
 
   let lado = "derecha";
@@ -200,6 +206,8 @@ function jugarFicha(elemento, ladoA, ladoB) {
     invertir = true;
   } else {
     turnoBloqueado = false;
+    ultimaJugadaHumanaId = -1;
+    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f => f.style.pointerEvents = "");
     mostrarMensaje("Esa ficha no coincide con los extremos");
     return;
   }
@@ -260,22 +268,22 @@ function iniciarTurno(jugador) {
   turnoToken++;
   turnoBloqueado = false;
   turnoActual = jugador;
+  if (jugador === "tu") {
+    turnoHumanoId++;
+    ultimaJugadaHumanaId = -1;
+    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f => f.style.pointerEvents = "");
+  }
   segundosTurno = 10;
   const nombres = {tu:"Tu turno", j2:"Turno J2", j3:"Turno J3", j4:"Turno J4"};
-  const reloj = document.querySelector(".reloj-turno");
-  const nombre = document.querySelector("#nombreTurno");
-  if (nombre) nombre.textContent = nombres[jugador];
-  if (reloj) {
-    reloj.classList.remove("reloj-urgente");
-    reloj.style.setProperty("--progreso-turno", "100%");
+  const avatarTu = document.querySelector(".jugador-abajo .avatar-tu");
+  if (avatarTu) {
+    avatarTu.textContent = "TÚ";
+    avatarTu.classList.remove("avatar-urgente");
   }
 
   document.querySelectorAll(".jugador").forEach(x => x.classList.remove("turno-activo"));
   const selector = {tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
-  const jugadorActivo = document.querySelector(selector);
-  jugadorActivo?.classList.add("turno-activo");
-  const avatarTu = document.querySelector(".jugador-abajo .avatar-tu");
-  if (avatarTu) avatarTu.textContent = "TÚ";
+  document.querySelector(selector)?.classList.add("turno-activo");
 
   actualizarGuiaTurno();
   if (jugador === "tu") {
@@ -288,24 +296,14 @@ function iniciarTurno(jugador) {
     }
   }
 
-  // El usuario solo ve SU propio cronómetro. Los turnos rivales se indican únicamente con el borde.
-  if (reloj) {
-    const tu = document.querySelector(".jugador-abajo");
-    const datosTu = tu?.querySelector(".datos-jugador");
-    if (datosTu && reloj.parentElement !== datosTu) datosTu.appendChild(reloj);
-    reloj.classList.toggle("reloj-oculto", jugador !== "tu");
-    tu?.classList.toggle("mostrando-reloj", jugador === "tu");
-    if (nombre) nombre.textContent = "";
-  }
-
   relojTurno = setInterval(() => {
     segundosTurno--;
-    if (reloj && jugador === "tu") {
-      reloj.style.setProperty("--progreso-turno", Math.max(0, segundosTurno * 10) + "%");
-      reloj.classList.toggle("reloj-cuenta-visible", segundosTurno <= 5);
-      reloj.classList.toggle("reloj-urgente", segundosTurno <= 3);
-      const avatarTu = document.querySelector(".jugador-abajo .avatar-tu");
-      if (avatarTu) avatarTu.textContent = segundosTurno <= 5 ? segundosTurno : "TÚ";
+    if (jugador === "tu") {
+      const avatar = document.querySelector(".jugador-abajo .avatar-tu");
+      if (avatar) {
+        avatar.textContent = segundosTurno <= 5 ? String(segundosTurno) : "TÚ";
+        avatar.classList.toggle("avatar-urgente", segundosTurno <= 3);
+      }
     }
     if (segundosTurno <= 0) {
       clearInterval(relojTurno);
