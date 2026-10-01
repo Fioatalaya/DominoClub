@@ -2105,3 +2105,13 @@
   width:6px !important;
   height:6px !important;
 }
+
+
+/* Todas las fichas jugadas conservan exactamente la misma escala */
+.cadena-fichas .ficha-domino {
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+.cadena-fichas .ficha-domino .cara {
+  box-sizing: border-box !important;
+}
