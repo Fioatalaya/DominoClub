@@ -436,9 +436,11 @@ function ajustarCadena() {
   const izquierda=todas.slice(0,k).reverse();
   const derecha=todas.slice(k+1);
 
-  const L=58,C=34,cx=160,cy=220;
-  // Aprovecha casi todo el ancho útil de la mesa antes de hacer una curva.
-  const lim={l:18,r:302,t:72,b:372};
+  const L=58,C=34;
+  const anchoCadena=Math.min(window.innerWidth*0.92,620);
+  const cx=anchoCadena/2,cy=220;
+  // Limites calculados desde el ancho REAL disponible, no desde 320px fijos.
+  const lim={l:10,r:anchoCadena-10,t:55,b:385};
 
   function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function pintar(f,x,y,v){
