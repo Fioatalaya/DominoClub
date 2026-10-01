@@ -1691,3 +1691,18 @@
   margin: 0 !important;
   z-index: 4 !important;
 }
+
+
+/* Cadena continua: las fichas deben tocarse por sus extremos */
+.cadena-fichas.cadena-serpiente .ficha-domino {
+  margin:0 !important;
+  box-shadow:0 2px 5px rgba(0,0,0,.35) !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.doble-tablero) {
+  width:44px !important;
+  height:27px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero {
+  width:27px !important;
+  height:44px !important;
+}
