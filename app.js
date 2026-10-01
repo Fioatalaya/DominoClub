@@ -62,6 +62,8 @@ function openGame(index) {
           <span>Partida iniciada</span>
         </div>
 
+        <div class="tablero-fichas"></div>
+
         <div class="jugador jugador-derecha">👤 Jugador 4</div>
         <div class="jugador jugador-abajo">👤 Tu</div>
       </div>
@@ -151,8 +153,8 @@ function seleccionarFicha(elemento, ladoA, ladoB) {
 }
 
 function jugarFicha(elemento) {
-  const centro = document.querySelector(".centro-mesa");
-  if (!centro || !elemento) return;
+  const tablero = document.querySelector(".tablero-fichas");
+  if (!tablero || !elemento) return;
 
   elemento.classList.remove("seleccionada");
   elemento.style.transform = "";
@@ -163,33 +165,9 @@ function jugarFicha(elemento) {
   elemento.removeAttribute("onclick");
   elemento.classList.add("ficha-jugada");
 
-  centro.innerHTML = "";
-  centro.appendChild(elemento);
-
-  const texto = document.createElement("span");
-  texto.textContent = "Ficha jugada";
-  centro.appendChild(texto);
+  tablero.appendChild(elemento);
 }
-function jugarFicha(elemento) {
-  const centro = document.querySelector(".centro-mesa");
-  if (!centro || !elemento) return;
 
-  elemento.classList.remove("seleccionada");
-  elemento.style.transform = "";
-  elemento.style.borderColor = "";
-  elemento.style.boxShadow = "";
-  elemento.style.zIndex = "";
-
-  elemento.removeAttribute("onclick");
-  elemento.classList.add("ficha-jugada");
-
-  centro.innerHTML = "";
-  centro.appendChild(elemento);
-
-  const texto = document.createElement("span");
-  texto.textContent = "Ficha jugada";
-  centro.appendChild(texto);
-}
 document.addEventListener("DOMContentLoaded", function () {
   render();
 
