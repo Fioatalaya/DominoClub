@@ -220,12 +220,13 @@ function soltarArrastreFicha(e){
   const opciones=ladosValidos([d.ladoA,d.ladoB]);
   const puedeIzq=opciones.includes("izquierda");
   const puedeDer=opciones.includes("derecha");
+  const cadenaRect=document.querySelector(".cadena-fichas")?.getBoundingClientRect();
+  const centroX=cadenaRect ? cadenaRect.left+cadenaRect.width/2 : mr.left+mr.width/2;
   let lado=null;
   if(opciones.includes("inicio")) lado="derecha";
   else if(puedeIzq&&puedeDer){
     // Sin botones ni señales: la mitad donde se suelta decide el extremo.
-    const cr=document.querySelector(".cadena-fichas")?.getBoundingClientRect();
-    lado=e.clientX < (cr ? cr.left+cr.width/2 : mr.left+mr.width/2) ? "izquierda" : "derecha";
+    lado=e.clientX < centroX ? "izquierda" : "derecha";
   } else if(puedeIzq) lado="izquierda";
   else if(puedeDer) lado="derecha";
   if(!lado){restaurarArrastre(d);mostrarMensaje("Esa ficha no encaja en ningún extremo");return;}
@@ -508,33 +509,33 @@ function ajustarCadena(){
  const c=document.querySelector(".cadena-fichas"); if(!c)return;
  const fs=[...c.querySelectorAll(".ficha-domino")]; if(!fs.length)return;
  const r=c.getBoundingClientRect(),W=r.width||520,H=r.height||390;
- const L=46,C=28,G=2, ax=Math.max(0,Math.min(indiceInicioCadena,fs.length-1));
- const cx=W/2,cy=H/2, left=54,right=W-54,top=60,bottom=H-60;
+ const L=46,C=28,G=2,ax=Math.max(0,Math.min(indiceInicioCadena,fs.length-1));
+ const cx=W/2,cy=H/2,left=42,right=W-42,top=46,bottom=H-46;
  const place=(f,x,y,vertical)=>{
    const isD=f.classList.contains("doble");
-   const v=isD ? !vertical : vertical;
-   const w=v?C:L,h=v?L:C;
-   f.classList.toggle("giro-cadena",v);
-   f.classList.toggle("doble-tablero",isD&&v);
-   f.style.cssText+=";position:absolute!important;left:"+x+"px!important;top:"+y+"px!important;width:"+w+"px!important;height:"+h+"px!important;min-width:"+w+"px!important;max-width:"+w+"px!important;min-height:"+h+"px!important;max-height:"+h+"px!important;transform:translate(-50%,-50%)!important;margin:0!important;";
+   const v=isD?!vertical:vertical,w=v?C:L,h=v?L:C;
+   f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",isD&&v);
+   Object.assign(f.style,{position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
+    minWidth:w+"px",maxWidth:w+"px",minHeight:h+"px",maxHeight:h+"px",transform:"translate(-50%,-50%)",margin:"0"});
  };
  place(fs[ax],cx,cy,false);
- const walk=(arr,dir)=>{
-   let x=cx,y=cy,vertical=false,half=L/2;
+ const route=(arr,side)=>{
+   let x=cx,y=cy,axis="h",dir=side,prevHalf=L/2;
    for(const f of arr){
-     const isD=f.classList.contains("doble");
-     let nextHalf=isD?C/2:L/2, step=half+nextHalf+G;
-     let nx=x+(dir>0?step:-step), ny=y;
-     if(dir>0 && nx>right){ vertical=true; nx=x; ny=y+step; }
-     if(dir<0 && nx<left){ vertical=true; nx=x; ny=y-step; }
-     if(vertical){
-       nx=x; ny=y+(dir>0?step:-step);
-       if(ny>bottom||ny<top){ vertical=false; dir=-dir; nx=x+(dir>0?step:-step); ny=y; }
+     const isD=f.classList.contains("doble"),nextHalf=isD?C/2:L/2,step=prevHalf+nextHalf+G;
+     if(axis==="h"){
+       const nx=x+dir*step;
+       if(nx>right||nx<left){axis="v";y+=side>0?step:-step;}
+       else x=nx;
+     }else{
+       const ny=y+(side>0?step:-step);
+       if(ny>bottom||ny<top){axis="h";dir=-dir;x+=dir*step;}
+       else y=ny;
      }
-     place(f,nx,ny,vertical); x=nx;y=ny;half=nextHalf;
+     place(f,x,y,axis==="v");prevHalf=nextHalf;
    }
  };
- walk(fs.slice(ax+1),1); walk(fs.slice(0,ax).reverse(),-1);
+ route(fs.slice(ax+1),1);route(fs.slice(0,ax).reverse(),-1);
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
