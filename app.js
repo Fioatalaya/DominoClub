@@ -2,7 +2,7 @@ let extremoIzquierdo = null;
 let extremoDerecho = null;
 let manosJugadores = {};
 let turnoActual = "tu";
-let segundosTurno = 15;
+let segundosTurno = 10;
 let relojTurno = null;
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
@@ -88,7 +88,7 @@ function openGame(index) {
         <div class="jugador jugador-arriba"><span class="avatar-juego">J2</span><span class="datos-jugador"><b>Jugador 2</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-izquierda"><span class="avatar-juego">J3</span><span class="datos-jugador"><b>Jugador 3</b><small>7 fichas</small></span></div>
         <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
-        <div class="reloj-turno"><span class="reloj-icono">⏱</span><b id="tiempoTurno">15</b><small id="nombreTurno">Tu turno</small></div>
+        <div class="reloj-turno" aria-label="Tiempo de turno"><span class="reloj-circulo"><span class="reloj-icono">⏱</span></span><small id="nombreTurno">Tu turno</small></div>
         <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>Jugador 4</b><small>7 fichas</small></span></div>
         <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><b>Tú</b><small>10,000 monedas</small></span></div>
@@ -249,12 +249,15 @@ function actualizarContadores() {
 function iniciarTurno(jugador) {
   clearInterval(relojTurno);
   turnoActual = jugador;
-  segundosTurno = 15;
+  segundosTurno = 10;
   const nombres = {tu:"Tu turno", j2:"Turno J2", j3:"Turno J3", j4:"Turno J4"};
-  const tiempo = document.querySelector("#tiempoTurno");
+  const reloj = document.querySelector(".reloj-turno");
   const nombre = document.querySelector("#nombreTurno");
-  if (tiempo) tiempo.textContent = segundosTurno;
   if (nombre) nombre.textContent = nombres[jugador];
+  if (reloj) {
+    reloj.classList.remove("reloj-urgente");
+    reloj.style.setProperty("--progreso-turno", "100%");
+  }
 
   document.querySelectorAll(".jugador").forEach(x => x.classList.remove("turno-activo"));
   const selector = {tu:".jugador-abajo",j2:".jugador-arriba",j3:".jugador-izquierda",j4:".jugador-derecha"}[jugador];
@@ -262,7 +265,6 @@ function iniciarTurno(jugador) {
   jugadorActivo?.classList.add("turno-activo");
 
   // El reloj acompaña únicamente al jugador cuyo turno está activo.
-  const reloj = document.querySelector(".reloj-turno");
   if (reloj && jugadorActivo) {
     jugadorActivo.appendChild(reloj);
     reloj.classList.remove("reloj-oculto");
@@ -270,7 +272,10 @@ function iniciarTurno(jugador) {
 
   relojTurno = setInterval(() => {
     segundosTurno--;
-    if (tiempo) tiempo.textContent = segundosTurno;
+    if (reloj) {
+      reloj.style.setProperty("--progreso-turno", Math.max(0, segundosTurno * 10) + "%");
+      reloj.classList.toggle("reloj-urgente", segundosTurno <= 3);
+    }
     if (segundosTurno <= 0) {
       clearInterval(relojTurno);
       mostrarMensaje(jugador === "tu" ? "Tiempo agotado · turno pasado" : "Tiempo agotado");
@@ -357,28 +362,25 @@ function ajustarCadena() {
   const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
   cadena.classList.add("cadena-serpiente");
 
-  // Reparte la cadena en varias líneas dentro de la mesa, en forma de serpiente.
-  // Así no sigue creciendo fuera de la pantalla.
-  const porFila = window.innerWidth <= 520 ? 6 : 8;
-  const pasoX = window.innerWidth <= 520 ? 43 : 49;
-  const pasoY = window.innerWidth <= 520 ? 42 : 47;
+  const movil = window.innerWidth <= 520;
+  const porFila = movil ? 5 : 7;
+  const pasoX = movil ? 41 : 48;
+  const pasoY = movil ? 34 : 39;
   const filas = Math.max(1, Math.ceil(fichas.length / porFila));
-  const anchoFila = (Math.min(porFila, Math.max(1, fichas.length)) - 1) * pasoX;
-  const altoTotal = (filas - 1) * pasoY;
   const centroX = cadena.clientWidth / 2;
   const centroY = cadena.clientHeight / 2;
+  const alto = (filas - 1) * pasoY;
 
   fichas.forEach((ficha, indice) => {
     const fila = Math.floor(indice / porFila);
     const pos = indice % porFila;
-    const cantidadFila = Math.min(porFila, fichas.length - fila * porFila);
-    const anchoActual = (cantidadFila - 1) * pasoX;
-    const haciaDerecha = fila % 2 === 0;
-    const columnaVisual = haciaDerecha ? pos : (cantidadFila - 1 - pos);
+    const cantidad = Math.min(porFila, fichas.length - fila * porFila);
+    const ancho = (cantidad - 1) * pasoX;
+    const columna = fila % 2 === 0 ? pos : cantidad - 1 - pos;
 
     ficha.style.position = "absolute";
-    ficha.style.left = (centroX - anchoActual / 2 + columnaVisual * pasoX) + "px";
-    ficha.style.top = (centroY - altoTotal / 2 + fila * pasoY) + "px";
+    ficha.style.left = (centroX - ancho / 2 + columna * pasoX) + "px";
+    ficha.style.top = (centroY - alto / 2 + fila * pasoY) + "px";
     ficha.style.transform = "translate(-50%, -50%)";
     ficha.style.zIndex = String(20 + indice);
   });
