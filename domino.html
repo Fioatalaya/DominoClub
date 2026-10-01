@@ -19,8 +19,7 @@
       <button class="avatar" id="profileBtn" aria-label="Perfil">F</button>
     </header>
 
-    <main><section class="section"><div class="section-head"><h2>Juegos</h2></div><div class="tables"><div class="table"><div><b>Dominó</b><small>Mesas de 4 jugadores</small></div><button type="button" onclick="document.querySelector('#tables')?.scrollIntoView({behavior:'smooth'})">Mesas</button></div><div class="table"><div><b>Queenslot</b><small>Rodillos y cascadas</small></div><button type="button" onclick="location.href='slot.html'">Jugar</button></div></div></section>
-      <section class="hero">
+    <main><section class="hero">
         <div>
           <p class="eyebrow">BIENVENIDO</p>
           <h1>Juega con monedas virtuales</h1>
@@ -33,16 +32,11 @@
         </div>
       </section>
 
-      <section class="quick">
-        <button class="quick-btn" data-action="daily">🎁 <span>Bono diario</span></button>
-        <button class="quick-btn" data-action="history">📜 <span>Historial</span></button>
-        <button class="quick-btn" data-action="help">❓ <span>Ayuda</span></button>
-      </section>
-
+      
       <section class="section">
         <div class="section-head">
-          <h2>Mesas disponibles</h2>
-          <button class="text-btn" id="refreshBtn">Actualizar</button>
+          <h2>Mesas y torneos</h2>
+          <button class="text-btn" id="refreshBtn">Actualizar</button><a class="text-btn" href="#tables">Torneos</a>
         </div>
         <div id="tables" class="tables"></div>
       </section>
