@@ -432,58 +432,56 @@ function jugarBot(jugador) {
   if (turnoActual !== jugador) return;
   const mano = manosJugadores[jugador];
   const indice = mano.findIndex(fichaValida);
+
   if (indice < 0) {
     clearInterval(relojTurno);
     mostrarMensaje(jugador.toUpperCase() + " no tiene jugada · pasa en 5 segundos");
     setTimeout(() => {
-      if (turnoActual === jugador) {
-        mostrarMensaje(jugador.toUpperCase() + " pasa");
-        setTimeout(avanzarTurno, 450);
-      }
+      if (turnoActual === jugador) avanzarTurno();
     }, 5000);
     return;
   }
 
   const ficha = mano[indice];
+  const opciones = ladosValidos(ficha);
+  let lado = opciones.includes("derecha") ? "derecha" : opciones[0];
+  if (lado === "inicio") lado = "derecha";
+  const orientada = orientarFicha(ficha[0], ficha[1], lado);
+  if (!orientada) { setTimeout(avanzarTurno,500); return; }
+
   clearInterval(relojTurno);
-  let [a,b] = ficha;
-  const opciones=ladosValidos(ficha);
-  let lado=opciones.includes("derecha")?"derecha":opciones[0];
-  if(lado==="inicio") lado="derecha";
-  const orientada=orientarFicha(a,b,lado);
-  if(!orientada){mostrarMensaje(jugador.toUpperCase()+" pasa");setTimeout(avanzarTurno,700);return;}
-  const invertir=orientada[0]!==a||orientada[1]!==b;
-  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]); const inicioAntes=indiceInicioCadena;
-  if(!cadenaLogica.length) cadenaLogica.push(orientada);
-  else if(lado==="izquierda"){ cadenaLogica.unshift(orientada); indiceInicioCadena++; }
+  const cadenaAntes = cadenaLogica.map(f=>[f[0],f[1]]);
+  const inicioAntes = indiceInicioCadena;
+  if (!cadenaLogica.length) cadenaLogica.push(orientada);
+  else if (lado === "izquierda") { cadenaLogica.unshift(orientada); indiceInicioCadena++; }
   else cadenaLogica.push(orientada);
   sincronizarExtremos();
-  if(!confirmarCadena(jugador)){
-    cadenaLogica=cadenaAntes;indiceInicioCadena=inicioAntes;sincronizarExtremos();
-    mostrarMensaje(jugador.toUpperCase()+" no puede colocar esa ficha");
-    setTimeout(avanzarTurno,700);return;
+
+  if (!validarCadenaLogica()) {
+    cadenaLogica = cadenaAntes;
+    indiceInicioCadena = inicioAntes;
+    sincronizarExtremos();
+    setTimeout(avanzarTurno,500);
+    return;
   }
 
-  document.querySelector(".centro-mesa")?.classList.add("oculto");
-  renderizarCadenaLogica();
-
+  // Primero actualizamos el estado del juego; el dibujo nunca controla el turno.
   mano.splice(indice,1);
-  dibujarFichas();
-  ajustarCadena();
   actualizarContadores();
-  document.querySelector(".centro-mesa")?.classList.add("oculto");
-  const fichaNueva=document.querySelector(".cadena-fichas .ficha-domino:last-child");
-  if(fichaNueva){
-    fichaNueva.classList.add("entrada-ficha");
-    setTimeout(() => fichaNueva.classList.remove("entrada-ficha"), 280);
+
+  try {
+    document.querySelector(".centro-mesa")?.classList.add("oculto");
+    renderizarCadenaLogica();
+  } catch (err) {
+    console.error("Error visual del tablero:", err);
   }
 
   if (mano.length === 0) {
-    clearInterval(relojTurno);
     turnoBloqueado = true;
     mostrarMensaje(jugador.toUpperCase() + " ganó la partida");
     return;
   }
+
   turnoBloqueado = false;
   setTimeout(() => {
     if (turnoActual === jugador) avanzarTurno();
