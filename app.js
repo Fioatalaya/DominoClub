@@ -269,85 +269,42 @@ function mostrarMensaje(texto) {
   mostrarMensaje.timer = setTimeout(() => aviso.classList.remove("visible"), 1500);
 }
 
-function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null, indiceMano = null) {
-  const cadena = document.querySelector(".cadena-fichas");
-  if (!cadena || !elemento || turnoActual !== "tu" || turnoBloqueado) return;
-
-  // Bloquea el turno en el mismo instante del primer movimiento válido.
-  // Así un toque doble o varios toques rápidos nunca pueden jugar 2+ fichas.
-  turnoBloqueado = true;
-  ultimaJugadaHumanaId = turnoHumanoId;
-  document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f => {
-    f.style.pointerEvents = "none";
-    f.classList.remove("ficha-disponible");
-  });
-  const tokenJugada = ++turnoToken;
-
+function jugarFicha(elemento, ladoA, ladoB, ladoElegido=null, indiceMano=null) {
+  if(turnoActual!=="tu"||turnoBloqueado) return;
   sincronizarExtremos();
-  const opciones=ladosValidos([ladoA,ladoB]);
-  let lado=ladoElegido;
-  if(!cadenaLogica.length) lado="derecha";
-  else if(!opciones.includes(lado)) lado=null;
-  if(!lado){
-    turnoBloqueado=false;ultimaJugadaHumanaId=-1;
-    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
-    mostrarMensaje("Esa ficha no coincide con los extremos"); return;
-  }
+
+  const idx=Number.isInteger(indiceMano)&&indiceMano>=0&&manosJugadores.tu[indiceMano]&&
+    manosJugadores.tu[indiceMano][0]===ladoA&&manosJugadores.tu[indiceMano][1]===ladoB
+      ? indiceMano : -1;
+  if(idx<0){ mostrarMensaje("Esa ficha ya no está en tu mano"); renderizarManoHumana(); return; }
+
+  const opciones=ladosValidos(manosJugadores.tu[idx]);
+  let lado=cadenaLogica.length?ladoElegido:"derecha";
+  if(cadenaLogica.length&&!opciones.includes(lado)){mostrarMensaje("Esa ficha no encaja");return;}
   const orientada=orientarFicha(ladoA,ladoB,lado);
-  if(!orientada){
-    turnoBloqueado=false;ultimaJugadaHumanaId=-1;
-    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
-    mostrarMensaje("Esa ficha no coincide con los extremos"); return;
-  }
-  const invertir=orientada[0]!==ladoA||orientada[1]!==ladoB;
-  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]); const inicioAntes=indiceInicioCadena;
+  if(!orientada){mostrarMensaje("Esa ficha no encaja");return;}
+
+  turnoBloqueado=true; clearInterval(relojTurno);
+  const antes=cadenaLogica.map(f=>[...f]), inicioAntes=indiceInicioCadena;
   if(!cadenaLogica.length) cadenaLogica.push(orientada);
-  else if(lado==="izquierda"){ cadenaLogica.unshift(orientada); indiceInicioCadena++; }
+  else if(lado==="izquierda"){cadenaLogica.unshift(orientada);indiceInicioCadena++;}
   else cadenaLogica.push(orientada);
   sincronizarExtremos();
-  if(!confirmarCadena("jugador")){
-    cadenaLogica=cadenaAntes;indiceInicioCadena=inicioAntes;sincronizarExtremos();
-    turnoBloqueado=false;ultimaJugadaHumanaId=-1;
-    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
-    return;
+  if(!validarCadenaLogica()){
+    cadenaLogica=antes;indiceInicioCadena=inicioAntes;sincronizarExtremos();turnoBloqueado=false;
+    mostrarMensaje("Jugada inválida");return;
   }
 
+  manosJugadores.tu.splice(idx,1);
   document.querySelector(".centro-mesa")?.classList.add("oculto");
-  renderizarCadenaLogica();
-
-  // Quitar exactamente la ficha jugada de la mano lógica.
-  const indiceJugado = Number.isInteger(indiceMano) && indiceMano >= 0 &&
-    manosJugadores.tu[indiceMano] &&
-    manosJugadores.tu[indiceMano][0] === ladoA &&
-    manosJugadores.tu[indiceMano][1] === ladoB
-      ? indiceMano
-      : manosJugadores.tu.findIndex(f => f[0] === ladoA && f[1] === ladoB);
-  if (indiceJugado < 0) {
-    console.error("No se encontró la ficha exacta jugada", ladoA, ladoB, indiceMano);
-    mostrarMensaje("Error al identificar la ficha");
-    return;
-  }
-  manosJugadores.tu.splice(indiceJugado, 1);
   renderizarManoHumana();
+  renderizarCadenaLogica();
   actualizarContadores();
 
-  // Si esta era la última ficha, la partida termina aquí; no se entrega otro turno.
-  if (manosJugadores.tu.length === 0) {
-    clearInterval(relojTurno);
-    turnoBloqueado = true;
-    mostrarMensaje("Ganaste la partida");
-    return;
-  }
-
-  // Detener el reloj inmediatamente al hacer una jugada válida.
-  // Evita que el temporizador venza durante la animación y salte dos turnos.
-  clearInterval(relojTurno);
-  setTimeout(() => {
-    if (tokenJugada === turnoToken) avanzarTurno();
-  }, 450);
+  if(!manosJugadores.tu.length){mostrarMensaje("Ganaste la partida");return;}
+  const jugadorDeEstaJugada=turnoActual;
+  setTimeout(()=>{if(turnoActual===jugadorDeEstaJugada) avanzarTurno();},450);
 }
-
-
 
 
 function actualizarContadores() {
@@ -549,45 +506,36 @@ function renderizarCadenaLogica() {
   ajustarCadena();
 }
 
-function ajustarCadena() {
-  const cadena=document.querySelector(".cadena-fichas"); if(!cadena)return;
-  const todas=[...cadena.querySelectorAll(".ficha-domino")]; if(!todas.length)return;
-  const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0], k=todas.indexOf(inicio);
-  const izquierda=todas.slice(0,k).reverse(), derecha=todas.slice(k+1);
-  const r=cadena.getBoundingClientRect(),W=r.width||520,H=r.height||390;
-  const cx=W/2,cy=H/2,L=42,C=26,G=1,minX=76,maxX=W-76,minY=68,maxY=H-76;
-  const doble=f=>f.classList.contains("doble");
-  function poner(f,x,y,vertical){
-    const w=vertical?C:L,h=vertical?L:C;
-    f.classList.toggle("giro-cadena",vertical);
-    f.classList.toggle("doble-tablero",doble(f)&&vertical);
-    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
-    ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
-    ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
-  }
-  function brazo(arr,dir){
-    let x=cx,y=cy;
-    for(const f of arr){
-      // dirección del recorrido; los dobles se ven perpendiculares sin cambiar la dirección del camino
-      let verticalCamino=dir===1||dir===3;
-      let visualVertical=doble(f)?!verticalCamino:verticalCamino;
-      let alongCur=doble(f)?C:L;
-      let paso=L/2+alongCur/2+G;
-      let nx=x+(dir===0?paso:dir===2?-paso:0), ny=y+(dir===1?paso:dir===3?-paso:0);
-      const hw=(visualVertical?C:L)/2,hh=(visualVertical?L:C)/2;
-      if(nx-hw<minX||nx+hw>maxX||ny-hh<minY||ny+hh>maxY){
-        dir=(dir+1)%4;
-        verticalCamino=dir===1||dir===3;
-        visualVertical=doble(f)?!verticalCamino:verticalCamino;
-        alongCur=doble(f)?C:L;
-        paso=L/2+alongCur/2+G;
-        nx=x+(dir===0?paso:dir===2?-paso:0); ny=y+(dir===1?paso:dir===3?-paso:0);
-      }
-      x=nx;y=ny;poner(f,x,y,visualVertical);
-    }
-  }
-  poner(inicio,cx,cy,doble(inicio));
-  brazo(derecha,0); brazo(izquierda,2);
+function ajustarCadena(){
+ const c=document.querySelector(".cadena-fichas"); if(!c)return;
+ const fs=[...c.querySelectorAll(".ficha-domino")]; if(!fs.length)return;
+ const r=c.getBoundingClientRect(),W=r.width||520,H=r.height||390,L=42,C=26,G=1;
+ const left=82,right=W-82,top=72,bottom=H-82;
+ let x=W/2,y=H/2,dir=0;
+ const put=(f,x,y,vertical)=>{
+   const w=vertical?C:L,h=vertical?L:C;
+   f.classList.toggle("giro-cadena",vertical); f.classList.toggle("doble-tablero",f.classList.contains("doble")&&vertical);
+   [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([k,v])=>f.style.setProperty(k,v,"important"));
+ };
+ // Start from the true first-play tile, then lay logical right side and logical left side independently but continuously.
+ const anchor=Math.max(0,Math.min(indiceInicioCadena,fs.length-1));
+ put(fs[anchor],x,y,fs[anchor].classList.contains("doble"));
+ const walk=(arr,startDir)=>{
+   let px=x,py=y,d=startDir;
+   for(const f of arr){
+     const isDouble=f.classList.contains("doble");
+     let pathVertical=d===1||d===3, visualVertical=isDouble?!pathVertical:pathVertical;
+     const along=isDouble?C:L, step=L/2+along/2+G;
+     let nx=px+(d===0?step:d===2?-step:0),ny=py+(d===1?step:d===3?-step:0);
+     if(nx<left||nx>right||ny<top||ny>bottom){
+       d=(d+1)%4; pathVertical=d===1||d===3; visualVertical=isDouble?!pathVertical:pathVertical;
+       nx=px+(d===0?step:d===2?-step:0);ny=py+(d===1?step:d===3?-step:0);
+     }
+     put(f,nx,ny,visualVertical);px=nx;py=ny;
+   }
+ };
+ walk(fs.slice(anchor+1),0);
+ walk(fs.slice(0,anchor).reverse(),2);
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
