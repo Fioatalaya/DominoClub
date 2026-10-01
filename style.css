@@ -993,3 +993,81 @@
     width: 24px !important; height: 40px !important; flex-basis: 24px !important;
   }
 }
+
+
+/* ===== CADENA CENTRAL 2: LIBRE DE LOS PERFILES ===== */
+.jugador-izquierda {
+  top: 57% !important;
+}
+.jugador-derecha {
+  top: 57% !important;
+}
+
+.tablero-fichas {
+  top: 42% !important;
+  width: 72% !important;
+  min-height: 125px !important;
+}
+
+.cadena-fichas {
+  position: relative !important;
+  z-index: 6 !important;
+  min-height: 76px !important;
+  gap: 2px !important;
+}
+
+.cadena-fichas .ficha-domino {
+  width: 62px !important;
+  height: 35px !important;
+  flex-basis: 62px !important;
+}
+.cadena-fichas .ficha-domino.doble {
+  width: 35px !important;
+  height: 62px !important;
+  flex-basis: 35px !important;
+}
+
+.cadena-fichas.cadena-media .ficha-domino {
+  width: 56px !important;
+  height: 32px !important;
+  flex-basis: 56px !important;
+}
+.cadena-fichas.cadena-media .ficha-domino.doble {
+  width: 32px !important;
+  height: 56px !important;
+  flex-basis: 32px !important;
+}
+
+.cadena-fichas.cadena-larga .ficha-domino {
+  width: 50px !important;
+  height: 29px !important;
+  flex-basis: 50px !important;
+}
+.cadena-fichas.cadena-larga .ficha-domino.doble {
+  width: 29px !important;
+  height: 50px !important;
+  flex-basis: 29px !important;
+}
+
+@media (max-width: 520px) {
+  .jugador-izquierda, .jugador-derecha { top: 58% !important; }
+  .tablero-fichas { top: 42% !important; width: 68% !important; }
+  .cadena-fichas .ficha-domino {
+    width: 56px !important; height: 32px !important; flex-basis: 56px !important;
+  }
+  .cadena-fichas .ficha-domino.doble {
+    width: 32px !important; height: 56px !important; flex-basis: 32px !important;
+  }
+  .cadena-fichas.cadena-media .ficha-domino {
+    width: 50px !important; height: 29px !important; flex-basis: 50px !important;
+  }
+  .cadena-fichas.cadena-media .ficha-domino.doble {
+    width: 29px !important; height: 50px !important; flex-basis: 29px !important;
+  }
+  .cadena-fichas.cadena-larga .ficha-domino {
+    width: 45px !important; height: 27px !important; flex-basis: 45px !important;
+  }
+  .cadena-fichas.cadena-larga .ficha-domino.doble {
+    width: 27px !important; height: 45px !important; flex-basis: 27px !important;
+  }
+}
