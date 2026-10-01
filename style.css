@@ -2217,3 +2217,12 @@
   .tablero-fichas{height:72% !important;top:46% !important;}
   .cadena-fichas,.cadena-fichas.cadena-serpiente{height:390px !important;min-height:390px !important;width:min(90vw,560px) !important;}
 }
+
+
+/* ===== SEPARACION MESA / MANO =====
+   Conserva el tamaño de la mesa y aprovecha el espacio inferior de la pantalla. */
+@media (max-width:520px){
+  .mis-fichas{
+    margin-top:28px !important;
+  }
+}
