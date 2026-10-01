@@ -4,6 +4,8 @@ let manosJugadores = {};
 let turnoActual = "tu";
 let segundosTurno = 10;
 let relojTurno = null;
+let turnoBloqueado = false;
+let turnoToken = 0;
 const ordenTurnos = ["tu", "j2", "j3", "j4"];
 
 const tables = [
@@ -129,7 +131,7 @@ function dibujarFichas() {
   });
 }
 function seleccionarFicha(elemento, ladoA, ladoB) {
-  if (turnoActual !== "tu") {
+  if (turnoActual !== "tu" || turnoBloqueado) {
     mostrarMensaje("Espera tu turno");
     return;
   }
@@ -169,7 +171,12 @@ function mostrarMensaje(texto) {
 
 function jugarFicha(elemento, ladoA, ladoB) {
   const cadena = document.querySelector(".cadena-fichas");
-  if (!cadena || !elemento) return;
+  if (!cadena || !elemento || turnoActual !== "tu" || turnoBloqueado) return;
+
+  // Bloquea el turno en el mismo instante del primer movimiento válido.
+  // Así un toque doble o varios toques rápidos nunca pueden jugar 2+ fichas.
+  turnoBloqueado = true;
+  const tokenJugada = ++turnoToken;
 
   let lado = "derecha";
   let invertir = false;
@@ -192,6 +199,7 @@ function jugarFicha(elemento, ladoA, ladoB) {
     lado = "izquierda";
     invertir = true;
   } else {
+    turnoBloqueado = false;
     mostrarMensaje("Esa ficha no coincide con los extremos");
     return;
   }
@@ -231,7 +239,9 @@ function jugarFicha(elemento, ladoA, ladoB) {
   // Detener el reloj inmediatamente al hacer una jugada válida.
   // Evita que el temporizador venza durante la animación y salte dos turnos.
   clearInterval(relojTurno);
-  setTimeout(() => avanzarTurno(), 450);
+  setTimeout(() => {
+    if (tokenJugada === turnoToken) avanzarTurno();
+  }, 450);
 }
 
 
@@ -247,6 +257,8 @@ function actualizarContadores() {
 
 function iniciarTurno(jugador) {
   clearInterval(relojTurno);
+  turnoToken++;
+  turnoBloqueado = false;
   turnoActual = jugador;
   segundosTurno = 10;
   const nombres = {tu:"Tu turno", j2:"Turno J2", j3:"Turno J3", j4:"Turno J4"};
@@ -306,7 +318,9 @@ function iniciarTurno(jugador) {
 }
 
 function avanzarTurno() {
+  if (turnoBloqueado && turnoActual !== "tu") return;
   clearInterval(relojTurno);
+  turnoBloqueado = false;
   const i = ordenTurnos.indexOf(turnoActual);
   iniciarTurno(ordenTurnos[(i + 1) % ordenTurnos.length]);
 }
