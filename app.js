@@ -1,3 +1,6 @@
+let extremoIzquierdo = null;
+let extremoDerecho = null;
+
 const tables = [
   { name: "Mesa Principiantes", entry: 100 },
   { name: "Mesa Clasica", entry: 500 },
@@ -36,6 +39,9 @@ function createTable() {
 }
 
 function openGame(index) {
+  extremoIzquierdo = null;
+  extremoDerecho = null;
+
   const table = tables[index];
   if (!table) return;
 
@@ -62,7 +68,11 @@ function openGame(index) {
           <span>Partida iniciada</span>
         </div>
 
-        <div class="tablero-fichas"></div>
+        <div class="tablero-fichas">
+          <div class="extremo extremo-izquierdo"></div>
+          <div class="cadena-fichas"></div>
+          <div class="extremo extremo-derecho"></div>
+        </div>
 
         <div class="jugador jugador-derecha">👤 Jugador 4</div>
         <div class="jugador jugador-abajo">👤 Tu</div>
@@ -141,7 +151,7 @@ function seleccionarFicha(elemento, ladoA, ladoB) {
   });
 
   if (yaSeleccionada) {
-    jugarFicha(elemento);
+    jugarFicha(elemento, ladoA, ladoB);
     return;
   }
 
@@ -152,20 +162,75 @@ function seleccionarFicha(elemento, ladoA, ladoB) {
   elemento.style.zIndex = "5";
 }
 
-function jugarFicha(elemento) {
-  const tablero = document.querySelector(".tablero-fichas");
-  if (!tablero || !elemento) return;
+function mostrarMensaje(texto) {
+  let aviso = document.querySelector(".mensaje-juego");
+  if (!aviso) {
+    aviso = document.createElement("div");
+    aviso.className = "mensaje-juego";
+    document.querySelector(".mesa-domino")?.appendChild(aviso);
+  }
+  aviso.textContent = texto;
+  aviso.classList.add("visible");
+  clearTimeout(mostrarMensaje.timer);
+  mostrarMensaje.timer = setTimeout(() => aviso.classList.remove("visible"), 1500);
+}
+
+function jugarFicha(elemento, ladoA, ladoB) {
+  const cadena = document.querySelector(".cadena-fichas");
+  if (!cadena || !elemento) return;
+
+  let lado = "derecha";
+  let invertir = false;
+
+  if (extremoIzquierdo === null) {
+    extremoIzquierdo = ladoA;
+    extremoDerecho = ladoB;
+  } else if (ladoA === extremoDerecho) {
+    extremoDerecho = ladoB;
+    lado = "derecha";
+  } else if (ladoB === extremoDerecho) {
+    extremoDerecho = ladoA;
+    lado = "derecha";
+    invertir = true;
+  } else if (ladoB === extremoIzquierdo) {
+    extremoIzquierdo = ladoA;
+    lado = "izquierda";
+  } else if (ladoA === extremoIzquierdo) {
+    extremoIzquierdo = ladoB;
+    lado = "izquierda";
+    invertir = true;
+  } else {
+    mostrarMensaje("Esa ficha no coincide con los extremos");
+    return;
+  }
 
   elemento.classList.remove("seleccionada");
   elemento.style.transform = "";
   elemento.style.borderColor = "";
   elemento.style.boxShadow = "";
   elemento.style.zIndex = "";
-
   elemento.removeAttribute("onclick");
   elemento.classList.add("ficha-jugada");
 
-  tablero.appendChild(elemento);
+  if (invertir) {
+    const caras = Array.from(elemento.querySelectorAll(".cara"));
+    if (caras.length === 2) elemento.insertBefore(caras[1], caras[0]);
+  }
+
+  if (lado === "izquierda" && cadena.firstChild) {
+    cadena.insertBefore(elemento, cadena.firstChild);
+  } else {
+    cadena.appendChild(elemento);
+  }
+
+  actualizarExtremos();
+}
+
+function actualizarExtremos() {
+  const izq = document.querySelector(".extremo-izquierdo");
+  const der = document.querySelector(".extremo-derecho");
+  if (izq) izq.textContent = extremoIzquierdo === null ? "" : extremoIzquierdo;
+  if (der) der.textContent = extremoDerecho === null ? "" : extremoDerecho;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
