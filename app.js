@@ -402,53 +402,57 @@ function ajustarCadena() {
   const derecha=todas.slice(idx+1);
 
   const cx=160, cy=220, L=58, C=34;
-  const minX=55, maxX=265, minY=105, maxY=335;
+  const minX=52, maxX=268, minY=100, maxY=340;
 
   function pintar(f,x,y,vertical){
-    // TODAS las fichas tienen la misma medida física 58x34; sólo cambia orientación.
     const w=vertical?C:L, h=vertical?L:C;
     f.classList.toggle("giro-cadena",vertical);
     f.classList.remove("doble-tablero");
-    f.style.setProperty("position","absolute","important");
-    f.style.setProperty("left",x+"px","important");
-    f.style.setProperty("top",y+"px","important");
-    f.style.setProperty("width",w+"px","important");
-    f.style.setProperty("height",h+"px","important");
-    f.style.setProperty("min-width",w+"px","important");
-    f.style.setProperty("max-width",w+"px","important");
-    f.style.setProperty("min-height",h+"px","important");
-    f.style.setProperty("max-height",h+"px","important");
-    f.style.setProperty("transform","translate(-50%,-50%)","important");
-    f.style.setProperty("margin","0","important");
-    f.style.setProperty("flex","0 0 auto","important");
+    for (const [k,v] of Object.entries({
+      position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
+      "min-width":w+"px","max-width":w+"px","min-height":h+"px","max-height":h+"px",
+      transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"
+    })) f.style.setProperty(k,v,"important");
   }
 
+  // Centro fijo. Un doble de salida se atraviesa, pero conserva la misma escala.
   pintar(inicio,cx,cy,inicio.classList.contains("doble"));
 
   function brazo(arr,lado){
     let x=cx,y=cy;
     let dir=lado==="derecha"?"R":"L";
+    let prevVertical=inicio.classList.contains("doble");
+
     arr.forEach(f=>{
       const doble=f.classList.contains("doble");
-      let vertical=(dir==="U"||dir==="D");
-      // El doble se atraviesa al eje de la cadena, sin cambiar su escala.
-      let orientacion=doble?!vertical:vertical;
-      let paso=(L/2)+(orientacion?C/2:L/2);
+      const ejeVertical=(dir==="U"||dir==="D");
+      const vertical=doble ? !ejeVertical : ejeVertical;
+
+      // Distancia centro-a-centro exacta para que los bordes se toquen.
+      const prevHalf = prevVertical ? C/2 : L/2;
+      const curHalfAlong = vertical
+        ? (ejeVertical ? L/2 : C/2)
+        : (ejeVertical ? C/2 : L/2);
+      let paso=prevHalf+curHalfAlong;
+
       let nx=x,ny=y;
       if(dir==="R") nx+=paso;
       if(dir==="L") nx-=paso;
       if(dir==="D") ny+=paso;
       if(dir==="U") ny-=paso;
 
-      if(dir==="R" && nx>maxX){dir="D"; vertical=true; orientacion=doble?!vertical:vertical; paso=(L/2)+(orientacion?L/2:C/2); nx=x;ny=y+paso;}
-      else if(dir==="L" && nx<minX){dir="U"; vertical=true; orientacion=doble?!vertical:vertical; paso=(L/2)+(orientacion?L/2:C/2); nx=x;ny=y-paso;}
-      else if(dir==="D" && ny>maxY){dir="L";vertical=false;orientacion=doble?!vertical:vertical;paso=(L/2)+(orientacion?C/2:L/2);nx=x-paso;ny=y;}
-      else if(dir==="U" && ny<minY){dir="R";vertical=false;orientacion=doble?!vertical:vertical;paso=(L/2)+(orientacion?C/2:L/2);nx=x+paso;ny=y;}
+      // Si no cabe, gira desde el MISMO extremo de la última ficha.
+      if(dir==="R" && nx>maxX){dir="D"; const pv=prevVertical?L/2:C/2; const cv=vertical?L/2:C/2; paso=pv+cv; nx=x;ny=y+paso;}
+      else if(dir==="L" && nx<minX){dir="U"; const pv=prevVertical?L/2:C/2; const cv=vertical?L/2:C/2; paso=pv+cv; nx=x;ny=y-paso;}
+      else if(dir==="D" && ny>maxY){dir="L"; const ph=prevVertical?C/2:L/2; const ch=vertical?C/2:L/2; paso=ph+ch; nx=x-paso;ny=y;}
+      else if(dir==="U" && ny<minY){dir="R"; const ph=prevVertical?C/2:L/2; const ch=vertical?C/2:L/2; paso=ph+ch; nx=x+paso;ny=y;}
 
       x=nx;y=ny;
-      pintar(f,x,y,orientacion);
+      pintar(f,x,y,vertical);
+      prevVertical=vertical;
     });
   }
+
   brazo(derecha,"derecha");
   brazo(izquierda,"izquierda");
 }
