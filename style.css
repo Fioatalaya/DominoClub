@@ -1442,3 +1442,22 @@
     flex-basis: 44px !important;
   }
 }
+
+
+/* Turnos y reloj de partida */
+.reloj-turno {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 8;
+  min-width: 76px;
+  padding: 7px 10px;
+  border-radius: 15px;
+  background: rgba(5,20,38,.88);
+  border: 1px solid #45698d;
+  text-align: center;
+  color: #fff;
+}
+.reloj-turno b { font-size: 20px; color: #f2c14e; margin-left: 3px; }
+.reloj-turno small { display:block; font-size:10px; color:#cbd5e1; margin-top:1px; }
+.jugador.turno-activo { border-color:#f2c14e !important; box-shadow:0 0 0 2px rgba(242,193,78,.25),0 0 18px rgba(242,193,78,.28); }
