@@ -485,55 +485,50 @@ function ajustarCadena() {
 
   const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
   const k=todas.indexOf(inicio);
-  const izquierda=todas.slice(0,k).reverse();
-  const derecha=todas.slice(k+1);
-  const L=46,C=28;
-  const r=cadena.getBoundingClientRect(),W=r.width||560,H=r.height||440;
-  const cx=W/2,cy=H/2;
+  const izquierda=todas.slice(0,k).reverse(), derecha=todas.slice(k+1);
+  const L=44,C=27;
+  const r=cadena.getBoundingClientRect(),W=r.width||560,H=r.height||440,cx=W/2,cy=H/2;
 
   function doble(f){return f.classList.contains("doble");}
+  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function poner(f,x,y,v){
-    const w=v?C:L,h=v?L:C;
+    const d=dims(v);
     f.classList.toggle("giro-cadena",v);
     f.classList.toggle("doble-tablero",doble(f)&&v);
-    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
-    ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
-    ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
+    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",d.w+"px"],["height",d.h+"px"],
+     ["min-width",d.w+"px"],["max-width",d.w+"px"],["min-height",d.h+"px"],["max-height",d.h+"px"],
+     ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
   const inicioV=doble(inicio); poner(inicio,cx,cy,inicioV);
 
-  // Recorrido escalonado continuo. Cada extremo ocupa una zona diferente
-  // y en cada giro avanza lateralmente antes de continuar vertical.
+  // Serpiente continua por bandas amplias. Un giro ocupa una esquina real
+  // y el siguiente tramo horizontal queda separado del anterior.
   function brazo(arr,lado){
-    let x=cx,y=cy;
-    const sx=L, sy=L;
-    const minX=135,maxX=W-135,minY=82,maxY=H-82;
-    let fase=0;
-    // derecha: R,D,L,D... / izquierda: L,U,R,U...
-    const sec=lado==="derecha"?["R","D","L","D"]:["L","U","R","U"];
-    let prevV=inicioV;
-
-    function dim(v){return v?{w:C,h:L}:{w:L,h:C};}
-    function mitad(v,d){const z=dim(v);return(d==="L"||d==="R"?z.w:z.h)/2;}
-    function mov(px,py,d,n){return{x:px+(d==="R"?n:d==="L"?-n:0),y:py+(d==="D"?n:d==="U"?-n:0)};}
-    function orient(f,d){const ev=d==="U"||d==="D";return doble(f)?!ev:ev;}
-    function dentro(p,v){const z=dim(v);return p.x-z.w/2>=minX&&p.x+z.w/2<=maxX&&p.y-z.h/2>=minY&&p.y+z.h/2<=maxY;}
+    let x=cx,y=cy,dir=lado==="derecha"?"R":"L",prevV=inicioV;
+    const minX=115,maxX=W-115,minY=72,maxY=H-72;
+    const sentidoY=lado==="derecha"?1:-1;
+    function vertical(f,d){const ev=d==="U"||d==="D";return doble(f)?!ev:ev;}
+    function half(v,d){const z=dims(v);return(d==="R"||d==="L"?z.w:z.h)/2;}
+    function mov(d,n){return{x:x+(d==="R"?n:d==="L"?-n:0),y:y+(d==="D"?n:d==="U"?-n:0)};}
+    function cabe(p,v){const z=dims(v);return p.x-z.w/2>=minX&&p.x+z.w/2<=maxX&&p.y-z.h/2>=minY&&p.y+z.h/2<=maxY;}
 
     for(const f of arr){
-      let dir=sec[fase%sec.length],v=orient(f,dir);
-      let p=mov(x,y,dir,mitad(prevV,dir)+mitad(v,dir));
-      let tries=0;
-      while(!dentro(p,v)&&tries<4){
-        fase=(fase+1)%sec.length; dir=sec[fase]; v=orient(f,dir);
-        p=mov(x,y,dir,mitad(prevV,dir)+mitad(v,dir)); tries++;
+      let v=vertical(f,dir), p=mov(dir,half(prevV,dir)+half(v,dir)+1);
+      if(!cabe(p,v)){
+        // En el borde baja/sube una banda completa antes de regresar.
+        const vd=vertical(f, sentidoY>0?"D":"U");
+        const salto=Math.max(62,half(prevV,"D")+half(vd,"D")+18);
+        const pv={x,y:y+sentidoY*salto};
+        if(cabe(pv,vd)){dir=sentidoY>0?"D":"U";v=vd;p=pv;}
+      } else if(dir==="D"||dir==="U"){
+        // Tras la pieza de esquina, continúa horizontalmente hacia el centro.
+        dir=lado==="derecha"?"L":"R";
       }
-      // Después de un paso vertical, cambia a la siguiente dirección horizontal.
-      if(dir==="D"||dir==="U") fase=(fase+1)%sec.length;
       x=p.x;y=p.y;prevV=v;poner(f,x,y,v);
+      if(dir==="D"||dir==="U") dir=lado==="derecha"?"L":"R";
     }
   }
-  brazo(derecha,"derecha");
-  brazo(izquierda,"izquierda");
+  brazo(derecha,"derecha"); brazo(izquierda,"izquierda");
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
