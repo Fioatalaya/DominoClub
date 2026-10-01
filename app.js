@@ -264,15 +264,19 @@ function iniciarTurno(jugador) {
   const jugadorActivo = document.querySelector(selector);
   jugadorActivo?.classList.add("turno-activo");
 
-  // El reloj acompaña únicamente al jugador cuyo turno está activo.
-  if (reloj && jugadorActivo) {
-    jugadorActivo.appendChild(reloj);
-    reloj.classList.remove("reloj-oculto");
+  // El usuario solo ve SU propio cronómetro. Los turnos rivales se indican únicamente con el borde.
+  if (reloj) {
+    if (jugador === "tu") {
+      jugadorActivo?.appendChild(reloj);
+      reloj.classList.remove("reloj-oculto");
+    } else {
+      reloj.classList.add("reloj-oculto");
+    }
   }
 
   relojTurno = setInterval(() => {
     segundosTurno--;
-    if (reloj) {
+    if (reloj && jugador === "tu") {
       reloj.style.setProperty("--progreso-turno", Math.max(0, segundosTurno * 10) + "%");
       reloj.classList.toggle("reloj-urgente", segundosTurno <= 3);
     }
@@ -363,26 +367,33 @@ function ajustarCadena() {
   cadena.classList.add("cadena-serpiente");
 
   const movil = window.innerWidth <= 520;
+  const anchoFicha = movil ? 42 : 48;
+  const altoFicha = movil ? 25 : 29;
   const porFila = movil ? 5 : 7;
-  const pasoX = movil ? 41 : 48;
-  const pasoY = movil ? 34 : 39;
-  const filas = Math.max(1, Math.ceil(fichas.length / porFila));
+  const pasoY = movil ? 54 : 62;
   const centroX = cadena.clientWidth / 2;
   const centroY = cadena.clientHeight / 2;
-  const alto = (filas - 1) * pasoY;
+  const filas = Math.max(1, Math.ceil(fichas.length / porFila));
+  const inicioY = centroY - ((filas - 1) * pasoY) / 2;
 
   fichas.forEach((ficha, indice) => {
     const fila = Math.floor(indice / porFila);
     const pos = indice % porFila;
     const cantidad = Math.min(porFila, fichas.length - fila * porFila);
-    const ancho = (cantidad - 1) * pasoX;
-    const columna = fila % 2 === 0 ? pos : cantidad - 1 - pos;
+    const direccionDerecha = fila % 2 === 0;
+    const anchoFila = cantidad * anchoFicha;
+    const inicioX = centroX - anchoFila / 2 + anchoFicha / 2;
+    const columna = direccionDerecha ? pos : (cantidad - 1 - pos);
+    const esDoble = ficha.classList.contains("doble");
 
     ficha.style.position = "absolute";
-    ficha.style.left = (centroX - ancho / 2 + columna * pasoX) + "px";
-    ficha.style.top = (centroY - alto / 2 + fila * pasoY) + "px";
+    ficha.style.left = (inicioX + columna * anchoFicha) + "px";
+    ficha.style.top = (inicioY + fila * pasoY) + "px";
     ficha.style.transform = "translate(-50%, -50%)";
     ficha.style.zIndex = String(20 + indice);
+
+    // Los dobles se muestran atravesados, como en una partida real.
+    ficha.classList.toggle("doble-tablero", esDoble);
   });
 }
 
