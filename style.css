@@ -743,3 +743,55 @@
   .tablero-fichas { width: 54% !important; top:44% !important; }
   .mis-fichas { width: calc(100% - 44px) !important; }
 }
+
+
+/* ===== AJUSTE DE BANDEJA Y PERFIL DEL JUGADOR ===== */
+.jugador-abajo {
+  bottom: 18px !important;
+  left: 18px !important;
+  min-width: 185px !important;
+  padding: 6px 12px 6px 6px !important;
+}
+
+.mis-fichas {
+  box-sizing: border-box !important;
+  width: min(88vw, 560px) !important;
+  max-width: 560px !important;
+  margin: -10px auto 0 !important;
+  padding: 18px 18px 14px !important;
+  min-height: 126px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+  gap: 7px !important;
+  overflow: visible !important;
+  border-radius: 12px 12px 24px 24px !important;
+}
+
+.mis-fichas .ficha-domino {
+  width: 54px !important;
+  height: 98px !important;
+  flex: 0 0 54px !important;
+}
+
+@media (max-width: 520px) {
+  .mis-fichas {
+    width: calc(100% - 58px) !important;
+    max-width: 560px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    gap: 5px !important;
+  }
+
+  .mis-fichas .ficha-domino {
+    width: 48px !important;
+    height: 88px !important;
+    flex-basis: 48px !important;
+  }
+
+  .jugador-abajo {
+    bottom: 16px !important;
+    left: 18px !important;
+    min-width: 170px !important;
+  }
+}
