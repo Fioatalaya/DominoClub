@@ -23,8 +23,9 @@ async function tumble(){
 }
 async function spin(){
  if(busy||(balance<bet&&freeSpins===0))return;busy=true;if(freeSpins>0){freeSpins--;$("#msg").textContent="Giro gratis · quedan "+freeSpins}else balance-=bet;update();$("#win").textContent="0";$("#multiplier").textContent="MULTIPLICADOR ×1";$("#msg").textContent="Girando…";
+ for(let frame=0;frame<9;frame++){grid=makeGrid();draw();document.querySelectorAll(".symbol").forEach(e=>e.animate([{transform:"translateY(-80px)",filter:"blur(5px)"},{transform:"translateY(80px)",filter:"blur(3px)"}],{duration:110,easing:"linear"}));await wait(110)}
  grid=makeGrid();draw();
- document.querySelectorAll(".symbol").forEach((e,i)=>e.animate([{transform:"translateY(-160px) rotateX(75deg)",filter:"blur(6px)"},{transform:"translateY(0) rotateX(0)",filter:"blur(0)"}],{duration:700+(i%5)*120,easing:"cubic-bezier(.2,.8,.2,1)"}));
- await wait(1350);const total=await tumble();balance+=total;update();$("#win").textContent=fmt(total);$("#msg").textContent=total?"¡Cascada ganadora! +"+fmt(total):"Sin premio esta vez";busy=false;update()
+ [...document.querySelectorAll(".reel")].forEach((reel,c)=>reel.animate([{transform:"translateY(-120px)",filter:"blur(6px)"},{transform:"translateY(0)",filter:"blur(0)"}],{duration:480+c*180,easing:"cubic-bezier(.15,.75,.2,1)",fill:"both"}));
+ await wait(1250);const total=await tumble();balance+=total;update();$("#win").textContent=fmt(total);$("#msg").textContent=total?"¡Cascada ganadora! +"+fmt(total):"Sin premio esta vez";busy=false;update()
 }
 $("#spin").onclick=spin;$("#minus").onclick=()=>{if(!busy){bet=Math.max(25,bet-25);update()}};$("#plus").onclick=()=>{if(!busy){bet=Math.min(500,bet+25);update()}};grid=makeGrid();draw();update();
