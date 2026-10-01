@@ -400,7 +400,7 @@ function ajustarCadena() {
   const idx=todas.indexOf(inicio);
   const izquierda=todas.slice(0,idx).reverse();
   const derecha=todas.slice(idx+1);
-  const cx=160, cy=225, paso=63;
+  const cx=150, cy=215, paso=58;
 
   function colocar(f,x,y,vertical=false){
     const doble=f.classList.contains("doble");
@@ -421,21 +421,29 @@ function ajustarCadena() {
 
   colocar(inicio,cx,cy,false);
 
-  // Construye cada brazo como UNA sola línea conectada.
-  // 2 fichas rectas, una curva vertical, y continúa por la fila siguiente.
+  // Cadena real: nace exactamente en el centro. Cada brazo permanece unido
+  // y solo gira al alcanzar el borde seguro del tablero.
   function brazo(arr,dir){
-    let x=cx, y=cy, sentido=dir;
-    arr.forEach((f,n)=>{
-      const fase=n%3;
-      if(fase===0 || fase===1){
-        x += sentido*paso;
-        colocar(f,x,y,false);
-      } else {
-        x += sentido*50;
-        y += 50;
-        colocar(f,x,y,true);
-        sentido *= -1;
-      }
+    let x=cx, y=cy;
+    let dx=dir, dy=0;
+    const limiteIzq=48, limiteDer=252;
+    const limiteSup=105, limiteInf=325;
+
+    arr.forEach((f)=>{
+      const vertical = dy !== 0;
+      const avance = vertical ? 50 : paso;
+
+      let nx=x + dx*avance;
+      let ny=y + dy*avance;
+
+      // Al llegar al borde, la cadena dobla 90 grados y sigue conectada.
+      if (dx>0 && nx>limiteDer) { dx=0; dy=1; nx=x; ny=y+50; }
+      else if (dx<0 && nx<limiteIzq) { dx=0; dy=-1; nx=x; ny=y-50; }
+      else if (dy>0 && ny>limiteInf) { dx=-1; dy=0; nx=x-58; ny=y; }
+      else if (dy<0 && ny<limiteSup) { dx=1; dy=0; nx=x+58; ny=y; }
+
+      x=nx; y=ny;
+      colocar(f,x,y,dy!==0);
     });
   }
   brazo(derecha,1);
