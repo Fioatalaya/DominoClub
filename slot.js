@@ -25,6 +25,6 @@ async function spin(){
  if(busy||(balance<bet&&freeSpins===0))return;busy=true;if(freeSpins>0){freeSpins--;$("#msg").textContent="Giro gratis · quedan "+freeSpins}else balance-=bet;update();$("#win").textContent="0";$("#multiplier").textContent="MULTIPLICADOR ×1";$("#msg").textContent="Girando…";
  grid=makeGrid();draw();
  document.querySelectorAll(".symbol").forEach((e,i)=>e.animate([{transform:"translateY(-160px) rotateX(75deg)",filter:"blur(6px)"},{transform:"translateY(0) rotateX(0)",filter:"blur(0)"}],{duration:700+(i%5)*120,easing:"cubic-bezier(.2,.8,.2,1)"}));
- await wait(1350);const total=await tumble();balance+=total;update();$("#win").textContent=fmt(total);$("#msg").textContent=total?"¡Cascada ganadora! +"+fmt(total):"Sin premio esta vez";busy=false;update();if(freeSpins>0)setTimeout(spin,650)
+ await wait(1350);const total=await tumble();balance+=total;update();$("#win").textContent=fmt(total);$("#msg").textContent=total?"¡Cascada ganadora! +"+fmt(total):"Sin premio esta vez";busy=false;update()
 }
 $("#spin").onclick=spin;$("#minus").onclick=()=>{if(!busy){bet=Math.max(25,bet-25);update()}};$("#plus").onclick=()=>{if(!busy){bet=Math.min(500,bet+25);update()}};grid=makeGrid();draw();update();
