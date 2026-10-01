@@ -425,8 +425,14 @@ function jugarBot(jugador) {
   const mano = manosJugadores[jugador];
   const indice = mano.findIndex(fichaValida);
   if (indice < 0) {
-    mostrarMensaje(jugador.toUpperCase() + " pasa");
-    setTimeout(avanzarTurno, 700);
+    clearInterval(relojTurno);
+    mostrarMensaje(jugador.toUpperCase() + " no tiene jugada · pasa en 3 segundos");
+    setTimeout(() => {
+      if (turnoActual === jugador) {
+        mostrarMensaje(jugador.toUpperCase() + " pasa");
+        setTimeout(avanzarTurno, 450);
+      }
+    }, 3000);
     return;
   }
 
@@ -482,56 +488,40 @@ function ajustarCadena() {
   const todas=[...cadena.querySelectorAll(".ficha-domino")];
   if(!todas.length) return;
   cadena.classList.add("cadena-serpiente");
-
   const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
-  const k=todas.indexOf(inicio);
-  const izq=todas.slice(0,k).reverse(), der=todas.slice(k+1);
+  const k=todas.indexOf(inicio), izq=todas.slice(0,k).reverse(), der=todas.slice(k+1);
   const L=46,C=28;
   const r=cadena.getBoundingClientRect(),W=r.width||560,H=r.height||440,cx=W/2,cy=H/2;
-
   function dbl(f){return f.classList.contains("doble");}
+  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function put(f,x,y,v){
-    const w=v?C:L,h=v?L:C;
-    f.classList.toggle("giro-cadena",v); f.classList.toggle("doble-tablero",dbl(f)&&v);
-    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
-     ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
+    const d=dims(v);
+    f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",dbl(f)&&v);
+    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",d.w+"px"],["height",d.h+"px"],
+     ["min-width",d.w+"px"],["max-width",d.w+"px"],["min-height",d.h+"px"],["max-height",d.h+"px"],
      ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
-  put(inicio,cx,cy,dbl(inicio));
+  const iv=dbl(inicio);put(inicio,cx,cy,iv);
 
-  // Plantilla estable tipo dominó móvil: ambos extremos salen horizontalmente
-  // y luego serpentean en carriles separados. Cada coordenada es única.
-  function slots(lado,n){
-    const out=[], sign=lado==="derecha"?1:-1;
-    const xmin=105,xmax=W-105;
-    let x=cx,y=cy,dir=sign;
-    const dy=lado==="derecha"?58:-58;
-    let fila=0;
-    while(out.length<n){
-      const nx=x+dir*46;
-      if(nx>=xmin&&nx<=xmax){
-        x=nx; out.push({x,y,v:false}); continue;
+  // La geometría se construye desde la cabeza de cada extremo, no desde el centro.
+  function brazo(arr,lado){
+    let x=cx,y=cy,dir=lado==="derecha"?"R":"L",pv=iv;
+    const minX=100,maxX=W-100,minY=64,maxY=H-88;
+    const turn=lado==="derecha"?{R:"D",D:"L",L:"D"}:{L:"U",U:"R",R:"U"};
+    function half(v,d){const z=dims(v);return(d==="R"||d==="L"?z.w:z.h)/2;}
+    function step(px,py,d,n){return{x:px+(d==="R"?n:d==="L"?-n:0),y:py+(d==="D"?n:d==="U"?-n:0)};}
+    function orient(f,d){const verticalPath=d==="U"||d==="D";return dbl(f)?!verticalPath:verticalPath;}
+    function fits(p,v){const z=dims(v);return p.x-z.w/2>=minX&&p.x+z.w/2<=maxX&&p.y-z.h/2>=minY&&p.y+z.h/2<=maxY;}
+    for(const f of arr){
+      let v=orient(f,dir),p=step(x,y,dir,half(pv,dir)+half(v,dir));
+      if(!fits(p,v)){
+        dir=turn[dir]||(lado==="derecha"?"R":"L");
+        v=orient(f,dir);p=step(x,y,dir,half(pv,dir)+half(v,dir));
       }
-      // esquina: una ficha vertical conecta físicamente la siguiente fila
-      y+=dy;
-      out.push({x,y:y-dy/2,v:true});
-      fila++;
-      dir*=-1;
-      // evita crecer indefinidamente hacia jugadores/mensaje
-      if(y<70) y=70+fila*4;
-      if(y>H-90) y=H-90-fila*4;
+      x=p.x;y=p.y;pv=v;put(f,x,y,v);
     }
-    return out;
   }
-  function draw(arr,lado){
-    const p=slots(lado,arr.length);
-    arr.forEach((f,i)=>{
-      // En tramo horizontal los dobles van verticales; en conector vertical, horizontales.
-      const v=dbl(f)?!p[i].v:p[i].v;
-      put(f,p[i].x,p[i].y,v);
-    });
-  }
-  draw(der,"derecha"); draw(izq,"izquierda");
+  brazo(der,"derecha");brazo(izq,"izquierda");
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
