@@ -481,65 +481,67 @@ function ajustarCadena() {
   const izquierda=todas.slice(0,k).reverse();
   const derecha=todas.slice(k+1);
 
-  const L=50,C=30,G=4;
+  const L=50,C=30;
   const rect=cadena.getBoundingClientRect();
-  const ancho=rect.width||Math.min(window.innerWidth*.86,560);
-  const alto=rect.height||360;
-  const cx=ancho/2,cy=alto/2;
+  const W=rect.width||Math.min(innerWidth*.92,620), H=rect.height||440;
+  const cx=W/2, cy=H/2;
 
   function doble(f){return f.classList.contains("doble");}
-  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
-  function pintar(f,x,y,v){
-    const d=dims(v);
-    f.classList.toggle("giro-cadena",v);
-    f.classList.toggle("doble-tablero",doble(f)&&v);
-    const p={position:"absolute",left:x+"px",top:y+"px",width:d.w+"px",height:d.h+"px",
-      "min-width":d.w+"px","max-width":d.w+"px","min-height":d.h+"px","max-height":d.h+"px",
+  function pintar(f,x,y,vertical){
+    const w=vertical?C:L,h=vertical?L:C;
+    f.classList.toggle("giro-cadena",vertical);
+    f.classList.toggle("doble-tablero",doble(f)&&vertical);
+    const p={position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
+      "min-width":w+"px","max-width":w+"px","min-height":h+"px","max-height":h+"px",
       transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"};
-    Object.entries(p).forEach(([q,val])=>f.style.setProperty(q,val,"important"));
+    Object.entries(p).forEach(([q,v])=>f.style.setProperty(q,v,"important"));
   }
-  function verticalPara(f,dir){
-    const ejeV=dir==="U"||dir==="D";
-    return doble(f)?!ejeV:ejeV;
+
+  // Ruta fija por celdas: las posiciones nunca se repiten, por lo que dos fichas
+  // jamás pueden terminar una encima de otra. Cada brazo usa una mitad distinta.
+  const sx=54, sy=38;
+  const cols=Math.max(3,Math.floor((W-120)/sx));
+  const rows=Math.max(3,Math.floor((H-90)/sy));
+
+  function ruta(lado,n){
+    const pts=[];
+    let x=cx,y=cy;
+    let dir=lado==="derecha"?1:-1;
+    let row=0;
+    while(pts.length<n && row<rows){
+      const pasos=cols;
+      for(let i=0;i<pasos&&pts.length<n;i++){
+        x+=dir*sx;
+        if(x<65||x>W-65) break;
+        pts.push({x,y,vertical:false});
+      }
+      if(pts.length>=n) break;
+      // Giro vertical de una ficha completa; derecha baja, izquierda sube.
+      const dy=lado==="derecha"?sy:-sy;
+      y+=dy;
+      if(y<45||y>H-45) break;
+      pts.push({x,y,vertical:true});
+      dir*=-1; row++;
+    }
+    return pts;
   }
-  function mitad(v,dir){const d=dims(v);return(dir==="L"||dir==="R"?d.w:d.h)/2;}
-  function mover(x,y,dir,n){return{x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};}
-  function caja(x,y,v){const d=dims(v);return{l:x-d.w/2-G,r:x+d.w/2+G,t:y-d.h/2-G,b:y+d.h/2+G};}
-  function choca(b,ocupadas){return ocupadas.some(o=>!(b.r<=o.l||b.l>=o.r||b.b<=o.t||b.t>=o.b));}
 
   const inicioV=doble(inicio);
   pintar(inicio,cx,cy,inicioV);
-  const ocupadas=[caja(cx,cy,inicioV)];
 
   function construir(arr,lado){
-    let x=cx,y=cy,prevV=inicioV;
-    let dir=lado==="derecha"?"R":"L";
-    const giros=lado==="derecha"?{R:"D",D:"L",L:"D",U:"R"}:{L:"U",U:"R",R:"U",D:"L"};
-    const lim={l:62,r:ancho-62,t:38,b:alto-38};
-
-    for(const f of arr){
-      let elegido=null;
-      // Busca una posición libre; si está ocupada o fuera, gira antes de pintar.
-      for(let intento=0;intento<4&&!elegido;intento++){
-        const v=verticalPara(f,dir);
-        const paso=mitad(prevV,dir)+mitad(v,dir)+G;
-        const p=mover(x,y,dir,paso);
-        const b=caja(p.x,p.y,v);
-        const dentro=b.l>=lim.l&&b.r<=lim.r&&b.t>=lim.t&&b.b<=lim.b;
-        if(dentro&&!choca(b,ocupadas)) elegido={p,v,b};
-        else dir=giros[dir];
+    const pts=ruta(lado,arr.length);
+    arr.forEach((f,i)=>{
+      let p=pts[i];
+      if(!p){
+        // Reserva segura si la cadena llega a ser excepcionalmente larga.
+        const signo=lado==="derecha"?1:-1;
+        p={x:cx+signo*((i%4)+1)*sx,y:cy+(lado==="derecha"?1:-1)*(Math.floor(i/4)+1)*sy,vertical:false};
       }
-      // Si una esquina está saturada, abre el recorrido alejándose del centro.
-      if(!elegido){
-        const v=verticalPara(f,dir);
-        const paso=mitad(prevV,dir)+mitad(v,dir)+G;
-        const p=mover(x,y,dir,paso);
-        elegido={p,v,b:caja(p.x,p.y,v)};
-      }
-      x=elegido.p.x;y=elegido.p.y;prevV=elegido.v;
-      ocupadas.push(elegido.b);
-      pintar(f,x,y,elegido.v);
-    }
+      // Los dobles se atraviesan respecto al sentido del tramo.
+      const v=doble(f)?!p.vertical:p.vertical;
+      pintar(f,p.x,p.y,v);
+    });
   }
   construir(derecha,"derecha");
   construir(izquierda,"izquierda");
