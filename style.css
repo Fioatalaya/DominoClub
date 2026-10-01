@@ -2115,3 +2115,7 @@
 .cadena-fichas .ficha-domino .cara {
   box-sizing: border-box !important;
 }
+
+.selector-extremo{display:none;position:absolute;left:50%;bottom:145px;transform:translateX(-50%);z-index:120;gap:10px;padding:8px;background:rgba(5,20,38,.92);border:1px solid #f5c542;border-radius:16px;white-space:nowrap}
+.selector-extremo.visible{display:flex}
+.selector-extremo button{border:1px solid #f5c542;background:#10263d;color:#fff;border-radius:12px;padding:10px 13px;font-weight:800}
