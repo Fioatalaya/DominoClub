@@ -389,48 +389,32 @@ function jugarBot(jugador) {
 function ajustarCadena() {
   const cadena = document.querySelector(".cadena-fichas");
   if (!cadena) return;
-
   const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
   cadena.classList.add("cadena-serpiente");
 
-  // Recorrido continuo tipo serpiente. Mantiene la cadena en la zona central
-  // para que J3/J4 no tapen fichas y deja separación entre cada recorrido.
-  const pasoX = 59;
-  const pasoY = 72;
-  const maxPorTramo = 5;
+  // Cadena tipo dominó real: fichas pegadas extremo con extremo.
+  // 4 fichas por tramo dejan espacio a J3/J4; luego gira y continúa abajo.
+  const pasoX = 64;
+  const pasoY = 82;
+  const porFila = 4;
   const cx = cadena.clientWidth / 2;
-  const filas = Math.max(1, Math.ceil(fichas.length / maxPorTramo));
-  const anchoTramo = (maxPorTramo - 1) * pasoX;
-  const xIzq = cx - anchoTramo / 2;
+  const filas = Math.max(1, Math.ceil(fichas.length / porFila));
   const y0 = cadena.clientHeight / 2 - ((filas - 1) * pasoY) / 2;
 
-  fichas.forEach((ficha, i) => {
-    const fila = Math.floor(i / maxPorTramo);
-    const pos = i % maxPorTramo;
-    const haciaDerecha = fila % 2 === 0;
-    const esUltimaDelTramo = pos === maxPorTramo - 1;
-    const quedanFichas = i < fichas.length - 1;
-    const esGiro = esUltimaDelTramo && quedanFichas;
-    const doble = ficha.classList.contains("doble");
-
-    ficha.classList.toggle("doble-tablero", doble);
-    ficha.classList.toggle("giro-cadena", esGiro && !doble);
-
-    const x = haciaDerecha
-      ? xIzq + pos * pasoX
-      : xIzq + (maxPorTramo - 1 - pos) * pasoX;
-    let y = y0 + fila * pasoY;
-
-    // La ficha del borde baja medio tramo y sirve de unión visual
-    // con la siguiente fila, evitando filas sueltas.
-    if (esGiro) y += pasoY / 2;
-
-    ficha.style.setProperty("position", "absolute", "important");
-    ficha.style.setProperty("left", x + "px", "important");
-    ficha.style.setProperty("top", y + "px", "important");
-    ficha.style.setProperty("transform", "translate(-50%, -50%)", "important");
-    ficha.style.setProperty("margin", "0", "important");
-    ficha.style.zIndex = String(20 + i);
+  fichas.forEach((ficha,i)=>{
+    const fila=Math.floor(i/porFila), pos=i%porFila;
+    const derecha=fila%2===0;
+    const x = cx + (derecha ? (pos-1.5) : (1.5-pos))*pasoX;
+    const y = y0 + fila*pasoY;
+    const doble=ficha.classList.contains("doble");
+    ficha.classList.toggle("doble-tablero",doble);
+    ficha.classList.remove("giro-cadena");
+    ficha.style.setProperty("position","absolute","important");
+    ficha.style.setProperty("left",x+"px","important");
+    ficha.style.setProperty("top",y+"px","important");
+    ficha.style.setProperty("transform","translate(-50%,-50%)","important");
+    ficha.style.setProperty("margin","0","important");
+    ficha.style.zIndex=String(20+i);
   });
 }
 
