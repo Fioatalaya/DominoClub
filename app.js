@@ -209,6 +209,9 @@ function jugarFicha(elemento, ladoA, ladoB) {
   elemento.style.zIndex = "";
   elemento.removeAttribute("onclick");
   elemento.classList.add("ficha-jugada");
+
+  const intro = document.querySelector(".centro-mesa");
+  if (intro) intro.classList.add("oculto");
   elemento.classList.toggle("doble", ladoA === ladoB);
 
   if (invertir) {
