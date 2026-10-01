@@ -1737,3 +1737,38 @@
     bottom: 25% !important;
   }
 }
+
+
+/* ===== CADENA CENTRAL SIN TAPAR JUGADORES ===== */
+.tablero-fichas {
+  width: 100% !important;
+  height: 72% !important;
+  min-height: 0 !important;
+  top: 47% !important;
+}
+.cadena-fichas,
+.cadena-fichas.cadena-serpiente {
+  position: absolute !important;
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translate(-50%,-50%) !important;
+  width: 132px !important;
+  height: 390px !important;
+  min-height: 390px !important;
+  overflow: visible !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.doble-tablero) {
+  width: 38px !important;
+  height: 24px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero {
+  width: 24px !important;
+  height: 38px !important;
+}
+.cadena-fichas.cadena-serpiente .puntos { padding: 2px !important; }
+.cadena-fichas.cadena-serpiente .punto {
+  width: 4px !important;
+  height: 4px !important;
+}
