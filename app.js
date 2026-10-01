@@ -393,42 +393,55 @@ function ajustarCadena() {
   const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
   cadena.classList.add("cadena-serpiente");
 
-  // Recorrido amplio tipo dominó: tramos largos y giros solo al llegar a los bordes.
-  const normalW = 42, normalH = 25;
-  const dobleW = 25, dobleH = 42;
-  const porFila = 7;
-  const pasoY = 62;
-  const filas = Math.max(1, Math.ceil(fichas.length / porFila));
+  // Una sola cadena continua. Cada fila se une a la siguiente mediante
+  // una ficha vertical en el borde, como en una mesa de dominó real.
+  const normalW = 54, normalH = 32;
+  const dobleW = 32, dobleH = 54;
+  const pasoY = 66;
+  const maxPorTramo = 5;
   const cx = cadena.clientWidth / 2;
-  const cy = cadena.clientHeight / 2;
-  const y0 = cy - ((filas - 1) * pasoY) / 2;
+  const filas = Math.max(1, Math.ceil(fichas.length / maxPorTramo));
+  const y0 = cadena.clientHeight / 2 - ((filas - 1) * pasoY) / 2;
 
-  for (let fila = 0; fila < filas; fila++) {
-    const inicio = fila * porFila;
-    const tramo = fichas.slice(inicio, inicio + porFila);
+  fichas.forEach((ficha, i) => {
+    const fila = Math.floor(i / maxPorTramo);
+    const pos = i % maxPorTramo;
     const haciaDerecha = fila % 2 === 0;
-    const visual = haciaDerecha ? tramo : [...tramo].reverse();
-    const medidas = visual.map(f => f.classList.contains("doble") ? dobleW : normalW);
-    const total = medidas.reduce((s,w) => s + w, 0);
-    let cursor = cx - total / 2;
+    const esGiro = pos === maxPorTramo - 1 && i < fichas.length - 1;
+    const doble = ficha.classList.contains("doble");
 
-    visual.forEach((ficha, j) => {
-      const doble = ficha.classList.contains("doble");
-      const ancho = doble ? dobleW : normalW;
-      const alto = doble ? dobleH : normalH;
+    let ancho = doble ? dobleW : normalW;
+    let alto = doble ? dobleH : normalH;
 
-      ficha.classList.toggle("doble-tablero", doble);
-      ficha.style.setProperty("position","absolute","important");
-      ficha.style.setProperty("width",ancho+"px","important");
-      ficha.style.setProperty("height",alto+"px","important");
-      ficha.style.setProperty("left",(cursor + ancho/2)+"px","important");
-      ficha.style.setProperty("top",(y0 + fila*pasoY)+"px","important");
-      ficha.style.setProperty("transform","translate(-50%, -50%)","important");
-      ficha.style.setProperty("margin","0","important");
-      ficha.style.zIndex=String(20+inicio+j);
-      cursor += ancho;
-    });
-  }
+    // El último dominó del tramo gira para enlazar visualmente con la fila siguiente.
+    if (esGiro && !doble) {
+      ancho = normalH;
+      alto = normalW;
+      ficha.classList.add("giro-cadena");
+    } else {
+      ficha.classList.remove("giro-cadena");
+    }
+
+    ficha.classList.toggle("doble-tablero", doble);
+
+    const tramoAncho = (maxPorTramo - 1) * normalW;
+    const xInicio = cx - tramoAncho / 2;
+    let x = haciaDerecha
+      ? xInicio + pos * normalW
+      : xInicio + (maxPorTramo - 1 - pos) * normalW;
+    let y = y0 + fila * pasoY;
+
+    if (esGiro) y += pasoY / 2;
+
+    ficha.style.setProperty("position","absolute","important");
+    ficha.style.setProperty("width",ancho+"px","important");
+    ficha.style.setProperty("height",alto+"px","important");
+    ficha.style.setProperty("left",x+"px","important");
+    ficha.style.setProperty("top",y+"px","important");
+    ficha.style.setProperty("transform","translate(-50%, -50%)","important");
+    ficha.style.setProperty("margin","0","important");
+    ficha.style.zIndex=String(20+i);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", function () {
