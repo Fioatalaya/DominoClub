@@ -263,10 +263,17 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
     mostrarMensaje("Esa ficha no coincide con los extremos"); return;
   }
   const invertir=orientada[0]!==ladoA||orientada[1]!==ladoB;
+  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]);
   if(!cadenaLogica.length) cadenaLogica.push(orientada);
   else if(lado==="izquierda") cadenaLogica.unshift(orientada);
   else cadenaLogica.push(orientada);
   sincronizarExtremos();
+  if(!confirmarCadena("jugador")){
+    cadenaLogica=cadenaAntes;sincronizarExtremos();
+    turnoBloqueado=false;ultimaJugadaHumanaId=-1;
+    document.querySelectorAll(".mis-fichas .ficha-domino").forEach(f=>f.style.pointerEvents="");
+    return;
+  }
 
   const fichaTablero=document.createElement("div");
   fichaTablero.innerHTML=htmlFicha(orientada);
@@ -386,6 +393,20 @@ function avanzarTurno() {
   iniciarTurno(ordenTurnos[(i + 1) % ordenTurnos.length]);
 }
 
+function validarCadenaLogica(){
+  for(let i=1;i<cadenaLogica.length;i++){
+    if(cadenaLogica[i-1][1]!==cadenaLogica[i][0]) return false;
+  }
+  return true;
+}
+
+function confirmarCadena(contexto){
+  if(validarCadenaLogica()) return true;
+  console.error("Cadena de dominó inválida",contexto,cadenaLogica);
+  mostrarMensaje("Error de cadena · jugada cancelada");
+  return false;
+}
+
 function sincronizarExtremos(){
   if(!cadenaLogica.length){extremoIzquierdo=null;extremoDerecho=null;return;}
   extremoIzquierdo=cadenaLogica[0][0];
@@ -438,10 +459,16 @@ function jugarBot(jugador) {
   const orientada=orientarFicha(a,b,lado);
   if(!orientada){mostrarMensaje(jugador.toUpperCase()+" pasa");setTimeout(avanzarTurno,700);return;}
   const invertir=orientada[0]!==a||orientada[1]!==b;
+  const cadenaAntes=cadenaLogica.map(f=>[f[0],f[1]]);
   if(!cadenaLogica.length) cadenaLogica.push(orientada);
   else if(lado==="izquierda") cadenaLogica.unshift(orientada);
   else cadenaLogica.push(orientada);
   sincronizarExtremos();
+  if(!confirmarCadena(jugador)){
+    cadenaLogica=cadenaAntes;sincronizarExtremos();
+    mostrarMensaje(jugador.toUpperCase()+" no puede colocar esa ficha");
+    setTimeout(avanzarTurno,700);return;
+  }
 
   const cadena = document.querySelector(".cadena-fichas");
   if (!cadena) return;
