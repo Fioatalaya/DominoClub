@@ -547,3 +547,51 @@
 .centro-mesa { z-index: 1; }
 .tablero-fichas { z-index: 2 !important; }
 .jugador { z-index: 5; }
+
+
+/* Cadena continua: no separar fichas en filas */
+.tablero-fichas {
+  top: 45% !important;
+  width: 82% !important;
+  min-height: 100px !important;
+}
+
+.cadena-fichas {
+  flex-wrap: nowrap !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-height: 90px !important;
+  gap: 2px !important;
+}
+
+.cadena-fichas .ficha-domino {
+  width: 68px !important;
+  height: 38px !important;
+}
+
+.cadena-fichas .ficha-domino.doble {
+  width: 38px !important;
+  height: 68px !important;
+}
+
+.cadena-fichas.cadena-mediana .ficha-domino {
+  width: 58px !important;
+  height: 34px !important;
+}
+.cadena-fichas.cadena-mediana .ficha-domino.doble {
+  width: 34px !important;
+  height: 58px !important;
+}
+.cadena-fichas.cadena-mediana .punto {
+  width: 5px !important;
+  height: 5px !important;
+}
+
+.cadena-fichas.cadena-larga .ficha-domino {
+  width: 50px !important;
+  height: 30px !important;
+}
+.cadena-fichas.cadena-larga .ficha-domino.doble {
+  width: 30px !important;
+  height: 50px !important;
+}
