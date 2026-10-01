@@ -391,43 +391,21 @@ function ajustarCadena() {
   if (!cadena) return;
   const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
   cadena.classList.add("cadena-serpiente");
-
-  // Recorrido continuo tipo dominó: 4 horizontales, giro, 4 horizontales
-  // en sentido contrario, giro, y continúa. Cada tramo toca al siguiente.
-  const W = 64, H = 38, VW = 38, VH = 64;
-  const xsIda = [40,104,168,232];
-  const xsVuelta = [251,187,123,59];
-  const yBase = 120;
-  const salto = 83;
-
+  const xsIda=[40,104,168,232], xsVuelta=[251,187,123,59];
+  const yBase=120, salto=83;
   fichas.forEach((ficha,i)=>{
-    const bloque = Math.floor(i / 5);
-    const pos = i % 5;
-    const fila = bloque;
-    const derecha = fila % 2 === 0;
-    const y = yBase + fila * salto;
-    let x, vertical = false;
-
-    if (pos < 4) {
-      x = derecha ? xsIda[pos] : xsVuelta[pos];
-    } else {
-      vertical = true;
-      x = derecha ? 283 : 27;
-    }
-
-    // En el giro la ficha se pone vertical; los dobles también se muestran
-    // perpendiculares sin romper la continuidad de la cadena.
-    ficha.classList.toggle("giro-cadena", vertical);
-    ficha.classList.toggle("doble-tablero", !vertical && ficha.classList.contains("doble"));
-
-    const ancho = vertical ? VW : (ficha.classList.contains("doble-tablero") ? 38 : W);
-    const alto = vertical ? VH : (ficha.classList.contains("doble-tablero") ? 64 : H);
-
+    const fila=Math.floor(i/5), pos=i%5, derecha=fila%2===0;
+    const vertical=pos===4;
+    const x=vertical?(derecha?283:27):(derecha?xsIda[pos]:xsVuelta[pos]);
+    const y=yBase+fila*salto;
+    ficha.classList.toggle("giro-cadena",vertical);
+    ficha.classList.toggle("doble-tablero",!vertical && ficha.classList.contains("doble"));
+    const doble=ficha.classList.contains("doble-tablero");
     ficha.style.setProperty("position","absolute","important");
     ficha.style.setProperty("left",x+"px","important");
     ficha.style.setProperty("top",y+"px","important");
-    ficha.style.setProperty("width",ancho+"px","important");
-    ficha.style.setProperty("height",alto+"px","important");
+    ficha.style.setProperty("width",(vertical?38:(doble?38:64))+"px","important");
+    ficha.style.setProperty("height",(vertical?64:(doble?64:38))+"px","important");
     ficha.style.setProperty("transform","translate(-50%,-50%)","important");
     ficha.style.setProperty("margin","0","important");
     ficha.style.zIndex=String(20+i);
