@@ -1911,3 +1911,33 @@
 .jugador-abajo .reloj-turno small {
   display: none !important;
 }
+
+
+/* ===== RELOJ DENTRO DEL CIRCULO TÚ + FICHAS DE MESA LEGIBLES ===== */
+.jugador-abajo .datos-jugador > .reloj-turno {
+  display:none !important;
+}
+.jugador-abajo.mostrando-reloj {
+  padding-right:10px !important;
+}
+.jugador-abajo .avatar-tu {
+  transition:background .18s ease, color .18s ease, transform .18s ease;
+}
+.jugador-abajo.turno-activo .avatar-tu {
+  box-shadow:0 0 0 3px rgba(245,197,66,.18);
+}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.doble-tablero) {
+  width:48px !important;
+  height:29px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.doble-tablero {
+  width:29px !important;
+  height:48px !important;
+}
+.cadena-fichas.cadena-serpiente .puntos {
+  padding:3px !important;
+}
+.cadena-fichas.cadena-serpiente .punto {
+  width:4.5px !important;
+  height:4.5px !important;
+}
