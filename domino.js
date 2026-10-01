@@ -285,7 +285,7 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido=null, indiceMano=null) {
     mostrarMensaje("Jugada inválida");return;
   }
 
-  manosJugadores.tu.splice(idx,1);
+  manosJugadores.tu.splice(idx,1); window.DCSound?.tile();
   document.querySelector(".centro-mesa")?.classList.add("oculto");
   renderizarManoHumana();
   renderizarCadenaLogica();
@@ -458,7 +458,7 @@ function jugarBot(jugador) {
   }
 
   // Primero actualizamos el estado del juego; el dibujo nunca controla el turno.
-  mano.splice(indice,1);
+  mano.splice(indice,1); window.DCSound?.tile();
   actualizarContadores();
 
   try {
