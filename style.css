@@ -2146,3 +2146,19 @@
   overflow:visible !important;
   padding:0 !important;
 }
+
+
+/* ===== J3/J4 fuera del corredor principal de fichas ===== */
+.jugador-izquierda{
+  left:-6px !important;
+  top:48% !important;
+  transform:translate(-28%,-50%) !important;
+  z-index:80 !important;
+}
+.jugador-derecha{
+  right:-6px !important;
+  top:48% !important;
+  transform:translate(28%,-50%) !important;
+  z-index:80 !important;
+}
+/* La tarjeta queda parcialmente al borde; avatar/nombre siguen visibles. */
