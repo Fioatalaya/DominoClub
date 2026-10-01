@@ -485,49 +485,53 @@ function ajustarCadena() {
 
   const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
   const k=todas.indexOf(inicio);
-  const izquierda=todas.slice(0,k).reverse();
-  const derecha=todas.slice(k+1);
-
+  const izq=todas.slice(0,k).reverse(), der=todas.slice(k+1);
   const L=46,C=28;
-  const r=cadena.getBoundingClientRect(),W=r.width||560,H=r.height||440;
-  const cx=W/2,cy=H/2;
-  function doble(f){return f.classList.contains("doble");}
-  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
-  function poner(f,x,y,v){
-    const d=dims(v);
-    f.classList.toggle("giro-cadena",v);
-    f.classList.toggle("doble-tablero",doble(f)&&v);
-    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",d.w+"px"],["height",d.h+"px"],
-     ["min-width",d.w+"px"],["max-width",d.w+"px"],["min-height",d.h+"px"],["max-height",d.h+"px"],
+  const r=cadena.getBoundingClientRect(),W=r.width||560,H=r.height||440,cx=W/2,cy=H/2;
+
+  function dbl(f){return f.classList.contains("doble");}
+  function put(f,x,y,v){
+    const w=v?C:L,h=v?L:C;
+    f.classList.toggle("giro-cadena",v); f.classList.toggle("doble-tablero",dbl(f)&&v);
+    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
+     ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
      ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
+  put(inicio,cx,cy,dbl(inicio));
 
-  const inicioV=doble(inicio); poner(inicio,cx,cy,inicioV);
-
-  // Carriles independientes y amplios: izquierda usa zona superior, derecha inferior.
-  function brazo(arr,lado){
-    let x=cx,y=cy,dir=lado==="derecha"?"R":"L",prevV=inicioV;
-    const minX=92,maxX=W-92,minY=58,maxY=H-82;
-    const gira=lado==="derecha"?{R:"D",D:"L",L:"D"}:{L:"U",U:"R",R:"U"};
-    function mitad(v,d){const z=dims(v);return(d==="L"||d==="R"?z.w:z.h)/2;}
-    function mover(px,py,d,n){return{x:px+(d==="R"?n:d==="L"?-n:0),y:py+(d==="D"?n:d==="U"?-n:0)};}
-    function orient(f,d){const ev=d==="U"||d==="D";return doble(f)?!ev:ev;}
-    function cabe(p,v){const z=dims(v);return p.x-z.w/2>=minX&&p.x+z.w/2<=maxX&&p.y-z.h/2>=minY&&p.y+z.h/2<=maxY;}
-
-    for(const f of arr){
-      let v=orient(f,dir);
-      let p=mover(x,y,dir,mitad(prevV,dir)+mitad(v,dir));
-      if(!cabe(p,v)){
-        dir=gira[dir]||(lado==="derecha"?"R":"L");
-        v=orient(f,dir);
-        // En la esquina deja holgura para que una ficha vertical no invada la anterior.
-        p=mover(x,y,dir,mitad(prevV,dir)+mitad(v,dir)+2);
+  // Plantilla estable tipo dominó móvil: ambos extremos salen horizontalmente
+  // y luego serpentean en carriles separados. Cada coordenada es única.
+  function slots(lado,n){
+    const out=[], sign=lado==="derecha"?1:-1;
+    const xmin=105,xmax=W-105;
+    let x=cx,y=cy,dir=sign;
+    const dy=lado==="derecha"?58:-58;
+    let fila=0;
+    while(out.length<n){
+      const nx=x+dir*46;
+      if(nx>=xmin&&nx<=xmax){
+        x=nx; out.push({x,y,v:false}); continue;
       }
-      x=p.x;y=p.y;prevV=v;poner(f,x,y,v);
+      // esquina: una ficha vertical conecta físicamente la siguiente fila
+      y+=dy;
+      out.push({x,y:y-dy/2,v:true});
+      fila++;
+      dir*=-1;
+      // evita crecer indefinidamente hacia jugadores/mensaje
+      if(y<70) y=70+fila*4;
+      if(y>H-90) y=H-90-fila*4;
     }
+    return out;
   }
-  brazo(derecha,"derecha");
-  brazo(izquierda,"izquierda");
+  function draw(arr,lado){
+    const p=slots(lado,arr.length);
+    arr.forEach((f,i)=>{
+      // En tramo horizontal los dobles van verticales; en conector vertical, horizontales.
+      const v=dbl(f)?!p[i].v:p[i].v;
+      put(f,p[i].x,p[i].y,v);
+    });
+  }
+  draw(der,"derecha"); draw(izq,"izquierda");
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
