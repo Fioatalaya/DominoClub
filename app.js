@@ -488,43 +488,51 @@ function ajustarCadena() {
   const izquierda=todas.slice(0,k).reverse();
   const derecha=todas.slice(k+1);
 
-  const L=50,C=30,G=2;
+  const L=46,C=28;
   const r=cadena.getBoundingClientRect(), W=r.width||560,H=r.height||440;
   const cx=W/2,cy=H/2;
-  function doble(f){return f.classList.contains("doble");}
-  function pintar(f,x,y,v){
-    const w=v?C:L,h=v?L:C;
-    f.classList.toggle("giro-cadena",v);
-    f.classList.toggle("doble-tablero",doble(f)&&v);
-    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
-     ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
-     ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
+
+  function esDoble(f){return f.classList.contains("doble");}
+  function poner(f,x,y,vertical){
+    const w=vertical?C:L,h=vertical?L:C;
+    f.classList.toggle("giro-cadena",vertical);
+    f.classList.toggle("doble-tablero",esDoble(f)&&vertical);
+    const p={position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
+      "min-width":w+"px","max-width":w+"px","min-height":h+"px","max-height":h+"px",
+      transform:"translate(-50%,-50%)",margin:"0"};
+    Object.entries(p).forEach(([q,v])=>f.style.setProperty(q,v,"important"));
   }
-  const inicioV=doble(inicio); pintar(inicio,cx,cy,inicioV);
 
-  // Cada brazo recorre un serpentin propio, totalmente dentro del centro.
-  // El derecho usa la mitad inferior y el izquierdo la superior.
-  function construir(arr,lado){
-    let x=cx,y=cy,dir=lado==="derecha"?1:-1;
-    const minX=105,maxX=W-105;
-    const pasoX=L+G,pasoY=L+8;
-    const sentidoY=lado==="derecha"?1:-1;
-    let verticalPendiente=false;
+  const inicioV=esDoble(inicio);
+  poner(inicio,cx,cy,inicioV);
 
-    arr.forEach((f)=>{
-      let nx=x+dir*pasoX, ny=y, vertical=false;
-      if(nx<minX||nx>maxX){
-        nx=x; ny=y+sentidoY*pasoY; vertical=true;
-        dir*=-1;
+  // Camino continuo por extremo: nunca salta de una fila a otra.
+  function brazo(arr,lado){
+    let x=cx,y=cy,dir=lado==="derecha"?"R":"L";
+    let prevV=inicioV;
+    const minX=120,maxX=W-120,minY=70,maxY=H-70;
+    const giro=lado==="derecha"?{R:"D",D:"L",L:"D",U:"R"}:{L:"U",U:"R",R:"U",D:"L"};
+
+    function dim(v){return v?{w:C,h:L}:{w:L,h:C};}
+    function mitad(v,d){const z=dim(v);return(d==="R"||d==="L"?z.w:z.h)/2;}
+    function avanza(px,py,d,n){return{x:px+(d==="R"?n:d==="L"?-n:0),y:py+(d==="D"?n:d==="U"?-n:0)};}
+    function vertical(f,d){const ejeV=d==="U"||d==="D";return esDoble(f)?!ejeV:ejeV;}
+    function cabe(p,v){const z=dim(v);return p.x-z.w/2>=minX&&p.x+z.w/2<=maxX&&p.y-z.h/2>=minY&&p.y+z.h/2<=maxY;}
+
+    for(const f of arr){
+      let v=vertical(f,dir);
+      let p=avanza(x,y,dir,mitad(prevV,dir)+mitad(v,dir));
+      if(!cabe(p,v)){
+        dir=giro[dir];
+        v=vertical(f,dir);
+        p=avanza(x,y,dir,mitad(prevV,dir)+mitad(v,dir));
       }
-      // Los dobles son perpendiculares al tramo donde se colocan.
-      if(doble(f)) vertical=!vertical;
-      x=nx;y=ny;
-      pintar(f,x,y,vertical);
-    });
+      x=p.x;y=p.y;prevV=v;
+      poner(f,x,y,v);
+    }
   }
-  construir(derecha,"derecha");
-  construir(izquierda,"izquierda");
+  brazo(derecha,"derecha");
+  brazo(izquierda,"izquierda");
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
