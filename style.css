@@ -1202,3 +1202,55 @@
     margin-top: -12px !important;
   }
 }
+
+
+/* ===== PROPORCIONES MOVIL COMPACTAS ===== */
+@media (max-width: 520px) {
+  .partida {
+    padding-top: 0 !important;
+  }
+
+  .partida-superior {
+    margin-bottom: 8px !important;
+    min-height: 62px !important;
+  }
+
+  .mesa-domino {
+    height: 620px !important;
+    min-height: 620px !important;
+    max-height: 620px !important;
+  }
+
+  .jugador-arriba {
+    top: 18px !important;
+  }
+
+  .jugador-izquierda,
+  .jugador-derecha {
+    top: 49% !important;
+  }
+
+  .jugador-abajo {
+    bottom: 18px !important;
+  }
+
+  .centro-mesa,
+  .tablero-fichas {
+    top: 43% !important;
+  }
+
+  .mis-fichas {
+    margin-top: -10px !important;
+    min-height: 104px !important;
+    padding-top: 12px !important;
+    padding-bottom: 10px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .mesa-domino {
+    height: 590px !important;
+    min-height: 590px !important;
+    max-height: 590px !important;
+  }
+}
