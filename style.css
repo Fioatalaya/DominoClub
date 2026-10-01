@@ -2064,3 +2064,24 @@
     flex-basis: 47px !important;
   }
 }
+
+
+/* ===== CADENA DOMINO CONFIGURADA: RECORRIDO AMPLIO Y SIN TAPAR JUGADORES ===== */
+.cadena-fichas,
+.cadena-fichas.cadena-serpiente {
+  width: 300px !important;
+  height: 430px !important;
+  min-height: 430px !important;
+  overflow: visible !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino {
+  box-sizing: border-box !important;
+}
+@media (max-width: 390px) {
+  .cadena-fichas,
+  .cadena-fichas.cadena-serpiente {
+    width: 280px !important;
+    height: 410px !important;
+    min-height: 410px !important;
+  }
+}
