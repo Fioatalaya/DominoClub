@@ -135,6 +135,11 @@ function dibujarFichas() {
   document.querySelectorAll(".cara").forEach(cara => {
     const numero = Number(cara.dataset.num);
     cara.innerHTML = crearPuntos(numero);
+    cara.querySelectorAll(".punto.activo").forEach(p=>{
+      p.style.backgroundColor="#111827";
+      p.style.opacity="1";
+      p.style.filter="none";
+    });
   });
 }
 function seleccionarFicha(elemento, ladoA, ladoB) {
@@ -275,29 +280,8 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null, indiceMano = nul
     return;
   }
 
-  const fichaTablero=document.createElement("div");
-  fichaTablero.innerHTML=htmlFicha(orientada);
-  const elementoTablero=fichaTablero.firstElementChild;
-  elementoTablero.removeAttribute("onclick");
-  elementoTablero.removeAttribute("onpointerdown");
-  elementoTablero.classList.add("ficha-jugada");
-  elementoTablero.dataset.a=String(orientada[0]);
-  elementoTablero.dataset.b=String(orientada[1]);
-  if(cadena.children.length===0) elementoTablero.dataset.inicio="1";
-  elementoTablero.classList.toggle("doble",orientada[0]===orientada[1]);
-
-  const intro=document.querySelector(".centro-mesa");
-  if(intro) intro.classList.add("oculto");
-  if(lado==="izquierda"&&cadena.firstChild) cadena.insertBefore(elementoTablero,cadena.firstChild);
-  else cadena.appendChild(elementoTablero);
-  elemento.remove();
-
-  // Mantiene la cadena proporcionada a medida que se agregan fichas.
-  ajustarCadena();
-
-  // Animación corta de entrada sin alterar el tamaño de la mano.
-  elementoTablero.classList.add("entrada-ficha");
-  setTimeout(() => elementoTablero.classList.remove("entrada-ficha"), 280);
+  document.querySelector(".centro-mesa")?.classList.add("oculto");
+  renderizarCadenaLogica();
 
   // Quitar exactamente la ficha jugada de la mano lógica.
   const indiceJugado = Number.isInteger(indiceMano) && indiceMano >= 0 &&
@@ -478,20 +462,8 @@ function jugarBot(jugador) {
     setTimeout(avanzarTurno,700);return;
   }
 
-  const cadena = document.querySelector(".cadena-fichas");
-  if (!cadena) return;
-  const cont=document.createElement("div");
-  cont.innerHTML=htmlFicha(orientada);
-  const elemento=cont.firstElementChild;
-  elemento.removeAttribute("onclick");
-  elemento.removeAttribute("onpointerdown");
-  elemento.classList.add("ficha-jugada");
-  elemento.dataset.a=String(orientada[0]);
-  elemento.dataset.b=String(orientada[1]);
-  if(cadena.children.length===0) elemento.dataset.inicio="1";
-  elemento.classList.toggle("doble",orientada[0]===orientada[1]);
-  if (lado === "izquierda" && cadena.firstChild) cadena.insertBefore(elemento, cadena.firstChild);
-  else cadena.appendChild(elemento);
+  document.querySelector(".centro-mesa")?.classList.add("oculto");
+  renderizarCadenaLogica();
 
   mano.splice(indice,1);
   dibujarFichas();
@@ -507,6 +479,28 @@ function jugarBot(jugador) {
     return;
   }
   setTimeout(avanzarTurno, 700);
+}
+
+function renderizarCadenaLogica() {
+  const cadena=document.querySelector(".cadena-fichas");
+  if(!cadena) return;
+  cadena.innerHTML="";
+  cadenaLogica.forEach((f,i)=>{
+    const wrap=document.createElement("div");
+    wrap.innerHTML=htmlFicha(f);
+    const el=wrap.firstElementChild;
+    el.removeAttribute("onclick");
+    el.removeAttribute("onpointerdown");
+    el.classList.add("ficha-jugada");
+    el.classList.toggle("doble",f[0]===f[1]);
+    el.dataset.a=String(f[0]); el.dataset.b=String(f[1]);
+    cadena.appendChild(el);
+  });
+  // Anchor the logical first-play position: closest split between left/right additions.
+  // Geometry no longer decides tile values or legality.
+  if(cadena.firstElementChild) cadena.firstElementChild.dataset.inicio="1";
+  dibujarFichas();
+  ajustarCadena();
 }
 
 function ajustarCadena() {
