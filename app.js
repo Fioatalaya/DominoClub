@@ -266,12 +266,10 @@ function iniciarTurno(jugador) {
 
   // El usuario solo ve SU propio cronómetro. Los turnos rivales se indican únicamente con el borde.
   if (reloj) {
-    if (jugador === "tu") {
-      jugadorActivo?.appendChild(reloj);
-      reloj.classList.remove("reloj-oculto");
-    } else {
-      reloj.classList.add("reloj-oculto");
-    }
+    const tu = document.querySelector(".jugador-abajo");
+    if (tu && reloj.parentElement !== tu) tu.appendChild(reloj);
+    reloj.classList.toggle("reloj-oculto", jugador !== "tu");
+    if (nombre) nombre.textContent = "Tu turno";
   }
 
   relojTurno = setInterval(() => {
@@ -367,33 +365,31 @@ function ajustarCadena() {
   cadena.classList.add("cadena-serpiente");
 
   const movil = window.innerWidth <= 520;
-  const anchoFicha = movil ? 42 : 48;
-  const altoFicha = movil ? 25 : 29;
-  const porFila = movil ? 5 : 7;
-  const pasoY = movil ? 54 : 62;
-  const centroX = cadena.clientWidth / 2;
-  const centroY = cadena.clientHeight / 2;
-  const filas = Math.max(1, Math.ceil(fichas.length / porFila));
-  const inicioY = centroY - ((filas - 1) * pasoY) / 2;
+  const w = movil ? 44 : 50;
+  const h = movil ? 27 : 30;
+  const porTramo = movil ? 5 : 7;
+  const giro = movil ? 43 : 48;
+  const cx = cadena.clientWidth / 2;
+  const cy = cadena.clientHeight / 2;
+  const filas = Math.max(1, Math.ceil(fichas.length / porTramo));
+  const y0 = cy - ((filas - 1) * giro) / 2;
 
-  fichas.forEach((ficha, indice) => {
-    const fila = Math.floor(indice / porFila);
-    const pos = indice % porFila;
-    const cantidad = Math.min(porFila, fichas.length - fila * porFila);
-    const direccionDerecha = fila % 2 === 0;
-    const anchoFila = cantidad * anchoFicha;
-    const inicioX = centroX - anchoFila / 2 + anchoFicha / 2;
-    const columna = direccionDerecha ? pos : (cantidad - 1 - pos);
-    const esDoble = ficha.classList.contains("doble");
+  fichas.forEach((ficha, i) => {
+    const fila = Math.floor(i / porTramo);
+    const pos = i % porTramo;
+    const n = Math.min(porTramo, fichas.length - fila * porTramo);
+    const derecha = fila % 2 === 0;
+    const x0 = cx - ((n - 1) * w) / 2;
+    const x = derecha ? x0 + pos * w : x0 + (n - 1 - pos) * w;
+    const y = y0 + fila * giro;
+    const doble = ficha.classList.contains("doble");
 
     ficha.style.position = "absolute";
-    ficha.style.left = (inicioX + columna * anchoFicha) + "px";
-    ficha.style.top = (inicioY + fila * pasoY) + "px";
+    ficha.style.left = x + "px";
+    ficha.style.top = y + "px";
     ficha.style.transform = "translate(-50%, -50%)";
-    ficha.style.zIndex = String(20 + indice);
-
-    // Los dobles se muestran atravesados, como en una partida real.
-    ficha.classList.toggle("doble-tablero", esDoble);
+    ficha.style.zIndex = String(20 + i);
+    ficha.classList.toggle("doble-tablero", doble);
   });
 }
 
