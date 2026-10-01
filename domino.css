@@ -2337,3 +2337,21 @@
  .section:first-of-type .create-card{gap:8px!important}
  .section:first-of-type .create-card .primary{font-size:13px!important;padding:10px 6px!important}
 }
+
+
+/* Revision integrada 2026-10-01: mesa centrada y fichas consistentes */
+.mesa-domino{overflow:hidden!important}
+.jugador-arriba{top:18px!important}
+.jugador-izquierda{left:18px!important;top:50%!important}
+.jugador-derecha{right:18px!important;top:50%!important}
+.jugador-abajo{left:18px!important;bottom:18px!important}
+.tablero-fichas{left:50%!important;top:50%!important;width:72%!important;height:58%!important;min-height:260px!important;transform:translate(-50%,-50%)!important}
+.cadena-fichas{position:relative!important;width:100%!important;height:100%!important;min-height:260px!important;overflow:visible!important}
+.cadena-fichas .ficha-domino{background:linear-gradient(145deg,#fffdf0,#e7ddc7)!important;border:2px solid #f4ead2!important;box-shadow:inset -2px -3px 5px #a89d87,0 3px 7px #0008!important}
+.cadena-fichas .ficha-domino>.cara:first-child{border-color:#18202b!important}
+.cadena-fichas .punto.activo{background:#111827!important}
+@media(max-width:520px){
+ .jugador-izquierda{left:14px!important}.jugador-derecha{right:14px!important}
+ .tablero-fichas{width:68%!important;height:56%!important;top:49%!important}
+ .cadena-fichas{min-height:250px!important}
+}
