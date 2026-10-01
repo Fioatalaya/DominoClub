@@ -795,3 +795,58 @@
     min-width: 170px !important;
   }
 }
+
+
+/* ===== BANDEJA COMPACTA TIPO JUEGO ===== */
+.mis-fichas {
+  width: min(86vw, 520px) !important;
+  max-width: 520px !important;
+  min-height: 112px !important;
+  margin: -8px auto 0 !important;
+  padding: 16px 14px 12px !important;
+  gap: 5px !important;
+  overflow: hidden !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+  background: linear-gradient(180deg, #2d4869 0%, #14253b 52%, #0d1828 100%) !important;
+  border: 2px solid #415c7c !important;
+  border-top-color: #627d9e !important;
+  box-shadow: 0 -6px 18px rgba(0,0,0,.38), inset 0 3px 8px rgba(255,255,255,.06) !important;
+}
+
+.mis-fichas .ficha-domino {
+  width: 46px !important;
+  height: 84px !important;
+  flex: 0 0 46px !important;
+  border-radius: 7px !important;
+}
+
+.mis-fichas .puntos {
+  padding: 5px !important;
+}
+
+.mis-fichas .punto {
+  width: 7px !important;
+  height: 7px !important;
+}
+
+@media (max-width: 520px) {
+  .mis-fichas {
+    width: calc(100% - 78px) !important;
+    max-width: 500px !important;
+    min-height: 106px !important;
+    padding: 15px 10px 11px !important;
+    gap: 4px !important;
+  }
+
+  .mis-fichas .ficha-domino {
+    width: 43px !important;
+    height: 80px !important;
+    flex-basis: 43px !important;
+  }
+
+  .mis-fichas .punto {
+    width: 6px !important;
+    height: 6px !important;
+  }
+}
