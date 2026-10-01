@@ -395,19 +395,20 @@ function ajustarCadena() {
   if(!todas.length) return;
   cadena.classList.add("cadena-serpiente");
 
-  // La ficha que abrió la partida siempre queda en el centro.
   const inicio=todas.find(f=>f.dataset.inicio==="1") || todas[0];
   const idx=todas.indexOf(inicio);
   const izquierda=todas.slice(0,idx).reverse();
   const derecha=todas.slice(idx+1);
+  const cx=160, cy=225, paso=63;
 
-  const cx=160, cy=220, W=64, H=38, VW=38, VH=64;
   function colocar(f,x,y,vertical=false){
     const doble=f.classList.contains("doble");
+    // Los dobles se cruzan sobre la cadena; el resto sigue la dirección del tramo.
+    const cruzado=doble && !vertical;
     f.classList.toggle("giro-cadena",vertical);
-    f.classList.toggle("doble-tablero",doble && !vertical);
-    const w=vertical?VW:(doble?38:W);
-    const h=vertical?VH:(doble?64:H);
+    f.classList.toggle("doble-tablero",cruzado);
+    const w=vertical?38:(cruzado?38:64);
+    const h=vertical?64:(cruzado?64:38);
     f.style.setProperty("position","absolute","important");
     f.style.setProperty("left",x+"px","important");
     f.style.setProperty("top",y+"px","important");
@@ -416,24 +417,28 @@ function ajustarCadena() {
     f.style.setProperty("transform","translate(-50%,-50%)","important");
     f.style.setProperty("margin","0","important");
   }
+
   colocar(inicio,cx,cy,false);
 
-  // Cada extremo crece desde el centro. Las piezas quedan pegadas y sólo
-  // doblan cuando se acercan a los bordes, como una cadena real.
-  function lado(arr,dir){
-    let x=cx, y=cy;
+  // Construye cada brazo como UNA sola línea conectada.
+  // 2 fichas rectas, una curva vertical, y continúa por la fila siguiente.
+  function brazo(arr,dir){
+    let x=cx, y=cy, sentido=dir;
     arr.forEach((f,n)=>{
-      const tramo=Math.floor(n/3), pos=n%3;
-      const hacia=tramo%2===0?dir:-dir;
-      if(pos===0){ x += hacia*64; }
-      else if(pos===1){ x += hacia*64; }
-      else { x += hacia*51; y += 51; }
-      const vertical=pos===2;
-      colocar(f,x,y,vertical);
+      const fase=n%3;
+      if(fase===0 || fase===1){
+        x += sentido*paso;
+        colocar(f,x,y,false);
+      } else {
+        x += sentido*50;
+        y += 50;
+        colocar(f,x,y,true);
+        sentido *= -1;
+      }
     });
   }
-  lado(derecha,1);
-  lado(izquierda,-1);
+  brazo(derecha,1);
+  brazo(izquierda,-1);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
