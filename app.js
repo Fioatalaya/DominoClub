@@ -228,6 +228,17 @@ function jugarFicha(elemento, ladoA, ladoB) {
 
 
 
+function ajustarCadena() {
+  const cadena = document.querySelector(".cadena-fichas");
+  if (!cadena) return;
+
+  const total = cadena.querySelectorAll(".ficha-domino").length;
+  cadena.classList.remove("cadena-mediana", "cadena-larga");
+
+  if (total >= 5) cadena.classList.add("cadena-mediana");
+  if (total >= 7) cadena.classList.add("cadena-larga");
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   render();
 
