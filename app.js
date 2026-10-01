@@ -437,15 +437,12 @@ function ajustarCadena() {
   const derecha=todas.slice(k+1);
 
   const L=58,C=34;
-  const anchoCadena=Math.min(window.innerWidth*0.92,620);
-  const cx=anchoCadena/2,cy=220;
-  // Limites calculados desde el ancho REAL disponible, no desde 320px fijos.
-  // Dejamos una franja libre a ambos lados para que la cadena no pase debajo de J3/J4.
-  // Zona central libre de las tarjetas laterales J3/J4.
-  // J3/J4 ahora están desplazados hacia los bordes: recuperamos ancho de juego.
-  const lim={l:58,r:anchoCadena-58,t:55,b:385};
+  const ancho=Math.min(window.innerWidth*0.92,620), cx=ancho/2, cy=220;
+  // Corredor seguro: la cadena usa la mesa, pero gira antes de J3/J4.
+  const lim={l:78,r:ancho-78,t:58,b:382};
 
   function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
+  function doble(f){return f.classList.contains("doble");}
   function pintar(f,x,y,v){
     const d=dims(v);
     f.classList.toggle("giro-cadena",v);
@@ -455,24 +452,25 @@ function ajustarCadena() {
       transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"};
     Object.entries(p).forEach(([q,val])=>f.style.setProperty(q,val,"important"));
   }
-  function doble(f){return f.classList.contains("doble");}
   function verticalPara(f,dir){
     const ejeV=dir==="U"||dir==="D";
     return doble(f)?!ejeV:ejeV;
   }
-  function half(v,dir){
+  function half(v,dir){const d=dims(v);return (dir==="R"||dir==="L"?d.w:d.h)/2;}
+  function mover(x,y,dir,n){return{x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};}
+
+  // Recorrido serpenteante. Cada brazo gira hacia una zona distinta para no cruzarse.
+  function siguiente(dir,lado){
+    const der={R:"D",D:"L",L:"D",U:"R"};
+    const izq={L:"U",U:"R",R:"U",D:"L"};
+    return (lado==="derecha"?der:izq)[dir];
+  }
+  function cabe(p,v){
     const d=dims(v);
-    return (dir==="R"||dir==="L"?d.w:d.h)/2;
-  }
-  function mover(x,y,dir,n){
-    return {x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};
-  }
-  function gira(dir,lado){
-    if(lado==="derecha") return {R:"D",D:"L",L:"D",U:"R"}[dir];
-    return {L:"U",U:"R",R:"U",D:"L"}[dir];
+    return p.x-d.w/2>=lim.l && p.x+d.w/2<=lim.r &&
+           p.y-d.h/2>=lim.t && p.y+d.h/2<=lim.b;
   }
 
-  // Salida central; el doble se cruza sin alterar el eje de crecimiento.
   const inicioV=doble(inicio);
   pintar(inicio,cx,cy,inicioV);
 
@@ -482,16 +480,13 @@ function ajustarCadena() {
       let v=verticalPara(f,dir);
       let paso=half(prevV,dir)+half(v,dir);
       let p=mover(x,y,dir,paso);
-      let d=dims(v);
-      let fuera=p.x-d.w/2<lim.l||p.x+d.w/2>lim.r||p.y-d.h/2<lim.t||p.y+d.h/2>lim.b;
 
-      if(fuera){
-        dir=gira(dir,lado);
+      if(!cabe(p,v)){
+        dir=siguiente(dir,lado);
         v=verticalPara(f,dir);
         paso=half(prevV,dir)+half(v,dir);
         p=mover(x,y,dir,paso);
       }
-
       x=p.x;y=p.y;prevV=v;
       pintar(f,x,y,v);
     });
