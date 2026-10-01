@@ -266,10 +266,10 @@ function iniciarTurno(jugador) {
   actualizarGuiaTurno();
   if (jugador === "tu") {
     const hayJugada = manosJugadores.tu.some(fichaValida);
-    mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · pasas turno");
+    mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · espera 3 segundos");
     if (!hayJugada) {
       clearInterval(relojTurno);
-      setTimeout(avanzarTurno, 1200);
+      setTimeout(avanzarTurno, 3000);
       return;
     }
   }
@@ -377,8 +377,8 @@ function ajustarCadena() {
   // Cadena continua tipo dominó: filas unidas y giro en los extremos.
   const normalW = 44, normalH = 27;
   const dobleW = 27, dobleH = 44;
-  const porFila = 7;
-  const pasoY = 48;
+  const porFila = 5;
+  const pasoY = 54;
   const filas = Math.max(1, Math.ceil(fichas.length / porFila));
   const cx = cadena.clientWidth / 2;
   const cy = cadena.clientHeight / 2;
