@@ -2008,3 +2008,24 @@
 @media (max-width:390px) {
   .cadena-fichas,.cadena-fichas.cadena-serpiente { width: 255px !important; }
 }
+
+
+/* ===== CADENA CONTINUA CON GIROS ===== */
+.cadena-fichas.cadena-serpiente .ficha-domino.giro-cadena {
+  flex-direction: column !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.giro-cadena > .cara {
+  width: 100% !important;
+  height: 50% !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.giro-cadena > .cara:first-child {
+  border-right: 0 !important;
+  border-bottom: 2px solid #111827 !important;
+}
+/* Elimina definitivamente el nombre duplicado al lado del círculo TÚ */
+.jugador-abajo .datos-jugador > b { display:none !important; }
+.jugador-abajo {
+  min-width:0 !important;
+  width:auto !important;
+  padding:7px 12px !important;
+}
