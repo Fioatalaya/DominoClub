@@ -481,13 +481,15 @@ function ajustarCadena() {
   const izquierda=todas.slice(0,k).reverse();
   const derecha=todas.slice(k+1);
 
+  // Escala única para todas las fichas del tablero.
   const L=58,C=34;
-  const ancho=Math.min(window.innerWidth*0.92,620), cx=ancho/2, cy=220;
-  // Corredor seguro: la cadena usa la mesa, pero gira antes de J3/J4.
-  const lim={l:78,r:ancho-78,t:58,b:382};
+  const rect=cadena.getBoundingClientRect();
+  const ancho=rect.width||Math.min(window.innerWidth*.86,560);
+  const alto=rect.height||360;
+  const cx=ancho/2, cy=alto/2;
 
-  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function doble(f){return f.classList.contains("doble");}
+  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function pintar(f,x,y,v){
     const d=dims(v);
     f.classList.toggle("giro-cadena",v);
@@ -498,57 +500,60 @@ function ajustarCadena() {
     Object.entries(p).forEach(([q,val])=>f.style.setProperty(q,val,"important"));
   }
   function verticalPara(f,dir){
-    const ejeV=dir==="U"||dir==="D";
-    return doble(f)?!ejeV:ejeV;
+    const ejeVertical=dir==="U"||dir==="D";
+    return doble(f)?!ejeVertical:ejeVertical;
   }
-  function half(v,dir){const d=dims(v);return (dir==="R"||dir==="L"?d.w:d.h)/2;}
-  function mover(x,y,dir,n){return{x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};}
-
-  // Recorrido continuo cerrado: cada brazo rota 90 grados al tocar un límite.
-  // Derecha gira en sentido horario; izquierda en sentido antihorario.
-  // Así ninguna rama puede seguir empujando fichas fuera del tablero.
-  function siguiente(dir,lado){
-    const der={R:"D",D:"L",L:"U",U:"R"};
-    const izq={L:"U",U:"R",R:"D",D:"L"};
-    return (lado==="derecha"?der:izq)[dir];
+  function mitad(v,dir){
+    const d=dims(v); return (dir==="L"||dir==="R"?d.w:d.h)/2;
   }
-  function cabe(p,v){
-    const d=dims(v);
-    return p.x-d.w/2>=lim.l && p.x+d.w/2<=lim.r &&
-           p.y-d.h/2>=lim.t && p.y+d.h/2<=lim.b;
+  function mover(x,y,dir,n){
+    return {x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};
   }
 
   const inicioV=doble(inicio);
   pintar(inicio,cx,cy,inicioV);
 
+  // Cada brazo tiene su propio carril. No se cruzan ni se amontonan en el centro.
   function construir(arr,lado){
-    let x=cx,y=cy,dir=lado==="derecha"?"R":"L",prevV=inicioV;
-    arr.forEach(f=>{
+    let x=cx,y=cy;
+    let dir=lado==="derecha"?"R":"L";
+    let prevV=inicioV;
+    const margenX=72, margenY=42;
+    const limiteL=margenX, limiteR=ancho-margenX;
+    const limiteT=margenY, limiteB=alto-margenY;
+
+    for(const f of arr){
       let v=verticalPara(f,dir);
-      let paso=half(prevV,dir)+half(v,dir);
+      let paso=mitad(prevV,dir)+mitad(v,dir);
       let p=mover(x,y,dir,paso);
 
-      // Puede necesitar más de un giro si estamos justo en una esquina.
-      let intentos=0;
-      while(!cabe(p,v) && intentos<4){
-        dir=siguiente(dir,lado);
-        v=verticalPara(f,dir);
-        paso=half(prevV,dir)+half(v,dir);
-        p=mover(x,y,dir,paso);
-        intentos++;
-      }
-      // Seguridad final: nunca dibujar una ficha fuera del corredor central.
       const d=dims(v);
-      p.x=Math.max(lim.l+d.w/2,Math.min(lim.r-d.w/2,p.x));
-      p.y=Math.max(lim.t+d.h/2,Math.min(lim.b-d.h/2,p.y));
+      const fuera=p.x-d.w/2<limiteL||p.x+d.w/2>limiteR||
+                  p.y-d.h/2<limiteT||p.y+d.h/2>limiteB;
+      if(fuera){
+        // El brazo derecho baja; el izquierdo sube. Después ambos regresan horizontalmente.
+        if(lado==="derecha"){
+          if(dir==="R") dir="D";
+          else if(dir==="D") dir="L";
+          else if(dir==="L") dir="D";
+          else dir="R";
+        }else{
+          if(dir==="L") dir="U";
+          else if(dir==="U") dir="R";
+          else if(dir==="R") dir="U";
+          else dir="L";
+        }
+        v=verticalPara(f,dir);
+        paso=mitad(prevV,dir)+mitad(v,dir);
+        p=mover(x,y,dir,paso);
+      }
       x=p.x;y=p.y;prevV=v;
       pintar(f,x,y,v);
-    });
+    }
   }
   construir(derecha,"derecha");
   construir(izquierda,"izquierda");
 }
-
 document.addEventListener("DOMContentLoaded", function () {
   render();
 
