@@ -488,66 +488,39 @@ function ajustarCadena() {
   const izquierda=todas.slice(0,k).reverse();
   const derecha=todas.slice(k+1);
 
-  const L=50,C=30;
-  const rect=cadena.getBoundingClientRect();
-  const W=rect.width||Math.min(innerWidth*.92,620), H=rect.height||440;
-  const cx=W/2, cy=H/2;
-
+  const L=50,C=30,G=2;
+  const r=cadena.getBoundingClientRect(), W=r.width||560,H=r.height||440;
+  const cx=W/2,cy=H/2;
   function doble(f){return f.classList.contains("doble");}
-  function pintar(f,x,y,vertical){
-    const w=vertical?C:L,h=vertical?L:C;
-    f.classList.toggle("giro-cadena",vertical);
-    f.classList.toggle("doble-tablero",doble(f)&&vertical);
-    const p={position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
-      "min-width":w+"px","max-width":w+"px","min-height":h+"px","max-height":h+"px",
-      transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"};
-    Object.entries(p).forEach(([q,v])=>f.style.setProperty(q,v,"important"));
+  function pintar(f,x,y,v){
+    const w=v?C:L,h=v?L:C;
+    f.classList.toggle("giro-cadena",v);
+    f.classList.toggle("doble-tablero",doble(f)&&v);
+    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
+     ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
+     ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
+  const inicioV=doble(inicio); pintar(inicio,cx,cy,inicioV);
 
-  // Ruta fija por celdas: las posiciones nunca se repiten, por lo que dos fichas
-  // jamás pueden terminar una encima de otra. Cada brazo usa una mitad distinta.
-  const sx=54, sy=38;
-  const cols=Math.max(3,Math.floor((W-120)/sx));
-  const rows=Math.max(3,Math.floor((H-90)/sy));
-
-  function ruta(lado,n){
-    const pts=[];
-    let x=cx,y=cy;
-    let dir=lado==="derecha"?1:-1;
-    let row=0;
-    while(pts.length<n && row<rows){
-      const pasos=cols;
-      for(let i=0;i<pasos&&pts.length<n;i++){
-        x+=dir*sx;
-        if(x<65||x>W-65) break;
-        pts.push({x,y,vertical:false});
-      }
-      if(pts.length>=n) break;
-      // Giro vertical de una ficha completa; derecha baja, izquierda sube.
-      const dy=lado==="derecha"?sy:-sy;
-      y+=dy;
-      if(y<45||y>H-45) break;
-      pts.push({x,y,vertical:true});
-      dir*=-1; row++;
-    }
-    return pts;
-  }
-
-  const inicioV=doble(inicio);
-  pintar(inicio,cx,cy,inicioV);
-
+  // Cada brazo recorre un serpentin propio, totalmente dentro del centro.
+  // El derecho usa la mitad inferior y el izquierdo la superior.
   function construir(arr,lado){
-    const pts=ruta(lado,arr.length);
-    arr.forEach((f,i)=>{
-      let p=pts[i];
-      if(!p){
-        // Reserva segura si la cadena llega a ser excepcionalmente larga.
-        const signo=lado==="derecha"?1:-1;
-        p={x:cx+signo*((i%4)+1)*sx,y:cy+(lado==="derecha"?1:-1)*(Math.floor(i/4)+1)*sy,vertical:false};
+    let x=cx,y=cy,dir=lado==="derecha"?1:-1;
+    const minX=105,maxX=W-105;
+    const pasoX=L+G,pasoY=L+8;
+    const sentidoY=lado==="derecha"?1:-1;
+    let verticalPendiente=false;
+
+    arr.forEach((f)=>{
+      let nx=x+dir*pasoX, ny=y, vertical=false;
+      if(nx<minX||nx>maxX){
+        nx=x; ny=y+sentidoY*pasoY; vertical=true;
+        dir*=-1;
       }
-      // Los dobles se atraviesan respecto al sentido del tramo.
-      const v=doble(f)?!p.vertical:p.vertical;
-      pintar(f,p.x,p.y,v);
+      // Los dobles son perpendiculares al tramo donde se colocan.
+      if(doble(f)) vertical=!vertical;
+      x=nx;y=ny;
+      pintar(f,x,y,vertical);
     });
   }
   construir(derecha,"derecha");
