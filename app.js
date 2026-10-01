@@ -138,6 +138,16 @@ function seleccionarFicha(elemento, ladoA, ladoB) {
     return;
   }
 
+  // La mano lógica es la autoridad. Nunca permitir una ficha que ya no esté en la mano.
+  const indiceReal = manosJugadores.tu.findIndex(f =>
+    (f[0] === ladoA && f[1] === ladoB) || (f[0] === ladoB && f[1] === ladoA)
+  );
+  if (indiceReal < 0) {
+    dibujarFichas();
+    mostrarMensaje("Esa ficha ya no está en tu mano");
+    return;
+  }
+
   if (!fichaValida([ladoA, ladoB])) {
     mostrarMensaje("No coincide. Juega una ficha iluminada.");
     return;
@@ -278,7 +288,20 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null) {
   elemento.classList.add("entrada-ficha");
   setTimeout(() => elemento.classList.remove("entrada-ficha"), 280);
 
-  manosJugadores.tu = manosJugadores.tu.filter(f => !(f[0] === ladoA && f[1] === ladoB));
+  // Quitar exactamente la ficha jugada de la mano lógica.
+  const indiceJugado = manosJugadores.tu.findIndex(f =>
+    (f[0] === ladoA && f[1] === ladoB) || (f[0] === ladoB && f[1] === ladoA)
+  );
+  if (indiceJugado >= 0) manosJugadores.tu.splice(indiceJugado, 1);
+  dibujarFichas();
+
+  // Si esta era la última ficha, la partida termina aquí; no se entrega otro turno.
+  if (manosJugadores.tu.length === 0) {
+    clearInterval(relojTurno);
+    turnoBloqueado = true;
+    mostrarMensaje("Ganaste la partida");
+    return;
+  }
 
   // Detener el reloj inmediatamente al hacer una jugada válida.
   // Evita que el temporizador venza durante la animación y salte dos turnos.
