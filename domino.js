@@ -99,10 +99,10 @@ function openGame(index) {
 
   estadoPartida=crearEstadoPartida();
   manosJugadores={
-    tu:estadoPartida.manos.tu.map(valoresFicha),
-    j2:estadoPartida.manos.j2.map(valoresFicha),
-    j3:estadoPartida.manos.j3.map(valoresFicha),
-    j4:estadoPartida.manos.j4.map(valoresFicha)
+    tu:estadoPartida.manos.tu.map(f=>[...f]),
+    j2:estadoPartida.manos.j2.map(f=>[...f]),
+    j3:estadoPartida.manos.j3.map(f=>[...f]),
+    j4:estadoPartida.manos.j4.map(f=>[...f])
   };
   const total=Object.values(manosJugadores).reduce((n,m)=>n+m.length,0);
   if(total!==28) throw new Error("Reparto inválido: "+total+" fichas");
@@ -121,7 +121,7 @@ function openGame(index) {
         <div class="centro-mesa">DOMINO<br><span>Partida iniciada</span></div>
         <div class="tablero-fichas"><div class="cadena-fichas"></div></div>
         <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>J4</b><small>7 fichas</small></span></div>
-        <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><small>10,000 monedas · <b class="conteo-tu">7 fichas</b></small></span></div>
+        <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><small><b class="conteo-tu">7 fichas</b></small></span></div>
       </div>
       <div class="mis-fichas">${manosJugadores.tu.map((f,i)=>htmlFicha(f,i)).join("")}</div>
     </div>
