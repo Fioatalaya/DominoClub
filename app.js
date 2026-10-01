@@ -482,10 +482,12 @@ function ajustarCadena() {
   function half(v,dir){const d=dims(v);return (dir==="R"||dir==="L"?d.w:d.h)/2;}
   function mover(x,y,dir,n){return{x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};}
 
-  // Recorrido serpenteante. Cada brazo gira hacia una zona distinta para no cruzarse.
+  // Recorrido continuo cerrado: cada brazo rota 90 grados al tocar un límite.
+  // Derecha gira en sentido horario; izquierda en sentido antihorario.
+  // Así ninguna rama puede seguir empujando fichas fuera del tablero.
   function siguiente(dir,lado){
-    const der={R:"D",D:"L",L:"D",U:"R"};
-    const izq={L:"U",U:"R",R:"U",D:"L"};
+    const der={R:"D",D:"L",L:"U",U:"R"};
+    const izq={L:"U",U:"R",R:"D",D:"L"};
     return (lado==="derecha"?der:izq)[dir];
   }
   function cabe(p,v){
@@ -504,12 +506,19 @@ function ajustarCadena() {
       let paso=half(prevV,dir)+half(v,dir);
       let p=mover(x,y,dir,paso);
 
-      if(!cabe(p,v)){
+      // Puede necesitar más de un giro si estamos justo en una esquina.
+      let intentos=0;
+      while(!cabe(p,v) && intentos<4){
         dir=siguiente(dir,lado);
         v=verticalPara(f,dir);
         paso=half(prevV,dir)+half(v,dir);
         p=mover(x,y,dir,paso);
+        intentos++;
       }
+      // Seguridad final: nunca dibujar una ficha fuera del corredor central.
+      const d=dims(v);
+      p.x=Math.max(lim.l+d.w/2,Math.min(lim.r-d.w/2,p.x));
+      p.y=Math.max(lim.t+d.h/2,Math.min(lim.b-d.h/2,p.y));
       x=p.x;y=p.y;prevV=v;
       pintar(f,x,y,v);
     });
