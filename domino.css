@@ -2370,3 +2370,11 @@
 .cadena-fichas .ficha-domino.giro-cadena>.cara{width:100%!important;height:50%!important}
 .cadena-fichas .ficha-domino.giro-cadena>.cara:first-child{border-bottom:2px solid #111827!important;border-right:0!important}
 .cadena-fichas .punto{width:5px!important;height:5px!important}
+
+
+/* 2026-10-01 compact lobby + consistent premium domino tiles */
+.table{min-height:0!important;padding:12px 14px!important;margin-bottom:10px!important;border-radius:18px!important}
+.table b{font-size:18px!important}.table small{font-size:13px!important}.table button{padding:10px 18px!important;min-height:42px!important}
+.mis-fichas .ficha-domino,.cadena-fichas .ficha-domino{background:linear-gradient(145deg,#fffdf5,#e7dfca)!important;border:2px solid #e2c98d!important;box-shadow:inset 2px 2px 3px #fff,inset -2px -2px 4px #b7aa91,0 5px 9px #0007!important;border-radius:9px!important}
+.cadena-fichas .ficha-domino .cara,.mis-fichas .ficha-domino .cara{background:transparent!important}
+.cadena-fichas .punto.activo,.mis-fichas .punto.activo{background:#111827!important}
