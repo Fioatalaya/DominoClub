@@ -328,7 +328,8 @@ function jugarFicha(elemento, ladoA, ladoB, ladoElegido = null, indiceMano = nul
     return;
   }
   manosJugadores.tu.splice(indiceJugado, 1);
-  dibujarFichas();
+  renderizarManoHumana();
+  actualizarContadores();
 
   // Si esta era la última ficha, la partida termina aquí; no se entrega otro turno.
   if (manosJugadores.tu.length === 0) {
@@ -388,7 +389,7 @@ function iniciarTurno(jugador) {
   actualizarGuiaTurno();
   if (jugador === "tu") {
     const hayJugada = manosJugadores.tu.some(fichaValida);
-    mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · espera 3 segundos");
+    mostrarMensaje(hayJugada ? "Tu turno · toca una ficha iluminada" : "No tienes jugada · espera 5 segundos");
     if (!hayJugada) {
       clearInterval(relojTurno);
       setTimeout(avanzarTurno, 5000);
@@ -407,7 +408,7 @@ function iniciarTurno(jugador) {
     }
     if (segundosTurno <= 0) {
       clearInterval(relojTurno);
-      mostrarMensaje(jugador === "tu" ? "Tiempo agotado · turno pasado" : "Tiempo agotado");
+      if (jugador === "tu") mostrarMensaje("Tiempo agotado · turno pasado");
       setTimeout(avanzarTurno, 500);
     }
   }, 1000);
@@ -549,25 +550,44 @@ function renderizarCadenaLogica() {
 }
 
 function ajustarCadena() {
- const cadena=document.querySelector(".cadena-fichas"); if(!cadena)return;
- const fs=[...cadena.querySelectorAll(".ficha-domino")]; if(!fs.length)return;
- const r=cadena.getBoundingClientRect(),W=r.width||520,H=r.height||390,L=42,C=26,G=1;
- const cols=Math.max(5,Math.floor((W-145)/(L+G))), rows=Math.ceil(fs.length/cols);
- const cx=W/2, cy=H/2, rowGap=50, sy=cy-((rows-1)*rowGap)/2;
- fs.forEach((f,i)=>{
-   const row=Math.floor(i/cols), p=i%cols, count=Math.min(cols,fs.length-row*cols);
-   const reverse=row%2===1, left=cx-((count-1)*(L+G))/2;
-   const x=left+(reverse?(count-1-p):p)*(L+G), y=sy+row*rowGap;
-   const doble=f.classList.contains("doble");
-   // Solo el doble va perpendicular. En los giros la siguiente fila invierte dirección.
-   const vertical=doble;
-   const w=vertical?C:L,h=vertical?L:C;
-   f.classList.toggle("giro-cadena",vertical);
-   f.classList.toggle("doble-tablero",doble&&vertical);
-   [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
+  const cadena=document.querySelector(".cadena-fichas"); if(!cadena)return;
+  const todas=[...cadena.querySelectorAll(".ficha-domino")]; if(!todas.length)return;
+  const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0], k=todas.indexOf(inicio);
+  const izquierda=todas.slice(0,k).reverse(), derecha=todas.slice(k+1);
+  const r=cadena.getBoundingClientRect(),W=r.width||520,H=r.height||390;
+  const cx=W/2,cy=H/2,L=42,C=26,G=1,minX=76,maxX=W-76,minY=68,maxY=H-76;
+  const doble=f=>f.classList.contains("doble");
+  function poner(f,x,y,vertical){
+    const w=vertical?C:L,h=vertical?L:C;
+    f.classList.toggle("giro-cadena",vertical);
+    f.classList.toggle("doble-tablero",doble(f)&&vertical);
+    [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",w+"px"],["height",h+"px"],
     ["min-width",w+"px"],["max-width",w+"px"],["min-height",h+"px"],["max-height",h+"px"],
     ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
- });
+  }
+  function brazo(arr,dir){
+    let x=cx,y=cy;
+    for(const f of arr){
+      // dirección del recorrido; los dobles se ven perpendiculares sin cambiar la dirección del camino
+      let verticalCamino=dir===1||dir===3;
+      let visualVertical=doble(f)?!verticalCamino:verticalCamino;
+      let alongCur=doble(f)?C:L;
+      let paso=L/2+alongCur/2+G;
+      let nx=x+(dir===0?paso:dir===2?-paso:0), ny=y+(dir===1?paso:dir===3?-paso:0);
+      const hw=(visualVertical?C:L)/2,hh=(visualVertical?L:C)/2;
+      if(nx-hw<minX||nx+hw>maxX||ny-hh<minY||ny+hh>maxY){
+        dir=(dir+1)%4;
+        verticalCamino=dir===1||dir===3;
+        visualVertical=doble(f)?!verticalCamino:verticalCamino;
+        alongCur=doble(f)?C:L;
+        paso=L/2+alongCur/2+G;
+        nx=x+(dir===0?paso:dir===2?-paso:0); ny=y+(dir===1?paso:dir===3?-paso:0);
+      }
+      x=nx;y=ny;poner(f,x,y,visualVertical);
+    }
+  }
+  poner(inicio,cx,cy,doble(inicio));
+  brazo(derecha,0); brazo(izquierda,2);
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
