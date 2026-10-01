@@ -374,13 +374,11 @@ function ajustarCadena() {
   const fichas = Array.from(cadena.querySelectorAll(".ficha-domino"));
   cadena.classList.add("cadena-serpiente");
 
-  // Cadena continua tipo dominó: filas unidas y giro en los extremos.
-  const normalW = 38, normalH = 24;
-  const dobleW = 24, dobleH = 38;
-  // En móvil, tres fichas por tramo mantienen toda la cadena
-  // dentro del pasillo central y lejos de las tarjetas J3/J4.
-  const porFila = 3;
-  const pasoY = 39;
+  // Recorrido amplio tipo dominó: tramos largos y giros solo al llegar a los bordes.
+  const normalW = 42, normalH = 25;
+  const dobleW = 25, dobleH = 42;
+  const porFila = 7;
+  const pasoY = 62;
   const filas = Math.max(1, Math.ceil(fichas.length / porFila));
   const cx = cadena.clientWidth / 2;
   const cy = cadena.clientHeight / 2;
@@ -390,8 +388,6 @@ function ajustarCadena() {
     const inicio = fila * porFila;
     const tramo = fichas.slice(inicio, inicio + porFila);
     const haciaDerecha = fila % 2 === 0;
-
-    // Conservamos el orden lógico de la cadena, pero la siguiente fila vuelve en sentido contrario.
     const visual = haciaDerecha ? tramo : [...tramo].reverse();
     const medidas = visual.map(f => f.classList.contains("doble") ? dobleW : normalW);
     const total = medidas.reduce((s,w) => s + w, 0);
