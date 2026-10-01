@@ -443,3 +443,11 @@
   visibility: visible !important;
   opacity: 1 !important;
 }
+
+
+/* Los valores de los extremos son internos: nunca se muestran */
+.extremo,
+.extremo-izquierdo,
+.extremo-derecho {
+  display: none !important;
+}
