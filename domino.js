@@ -70,18 +70,6 @@ function createTable() {
   render();
 }
 
-function crearMazoDomino() {
-  const mazo = [];
-  for (let a = 0; a <= 6; a++) {
-    for (let b = a; b <= 6; b++) mazo.push([a, b]);
-  }
-  for (let i = mazo.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [mazo[i], mazo[j]] = [mazo[j], mazo[i]];
-  }
-  return mazo;
-}
-
 function htmlFicha(ficha, indice = null) {
   const [a, b] = ficha;
   return `<div class="ficha-domino"${indice !== null ? ` data-hand-index="${indice}"` : ""}
