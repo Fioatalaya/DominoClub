@@ -1,0 +1,16 @@
+/* DominoClub visual theme 2026 */
+:root{--dc-gold:#ffd45a;--dc-gold2:#ff9f1a;--dc-night:#07081b;--dc-violet:#281052;--dc-cyan:#35bfff}
+body{background:radial-gradient(circle at 50% -10%,#30206d 0,#11113a 30%,#070817 72%)!important}
+.dc-coin{display:inline-grid;place-items:center;width:25px;height:25px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff7a0,#ffc323 45%,#d77b00 78%);border:2px solid #ffe88b;color:#6d3600;font-weight:1000;box-shadow:0 0 12px #ffbf2d66,inset 0 2px 3px #fff9}
+.dc-glow{box-shadow:0 0 0 1px #ffd65c55,0 10px 30px #0009,0 0 25px #8d38ff22!important}
+button,.primary,.join,.start,.roll{transition:transform .15s,filter .15s;box-shadow:inset 0 1px 0 #fff7,0 6px 14px #0006!important}button:active,.primary:active,.join:active,.start:active,.roll:active{transform:scale(.96);filter:brightness(1.15)}
+/* Domino */
+.mesa-domino{background:radial-gradient(circle at 50% 45%,#1d8b62,#07513d 58%,#033a2d)!important;border:10px solid #8b542b!important;box-shadow:inset 0 0 45px #001b1499,inset 0 0 0 3px #c98b47,0 18px 45px #000b!important}
+.ficha-domino{background:linear-gradient(145deg,#fffdf2,#e7ddc5)!important;border:2px solid #fff5d5!important;box-shadow:inset 2px 2px 4px #fff,inset -3px -4px 6px #9c8e73,0 5px 9px #0009!important}
+.ficha-domino .punto.activo{background:radial-gradient(circle at 35% 30%,#555,#050505 65%)!important;box-shadow:inset 0 1px 1px #fff5,0 1px 1px #fff8}
+.jugador{background:linear-gradient(145deg,#241f4a,#11172f)!important;border-color:#7967aa!important;box-shadow:0 6px 14px #0007}.jugador.turno-activo{box-shadow:0 0 0 2px var(--dc-gold),0 0 22px #ffd34f99!important}
+.table,.table-card,.create-card{background:linear-gradient(145deg,#211b49,#11172d)!important;border-color:#564c7d!important}.join,.primary{background:linear-gradient(#ffe96d,#f0a91e)!important;color:#351b00!important}
+/* Ludo */
+.board{border-color:#6f4a24!important;box-shadow:inset 0 0 18px #0004,0 18px 45px #000b!important}.cell{box-shadow:inset 0 0 3px #0002}.piece{border:2px solid #fff!important;box-shadow:inset 3px 3px 5px #fff7,inset -4px -5px 7px #0004,0 5px 8px #0009!important;filter:saturate(1.2)}.center{filter:saturate(1.25);box-shadow:0 0 12px #0005}.setup,.panel{background:linear-gradient(145deg,#211b4a,#10162e)!important;border-color:#65588e!important}.choice{background:linear-gradient(145deg,#30245f,#182445)!important;border-color:#6b61a0!important}.choice.active{outline-color:var(--dc-gold)!important;box-shadow:0 0 18px #ffd34f55!important}
+/* QueenSlot */
+.machine{background:radial-gradient(circle at 50% 0,#9e2f82,#4a175a 45%,#190d31)!important;border-color:#ffcf55!important;box-shadow:inset 0 0 35px #ff57cc22,0 18px 45px #000c,0 0 24px #a23cff44!important}.symbol{background:radial-gradient(circle at 35% 25%,#fffef0,#f3d995 45%,#b77a2d)!important;border:2px solid #ffe9a0!important;box-shadow:inset 3px 3px 8px #fff,inset -5px -6px 9px #7d4c1d,0 5px 9px #000b!important}.symbol.win{box-shadow:0 0 26px #fff38c,inset 0 0 12px #fff!important}.balance,.controls>div,.multiplier{background:linear-gradient(145deg,#241847,#11152c)!important;border-color:#6f5b94!important}#spin{box-shadow:0 0 22px #ffbd2f77,0 7px 0 #704000!important}
