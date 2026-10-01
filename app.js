@@ -48,20 +48,16 @@ function openGame(index) {
   document.body.innerHTML = `
     <div class="partida">
 
-      <div class="partida-superior">
-        <button type="button" onclick="location.reload()">← Salir</button>
-
-        <div>
-          <strong>${table.name}</strong>
-          <small>Mesa de domino</small>
-        </div>
-
-        <div>🪙 10,000</div>
+      <div class="partida-superior nueva-barra">
+        <button class="salir-partida" type="button" onclick="location.reload()">‹</button>
+        <div class="bote-partida"><small>BOTE</small><strong>🪙 ${table.entry * 4}</strong></div>
+        <div class="mesa-titulo"><strong>${table.name}</strong><small>Dominó Club</small></div>
+        <div class="saldo-partida">🪙 10,000</div>
       </div>
 
       <div class="mesa-domino">
-        <div class="jugador jugador-arriba">👤 Jugador 2</div>
-        <div class="jugador jugador-izquierda">👤 Jugador 3</div>
+        <div class="jugador jugador-arriba"><span class="avatar-juego">J2</span><span class="datos-jugador"><b>Jugador 2</b><small>7 fichas</small></span></div>
+        <div class="jugador jugador-izquierda"><span class="avatar-juego">J3</span><span class="datos-jugador"><b>Jugador 3</b><small>7 fichas</small></span></div>
 
         <div class="centro-mesa">
           DOMINO<br>
@@ -72,8 +68,8 @@ function openGame(index) {
           <div class="cadena-fichas"></div>
         </div>
 
-        <div class="jugador jugador-derecha">👤 Jugador 4</div>
-        <div class="jugador jugador-abajo">👤 Tu</div>
+        <div class="jugador jugador-derecha"><span class="avatar-juego">J4</span><span class="datos-jugador"><b>Jugador 4</b><small>7 fichas</small></span></div>
+        <div class="jugador jugador-abajo"><span class="avatar-juego avatar-tu">TÚ</span><span class="datos-jugador"><b>Tú</b><small>10,000 monedas</small></span></div>
       </div>
 
       <div class="mis-fichas">
