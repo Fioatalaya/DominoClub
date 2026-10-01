@@ -398,74 +398,65 @@ function ajustarCadena() {
 
   const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
   const k=todas.indexOf(inicio);
-  const izq=todas.slice(0,k).reverse(), der=todas.slice(k+1);
+  const izquierda=todas.slice(0,k).reverse();
+  const derecha=todas.slice(k+1);
+
   const L=58,C=34,cx=160,cy=220;
-  const lim={l:55,r:265,t:95,b:345};
+  const lim={l:50,r:270,t:92,b:348};
 
-  const esDoble=f=>f.classList.contains("doble");
-  const esVertical=(f,dir)=>{
-    const ejeV=dir==="U"||dir==="D";
-    return esDoble(f) ? !ejeV : ejeV;
-  };
-  const mitad=(vertical,ejeV)=> ejeV ? (vertical?L:C)/2 : (vertical?C:L)/2;
-
-  function pintar(f,x,y,vertical){
-    const w=vertical?C:L,h=vertical?L:C;
-    f.classList.toggle("giro-cadena",vertical);
+  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
+  function pintar(f,x,y,v){
+    const d=dims(v);
+    f.classList.toggle("giro-cadena",v);
     f.classList.remove("doble-tablero");
-    const p={position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
-      "min-width":w+"px","max-width":w+"px","min-height":h+"px","max-height":h+"px",
+    const p={position:"absolute",left:x+"px",top:y+"px",width:d.w+"px",height:d.h+"px",
+      "min-width":d.w+"px","max-width":d.w+"px","min-height":d.h+"px","max-height":d.h+"px",
       transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"};
-    Object.entries(p).forEach(([q,v])=>f.style.setProperty(q,v,"important"));
+    Object.entries(p).forEach(([q,val])=>f.style.setProperty(q,val,"important"));
+  }
+  function doble(f){return f.classList.contains("doble");}
+  function verticalPara(f,dir){
+    const ejeV=dir==="U"||dir==="D";
+    return doble(f)?!ejeV:ejeV;
+  }
+  function half(v,dir){
+    const d=dims(v);
+    return (dir==="R"||dir==="L"?d.w:d.h)/2;
+  }
+  function mover(x,y,dir,n){
+    return {x:x+(dir==="R"?n:dir==="L"?-n:0),y:y+(dir==="D"?n:dir==="U"?-n:0)};
+  }
+  function gira(dir,lado){
+    if(lado==="derecha") return {R:"D",D:"L",L:"D",U:"R"}[dir];
+    return {L:"U",U:"R",R:"U",D:"L"}[dir];
   }
 
-  // La salida se orienta sobre el eje horizontal; si es doble, queda atravesada.
-  const inicioV=esDoble(inicio);
+  // Salida central; el doble se cruza sin alterar el eje de crecimiento.
+  const inicioV=doble(inicio);
   pintar(inicio,cx,cy,inicioV);
 
-  function siguienteDireccion(dir,lado){
-    if(lado==="derecha"){
-      if(dir==="R") return "D";
-      if(dir==="D") return "L";
-      if(dir==="L") return "D";
-      return "R";
-    } else {
-      if(dir==="L") return "U";
-      if(dir==="U") return "R";
-      if(dir==="R") return "U";
-      return "L";
-    }
-  }
-
   function construir(arr,lado){
-    let x=cx,y=cy,dir=lado==="derecha"?"R":"L";
-    let prev=inicio, prevV=inicioV;
-
+    let x=cx,y=cy,dir=lado==="derecha"?"R":"L",prevV=inicioV;
     arr.forEach(f=>{
-      let ejeV=dir==="U"||dir==="D";
-      let v=esVertical(f,dir);
-      let paso=mitad(prevV,ejeV)+mitad(v,ejeV);
-      let nx=x+(dir==="R"?paso:dir==="L"?-paso:0);
-      let ny=y+(dir==="D"?paso:dir==="U"?-paso:0);
-      const w=v?C:L,h=v?L:C;
-      const fuera=nx-w/2<lim.l||nx+w/2>lim.r||ny-h/2<lim.t||ny+h/2>lim.b;
+      let v=verticalPara(f,dir);
+      let paso=half(prevV,dir)+half(v,dir);
+      let p=mover(x,y,dir,paso);
+      let d=dims(v);
+      let fuera=p.x-d.w/2<lim.l||p.x+d.w/2>lim.r||p.y-d.h/2<lim.t||p.y+d.h/2>lim.b;
 
       if(fuera){
-        dir=siguienteDireccion(dir,lado);
-        ejeV=dir==="U"||dir==="D";
-        v=esVertical(f,dir);
-        paso=mitad(prevV,ejeV)+mitad(v,ejeV);
-        nx=x+(dir==="R"?paso:dir==="L"?-paso:0);
-        ny=y+(dir==="D"?paso:dir==="U"?-paso:0);
+        dir=gira(dir,lado);
+        v=verticalPara(f,dir);
+        paso=half(prevV,dir)+half(v,dir);
+        p=mover(x,y,dir,paso);
       }
 
-      x=nx;y=ny;prev=f;prevV=v;
+      x=p.x;y=p.y;prevV=v;
       pintar(f,x,y,v);
     });
   }
-
-  construir(der,"derecha");
-  construir(izq,"izquierda");
+  construir(derecha,"derecha");
+  construir(izquierda,"izquierda");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
