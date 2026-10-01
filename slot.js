@@ -8,7 +8,7 @@ function groups(){const map={};grid.forEach((col,c)=>col.forEach((s,r)=>(map[s]?
 async function tumble(){
  let total=0,round=0;
  while(round<8){
-  const g=groups();if(!g.length)break; const crown=g.find(([s,a])=>s==="👑"&&a.length>=4); if(crown){const count=crown[1].length,award=count>=5?15:10;freeSpins+=award;update();$("#crownText").textContent=(count>=5?"5 coronas · 15":"4 coronas · 10")+" giros gratis";$("#crownPrize").style.display="grid";await new Promise(resolve=>{$("#crownOk").onclick=()=>{$("#crownPrize").style.display="none";resolve()}});$("#msg").textContent="👑 "+award+" giros gratis";update();}
+  const g=groups();if(!g.length)break; const crown=g.find(([s,a])=>s==="👑"&&a.length>=4); if(crown){const count=crown[1].length,award=count>=5?15:10;freeSpins+=award;$("#crownText").textContent=(count>=5?"5 coronas · 15":"4 coronas · 10")+" giros gratis";$("#crownPrize").style.display="grid";await new Promise(resolve=>{$("#crownOk").onclick=()=>{$("#crownPrize").style.display="none";resolve()}});$("#msg").textContent="👑 "+award+" giros gratis";update();}
   const cells=[...new Map(g.flatMap(([,a])=>a).map(x=>[x.join("-"),x])).values()];
   const base=MULT[Math.min(MULT.length-1,round+1)];
   $("#multiplier").textContent="MULTIPLICADOR ×"+base;
