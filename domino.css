@@ -2355,3 +2355,18 @@
  .tablero-fichas{width:68%!important;height:56%!important;top:49%!important}
  .cadena-fichas{min-height:250px!important}
 }
+
+/* V5: ficha de mesa = misma ficha de la mano; solo cambia orientación y escala */
+.cadena-fichas .ficha-domino,.cadena-fichas.cadena-serpiente .ficha-domino{
+ background:linear-gradient(145deg,#fffef8,#e9e3d6)!important;
+ border:2px solid #d6d0c2!important;border-radius:8px!important;
+ box-shadow:0 4px 8px rgba(0,0,0,.35)!important;overflow:hidden!important
+}
+.cadena-fichas .ficha-domino>.cara{color:#111827!important}
+.cadena-fichas .ficha-domino:not(.giro-cadena){width:52px!important;height:30px!important;min-width:52px!important;max-width:52px!important;min-height:30px!important;max-height:30px!important;flex-direction:row!important}
+.cadena-fichas .ficha-domino:not(.giro-cadena)>.cara{width:50%!important;height:100%!important}
+.cadena-fichas .ficha-domino:not(.giro-cadena)>.cara:first-child{border-right:2px solid #111827!important;border-bottom:0!important}
+.cadena-fichas .ficha-domino.giro-cadena{width:30px!important;height:52px!important;min-width:30px!important;max-width:30px!important;min-height:52px!important;max-height:52px!important;flex-direction:column!important}
+.cadena-fichas .ficha-domino.giro-cadena>.cara{width:100%!important;height:50%!important}
+.cadena-fichas .ficha-domino.giro-cadena>.cara:first-child{border-bottom:2px solid #111827!important;border-right:0!important}
+.cadena-fichas .punto{width:5px!important;height:5px!important}
