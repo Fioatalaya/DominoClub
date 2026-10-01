@@ -334,3 +334,25 @@
   box-shadow: 0 12px 22px rgba(0, 0, 0, .55);
   z-index: 5;
 }
+
+
+/* Zona independiente para las fichas jugadas */
+.tablero-fichas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 2;
+  min-width: 48px;
+  min-height: 88px;
+}
+
+.tablero-fichas .ficha-domino {
+  margin: 0;
+  transform: none;
+  flex: 0 0 auto;
+}
