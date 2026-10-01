@@ -494,26 +494,33 @@ function ajustarCadena() {
   function dbl(f){return f.classList.contains("doble");}
   function dim(v){return v?{w:C,h:L}:{w:L,h:C};}
   function put(f,x,y,v){
-    const d=dim(v); f.classList.toggle("giro-cadena",v); f.classList.toggle("doble-tablero",dbl(f)&&v);
+    const d=dim(v);f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",dbl(f)&&v);
     [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",d.w+"px"],["height",d.h+"px"],
-     ["min-width",d.w+"px"],["max-width",d.w+"px"],["min-height",d.h+"px"],["max-height",d.h+"px"],
-     ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
+    ["min-width",d.w+"px"],["max-width",d.w+"px"],["min-height",d.h+"px"],["max-height",d.h+"px"],
+    ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
-  put(inicio,cx,cy,dbl(inicio));
-  // Recorrido de cabeza continuo con carriles fijos y sin ramas.
+  const iv=dbl(inicio);put(inicio,cx,cy,iv);
+
+  // Ruta determinista: centro -> borde -> giro -> siguiente carril.
+  // Nunca se recorta una ficha ni se reinicia desde el centro.
   function brazo(arr,lado){
-    let x=cx,y=cy,dir=lado==="derecha"?"R":"L",pv=dbl(inicio);
-    const xmin=82,xmax=W-82,ymin=82,ymax=H-105;
-    const next=lado==="derecha"?{R:"D",D:"L",L:"D"}:{L:"U",U:"R",R:"U"};
+    let x=cx,y=cy,pv=iv;
+    let dir=lado==="derecha"?"R":"L";
+    const xmin=125,xmax=W-125,ymin=90,ymax=H-125;
+    const turns=lado==="derecha"?["R","D","L","D","R"]:["L","U","R","U","L"];
+    let ti=0;
     function half(v,d){const z=dim(v);return(d==="R"||d==="L"?z.w:z.h)/2;}
-    function move(d,n){return{x:x+(d==="R"?n:d==="L"?-n:0),y:y+(d==="D"?n:d==="U"?-n:0)};}
-    function ori(f,d){const pv=d==="U"||d==="D";return dbl(f)?!pv:pv;}
+    function step(d,n){return{x:x+(d==="R"?n:d==="L"?-n:0),y:y+(d==="D"?n:d==="U"?-n:0)};}
+    function ori(f,d){const pathV=d==="U"||d==="D";return dbl(f)?!pathV:pathV;}
     function fits(p,v){const z=dim(v);return p.x-z.w/2>=xmin&&p.x+z.w/2<=xmax&&p.y-z.h/2>=ymin&&p.y+z.h/2<=ymax;}
-    arr.forEach(f=>{
-      let v=ori(f,dir), p=move(dir,half(pv,dir)+half(v,dir));
-      if(!fits(p,v)){dir=next[dir]||dir;v=ori(f,dir);p=move(dir,half(pv,dir)+half(v,dir));}
+    for(const f of arr){
+      let v=ori(f,dir),p=step(dir,half(pv,dir)+half(v,dir));
+      let guard=0;
+      while(!fits(p,v)&&guard++<4&&ti<turns.length-1){
+        dir=turns[++ti];v=ori(f,dir);p=step(dir,half(pv,dir)+half(v,dir));
+      }
       x=p.x;y=p.y;pv=v;put(f,x,y,v);
-    });
+    }
   }
   brazo(der,"derecha");brazo(izq,"izquierda");
 }
