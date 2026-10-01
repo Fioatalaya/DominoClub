@@ -1461,3 +1461,7 @@
 .reloj-turno b { font-size: 20px; color: #f2c14e; margin-left: 3px; }
 .reloj-turno small { display:block; font-size:10px; color:#cbd5e1; margin-top:1px; }
 .jugador.turno-activo { border-color:#f2c14e !important; box-shadow:0 0 0 2px rgba(242,193,78,.25),0 0 18px rgba(242,193,78,.28); }
+
+
+/* El reloj solo se muestra al jugador cuando es su turno */
+.reloj-turno.reloj-oculto { display:none !important; }
