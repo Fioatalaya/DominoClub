@@ -2210,3 +2210,10 @@
   min-height:50px !important;max-height:50px !important;
 }
 .cadena-fichas.cadena-serpiente .punto{width:4.5px !important;height:4.5px !important}
+
+/* Mesa compacta móvil */
+@media (max-width:520px){
+  .mesa-domino{height:465px !important;min-height:465px !important;max-height:465px !important;}
+  .tablero-fichas{height:72% !important;top:46% !important;}
+  .cadena-fichas,.cadena-fichas.cadena-serpiente{height:390px !important;min-height:390px !important;width:min(90vw,560px) !important;}
+}
