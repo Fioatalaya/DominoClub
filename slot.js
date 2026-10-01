@@ -3,7 +3,7 @@ let balance=10000,bet=50,busy=false,grid=[],cascade=1,freeSpins=0;
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString("en-US"),rnd=()=>S[Math.floor(Math.random()*S.length)],wait=t=>new Promise(r=>setTimeout(r,t));
 function makeGrid(){return Array.from({length:5},()=>Array.from({length:3},rnd))}
 function draw(){const r=$("#reels");r.innerHTML="";grid.forEach((col,c)=>{const d=document.createElement("div");d.className="reel";col.forEach((x,row)=>{const e=document.createElement("div");e.className="symbol";e.dataset.c=c;e.dataset.r=row;e.textContent=x;d.appendChild(e)});r.appendChild(d)})}
-function update(){$("#balance").textContent=fmt(balance);$("#bet").textContent=fmt(bet);const f=$("#freeSpinsCounter");if(f)f.textContent="GIROS GRATIS: "+freeSpins}
+function update(){$("#balance").textContent=fmt(balance);$("#bet").textContent=fmt(bet);const f=$("#freeSpinsCounter");if(f){f.textContent="GIROS GRATIS: "+freeSpins;f.style.display=freeSpins>0?"block":"none"}}
 function groups(){const map={};grid.forEach((col,c)=>col.forEach((s,r)=>(map[s]??=[]).push([c,r])));return Object.entries(map).filter(([,a])=>a.length>=5)}
 async function tumble(){
  let total=0,round=0;
