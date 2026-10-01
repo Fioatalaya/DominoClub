@@ -147,7 +147,7 @@ function seleccionarFicha(elemento, ladoA, ladoB) {
   const puedeDer = extremoDerecho !== null && (ladoA === extremoDerecho || ladoB === extremoDerecho);
 
   // Si la ficha sirve en ambos extremos, el jugador decide dónde ponerla.
-  if (puedeIzq && puedeDer && extremoIzquierdo !== extremoDerecho) {
+  if (puedeIzq && puedeDer) {
     fichaPendiente = {elemento,ladoA,ladoB};
     document.querySelectorAll(".ficha-domino").forEach(f=>f.classList.remove("seleccionada"));
     elemento.classList.add("seleccionada");
@@ -437,7 +437,8 @@ function ajustarCadena() {
   const derecha=todas.slice(k+1);
 
   const L=58,C=34,cx=160,cy=220;
-  const lim={l:50,r:270,t:92,b:348};
+  // Aprovecha casi todo el ancho útil de la mesa antes de hacer una curva.
+  const lim={l:18,r:302,t:72,b:372};
 
   function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function pintar(f,x,y,v){
