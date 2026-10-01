@@ -401,55 +401,70 @@ function ajustarCadena() {
   const izquierda=todas.slice(0,idx).reverse();
   const derecha=todas.slice(idx+1);
 
-  const cx=160, cy=220, L=58, C=34;
-  const minX=52, maxX=268, minY=100, maxY=340;
+  const L=58, C=34, cx=160, cy=220;
+  const limites={izq:48,der:272,arr:92,aba:348};
 
+  function dims(vertical){ return vertical?{w:C,h:L}:{w:L,h:C}; }
   function pintar(f,x,y,vertical){
-    const w=vertical?C:L, h=vertical?L:C;
+    const d=dims(vertical);
     f.classList.toggle("giro-cadena",vertical);
     f.classList.remove("doble-tablero");
-    for (const [k,v] of Object.entries({
-      position:"absolute",left:x+"px",top:y+"px",width:w+"px",height:h+"px",
-      "min-width":w+"px","max-width":w+"px","min-height":h+"px","max-height":h+"px",
-      transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"
-    })) f.style.setProperty(k,v,"important");
+    const props={position:"absolute",left:x+"px",top:y+"px",width:d.w+"px",height:d.h+"px",
+      "min-width":d.w+"px","max-width":d.w+"px","min-height":d.h+"px","max-height":d.h+"px",
+      transform:"translate(-50%,-50%)",margin:"0",flex:"0 0 auto"};
+    Object.entries(props).forEach(([k,v])=>f.style.setProperty(k,v,"important"));
   }
 
-  // Centro fijo. Un doble de salida se atraviesa, pero conserva la misma escala.
-  pintar(inicio,cx,cy,inicio.classList.contains("doble"));
+  // El centro es fijo. Un doble se cruza sobre el eje horizontal.
+  const inicioVertical=inicio.classList.contains("doble");
+  pintar(inicio,cx,cy,inicioVertical);
+
+  // Punto exacto del extremo libre de una ficha.
+  function extremo(x,y,vertical,dir){
+    const d=dims(vertical);
+    if(dir==="R") return {x:x+d.w/2,y};
+    if(dir==="L") return {x:x-d.w/2,y};
+    if(dir==="D") return {x,y:y+d.h/2};
+    return {x,y:y-d.h/2};
+  }
+
+  // Coloca la ficha nueva haciendo coincidir SU borde con el extremo anterior.
+  function desdePunto(f,p,dir){
+    const ejeVertical=dir==="U"||dir==="D";
+    const vertical=f.classList.contains("doble") ? !ejeVertical : ejeVertical;
+    const d=dims(vertical);
+    let x=p.x,y=p.y;
+    if(dir==="R") x+=d.w/2;
+    if(dir==="L") x-=d.w/2;
+    if(dir==="D") y+=d.h/2;
+    if(dir==="U") y-=d.h/2;
+    return {x,y,vertical};
+  }
 
   function brazo(arr,lado){
-    let x=cx,y=cy;
     let dir=lado==="derecha"?"R":"L";
-    let prevVertical=inicio.classList.contains("doble");
+    let x=cx,y=cy,vertical=inicioVertical;
 
     arr.forEach(f=>{
-      const doble=f.classList.contains("doble");
-      const ejeVertical=(dir==="U"||dir==="D");
-      const vertical=doble ? !ejeVertical : ejeVertical;
+      let p=extremo(x,y,vertical,dir);
+      let pos=desdePunto(f,p,dir);
 
-      // Distancia centro-a-centro exacta para que los bordes se toquen.
-      const prevHalf = prevVertical ? C/2 : L/2;
-      const curHalfAlong = vertical
-        ? (ejeVertical ? L/2 : C/2)
-        : (ejeVertical ? C/2 : L/2);
-      let paso=prevHalf+curHalfAlong;
+      // Si la nueva ficha rebasa el área segura, giramos desde el MISMO
+      // punto de unión; nunca se crea una segunda fila desconectada.
+      const d=dims(pos.vertical);
+      const fuera=pos.x-d.w/2<limites.izq || pos.x+d.w/2>limites.der ||
+                  pos.y-d.h/2<limites.arr || pos.y+d.h/2>limites.aba;
+      if(fuera){
+        if(dir==="R") dir="D";
+        else if(dir==="L") dir="U";
+        else if(dir==="D") dir="L";
+        else if(dir==="U") dir="R";
+        p=extremo(x,y,vertical,dir);
+        pos=desdePunto(f,p,dir);
+      }
 
-      let nx=x,ny=y;
-      if(dir==="R") nx+=paso;
-      if(dir==="L") nx-=paso;
-      if(dir==="D") ny+=paso;
-      if(dir==="U") ny-=paso;
-
-      // Si no cabe, gira desde el MISMO extremo de la última ficha.
-      if(dir==="R" && nx>maxX){dir="D"; const pv=prevVertical?L/2:C/2; const cv=vertical?L/2:C/2; paso=pv+cv; nx=x;ny=y+paso;}
-      else if(dir==="L" && nx<minX){dir="U"; const pv=prevVertical?L/2:C/2; const cv=vertical?L/2:C/2; paso=pv+cv; nx=x;ny=y-paso;}
-      else if(dir==="D" && ny>maxY){dir="L"; const ph=prevVertical?C/2:L/2; const ch=vertical?C/2:L/2; paso=ph+ch; nx=x-paso;ny=y;}
-      else if(dir==="U" && ny<minY){dir="R"; const ph=prevVertical?C/2:L/2; const ch=vertical?C/2:L/2; paso=ph+ch; nx=x+paso;ny=y;}
-
-      x=nx;y=ny;
+      x=pos.x;y=pos.y;vertical=pos.vertical;
       pintar(f,x,y,vertical);
-      prevVertical=vertical;
     });
   }
 
