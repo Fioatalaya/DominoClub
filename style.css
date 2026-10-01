@@ -2194,3 +2194,19 @@
 .selector-extremo{display:none !important}
 .mis-fichas .ficha-domino{touch-action:none;user-select:none;-webkit-user-select:none}
 .mis-fichas .ficha-domino.ficha-arrastrando{opacity:.92;filter:drop-shadow(0 10px 10px rgba(0,0,0,.35));}
+
+/* Escala compacta uniforme del tablero */
+.cadena-fichas.cadena-serpiente .ficha-domino{
+  box-sizing:border-box !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino:not(.giro-cadena){
+  width:50px !important;height:30px !important;
+  min-width:50px !important;max-width:50px !important;
+  min-height:30px !important;max-height:30px !important;
+}
+.cadena-fichas.cadena-serpiente .ficha-domino.giro-cadena{
+  width:30px !important;height:50px !important;
+  min-width:30px !important;max-width:30px !important;
+  min-height:50px !important;max-height:50px !important;
+}
+.cadena-fichas.cadena-serpiente .punto{width:4.5px !important;height:4.5px !important}
