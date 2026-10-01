@@ -440,7 +440,8 @@ function ajustarCadena() {
   const anchoCadena=Math.min(window.innerWidth*0.92,620);
   const cx=anchoCadena/2,cy=220;
   // Limites calculados desde el ancho REAL disponible, no desde 320px fijos.
-  const lim={l:10,r:anchoCadena-10,t:55,b:385};
+  // Dejamos una franja libre a ambos lados para que la cadena no pase debajo de J3/J4.
+  const lim={l:68,r:anchoCadena-68,t:55,b:385};
 
   function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
   function pintar(f,x,y,v){
