@@ -488,40 +488,56 @@ function ajustarCadena() {
   const todas=[...cadena.querySelectorAll(".ficha-domino")];
   if(!todas.length) return;
   cadena.classList.add("cadena-serpiente");
+
   const inicio=todas.find(f=>f.dataset.inicio==="1")||todas[0];
-  const k=todas.indexOf(inicio), izq=todas.slice(0,k).reverse(), der=todas.slice(k+1);
-  const L=46,C=28;
+  const k=todas.indexOf(inicio);
+  const izq=todas.slice(0,k).reverse(), der=todas.slice(k+1);
+  const L=44,C=27;
   const r=cadena.getBoundingClientRect(),W=r.width||560,H=r.height||440,cx=W/2,cy=H/2;
+
   function dbl(f){return f.classList.contains("doble");}
-  function dims(v){return v?{w:C,h:L}:{w:L,h:C};}
+  function dim(v){return v?{w:C,h:L}:{w:L,h:C};}
   function put(f,x,y,v){
-    const d=dims(v);
-    f.classList.toggle("giro-cadena",v);f.classList.toggle("doble-tablero",dbl(f)&&v);
+    const d=dim(v);
+    f.classList.toggle("giro-cadena",v); f.classList.toggle("doble-tablero",dbl(f)&&v);
     [["position","absolute"],["left",x+"px"],["top",y+"px"],["width",d.w+"px"],["height",d.h+"px"],
      ["min-width",d.w+"px"],["max-width",d.w+"px"],["min-height",d.h+"px"],["max-height",d.h+"px"],
      ["transform","translate(-50%,-50%)"],["margin","0"]].forEach(([q,z])=>f.style.setProperty(q,z,"important"));
   }
-  const iv=dbl(inicio);put(inicio,cx,cy,iv);
+  const iv=dbl(inicio); put(inicio,cx,cy,iv);
 
-  // La geometría se construye desde la cabeza de cada extremo, no desde el centro.
+  // Line-layout clásico: dos únicas cabezas. El trazado gira sólo por falta de espacio.
   function brazo(arr,lado){
-    let x=cx,y=cy,dir=lado==="derecha"?"R":"L",pv=iv;
-    const minX=88,maxX=W-88,minY=92,maxY=H-145;
-    const turn=lado==="derecha"?{R:"D",D:"L",L:"D"}:{L:"U",U:"R",R:"U"};
-    function half(v,d){const z=dims(v);return(d==="R"||d==="L"?z.w:z.h)/2;}
-    function step(px,py,d,n){return{x:px+(d==="R"?n:d==="L"?-n:0),y:py+(d==="D"?n:d==="U"?-n:0)};}
-    function orient(f,d){const verticalPath=d==="U"||d==="D";return dbl(f)?!verticalPath:verticalPath;}
-    function fits(p,v){const z=dims(v);return p.x-z.w/2>=minX&&p.x+z.w/2<=maxX&&p.y-z.h/2>=minY&&p.y+z.h/2<=maxY;}
+    let x=cx,y=cy,pv=iv;
+    let dir=lado==="derecha"?"R":"L";
+    const xMin=105,xMax=W-105,yMin=105,yMax=H-145;
+    const giroDer={R:"D",D:"L",L:"D"};
+    const giroIzq={L:"U",U:"R",R:"U"};
+    const giros=lado==="derecha"?giroDer:giroIzq;
+    function half(v,d){const z=dim(v);return(d==="L"||d==="R"?z.w:z.h)/2;}
+    function move(d,n){return{x:x+(d==="R"?n:d==="L"?-n:0),y:y+(d==="D"?n:d==="U"?-n:0)};}
+    function ori(f,d){const pathV=d==="U"||d==="D";return dbl(f)?!pathV:pathV;}
+    function fits(p,v){const z=dim(v);return p.x-z.w/2>=xMin&&p.x+z.w/2<=xMax&&p.y-z.h/2>=yMin&&p.y+z.h/2<=yMax;}
+
     for(const f of arr){
-      let v=orient(f,dir),p=step(x,y,dir,half(pv,dir)+half(v,dir));
+      let v=ori(f,dir);
+      let p=move(dir,half(pv,dir)+half(v,dir));
       if(!fits(p,v)){
-        dir=turn[dir]||(lado==="derecha"?"R":"L");
-        v=orient(f,dir);p=step(x,y,dir,half(pv,dir)+half(v,dir));
+        const nd=giros[dir];
+        if(nd){
+          dir=nd; v=ori(f,dir);
+          p=move(dir,half(pv,dir)+half(v,dir));
+        }
+      }
+      // Último seguro: si el giro tampoco cabe, mantenemos la cabeza dentro del corredor.
+      if(!fits(p,v)){
+        p.x=Math.max(xMin+dim(v).w/2,Math.min(xMax-dim(v).w/2,p.x));
+        p.y=Math.max(yMin+dim(v).h/2,Math.min(yMax-dim(v).h/2,p.y));
       }
       x=p.x;y=p.y;pv=v;put(f,x,y,v);
     }
   }
-  brazo(der,"derecha");brazo(izq,"izquierda");
+  brazo(der,"derecha"); brazo(izq,"izquierda");
 }
 document.addEventListener("DOMContentLoaded", function () {
   render();
