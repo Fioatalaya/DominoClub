@@ -2254,3 +2254,15 @@
   width:4.25px !important;
   height:4.25px !important;
 }
+
+
+/* Interacción de mano: doble toque levanta la ficha; arrastre libre. */
+.mis-fichas .ficha-domino.ficha-levantada{
+  transform:translateY(-18px) scale(1.04) !important;
+  z-index:20 !important;
+  box-shadow:0 12px 20px rgba(0,0,0,.48) !important;
+}
+.mis-fichas .ficha-domino.ficha-arrastrando{
+  transform:none !important;
+  z-index:1000 !important;
+}
