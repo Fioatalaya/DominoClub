@@ -1,10 +1,10 @@
 const centerOverlay=document.querySelector('.center');
 const board=document.querySelector('#board'),status=document.querySelector('#status'),diceEls=[...document.querySelectorAll('[data-die]')].sort((a,b)=>Number(a.dataset.die)-Number(b.dataset.die));
 const colors=['red','green','yellow','blue'],names=['Rojo','Verde','Amarillo','Azul'];
-const BOARD_COLS=10,BOARD_ROWS=10,HOME_CELLS=2;
-const path=[[3,1],[3,2],[2,3],[1,3],[0,3],[0,4],[0,5],[0,6],[1,6],[2,6],[3,7],[3,8],[3,9],[4,9],[5,9],[6,9],[6,8],[6,7],[7,6],[8,6],[9,6],[9,5],[9,4],[9,3],[8,3],[7,3],[6,2],[6,1],[6,0],[5,0],[4,0],[3,0]];
-const starts=[0,8,16,24],safe=new Set(starts.flatMap(s=>[s,(s+5)%path.length]));
-const lanes=[[[4,1],[4,2],[4,3]],[[1,5],[2,5],[3,5]],[[5,8],[5,7],[5,6]],[[8,4],[7,4],[6,4]]];
+const BOARD_COLS=9,BOARD_ROWS=9,HOME_CELLS=2;
+const path=[[3,1],[3,2],[2,3],[1,3],[0,3],[0,4],[0,5],[1,5],[2,5],[3,6],[3,7],[3,8],[4,8],[5,8],[5,7],[5,6],[6,5],[7,5],[8,5],[8,4],[8,3],[7,3],[6,3],[5,2],[5,1],[5,0],[4,0],[3,0]];
+const starts=[0,7,14,21],safe=new Set(starts.flatMap(s=>[s,(s+5)%path.length]));
+const lanes=[[[4,1],[4,2],[4,3]],[[1,4],[2,4],[3,4]],[[4,7],[4,6],[4,5]],[[7,4],[6,4],[5,4]]];
 const TRACK_LAST=path.length-2,FINISH=TRACK_LAST+HOME_CELLS+1;
 const homes=[[[1,1],[1,2],[2,1],[2,2]],[[1,7],[1,8],[2,7],[2,8]],[[7,7],[7,8],[8,7],[8,8]],[[7,1],[7,2],[8,1],[8,2]]];
 const pips={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
@@ -21,7 +21,7 @@ function render(){
   const el=document.createElement('div');el.className='cell';el.dataset.row=String(r);el.dataset.col=String(c);
   const track=path.findIndex(([a,b])=>a===r&&b===c);
   const ci=lanes.findIndex(lane=>lane.slice(0,HOME_CELLS).some(([a,b])=>a===r&&b===c));
-  const ribbon=r>=4&&r<=5&&c>=1&&c<=2?0:r>=1&&r<=2&&c>=4&&c<=5?1:r>=4&&r<=5&&c>=7&&c<=8?2:r>=7&&r<=8&&c>=4&&c<=5?3:-1;
+  const ribbon=r===4&&c>=1&&c<=2?0:r>=1&&r<=2&&c===4?1:r===4&&c>=6&&c<=7?2:r>=6&&r<=7&&c===4?3:-1;
   if(track<0&&ci<0&&ribbon<0)el.classList.add('void');if(ribbon>=0)el.classList.add(colors[ribbon]);
   if(track>=0&&safe.has(track)){el.classList.add('safe');el.textContent='★'}
   starts.forEach((s,i)=>{if(track===s)el.classList.add(colors[i])});
