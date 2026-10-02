@@ -40,8 +40,8 @@ function render(){
   el.onclick=()=>{if(!el.dataset.dragged)move(pi)};if(can)enableDrag(el,ci,pi);
   if(p<0){
    const slots=[{x:[.34,.68],y:[.32,.635]},{x:[.315,.655],y:[.32,.635]},{x:[.33,.66],y:[.29,.615]},{x:[.335,.68],y:[.285,.60]}][ci];
-   el.style.left='calc('+slots.x[pi%2]*100+'% - 4cqw)';
-   el.style.top='calc('+slots.y[pi<2?0:1]*100+'% - 6.56cqw)';
+   el.style.left='calc('+slots.x[pi%2]*100+'% - 6cqw)';
+   el.style.top='calc('+slots.y[pi<2?0:1]*100+'% - 9.84cqw)';
    document.querySelector('.well-'+colors[ci]).append(el);
   }else{cell.append(el);}
  }));
@@ -79,8 +79,8 @@ const soundToggle=document.querySelector('#soundToggle');let ludoMuted=false;sou
 
 
 function resetBoardView(){
- const viewport=document.querySelector('.board-viewport');viewport.classList.remove('is-zoomed');viewport.scrollLeft=0;viewport.scrollTop=0;
- document.querySelector('#boardViewToggle').textContent='Ampliar para jugar';document.querySelector('#boardViewToggle').setAttribute('aria-pressed','false');document.querySelector('#boardViewHint').textContent='Tablero completo';
+ const viewport=document.querySelector('.board-viewport');viewport.classList.add('is-zoomed');viewport.scrollLeft=0;viewport.scrollTop=0;
+ document.querySelector('#boardViewToggle').textContent='Ver tablero completo';document.querySelector('#boardViewToggle').setAttribute('aria-pressed','true');document.querySelector('#boardViewHint').textContent='Casillas amplias · desliza';
 }
 document.querySelector('#boardViewToggle').onclick=()=>{
  const viewport=document.querySelector('.board-viewport'),zoomed=viewport.classList.toggle('is-zoomed');
