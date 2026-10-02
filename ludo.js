@@ -1,12 +1,12 @@
 const centerOverlay=document.querySelector('.center');
 const board=document.querySelector('#board'),status=document.querySelector('#status'),diceEls=[...document.querySelectorAll('[data-die]')].sort((a,b)=>Number(a.dataset.die)-Number(b.dataset.die));
 const colors=['red','green','yellow','blue'],names=['Rojo','Verde','Amarillo','Azul'];
-const BOARD_COLS=9,BOARD_ROWS=9,HOME_CELLS=2;
-const path=[[3,1],[3,2],[2,3],[1,3],[0,3],[0,4],[0,5],[1,5],[2,5],[3,6],[3,7],[3,8],[4,8],[5,8],[5,7],[5,6],[6,5],[7,5],[8,5],[8,4],[8,3],[7,3],[6,3],[5,2],[5,1],[5,0],[4,0],[3,0]];
-const starts=[0,7,14,21],safe=new Set(starts.flatMap(s=>[s,(s+5)%path.length]));
-const lanes=[[[4,1],[4,2],[4,3]],[[1,4],[2,4],[3,4]],[[4,7],[4,6],[4,5]],[[7,4],[6,4],[5,4]]];
+const BOARD_COLS=15,BOARD_ROWS=15,HOME_CELLS=5;
+const path=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]];
+const starts=[0,13,26,39],safe=new Set(starts.flatMap(s=>[s,(s+5)%path.length]));
+const lanes=[[[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],[[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],[[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]],[[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]]];
 const TRACK_LAST=path.length-2,FINISH=TRACK_LAST+HOME_CELLS+1;
-const homes=[[[1,1],[1,2],[2,1],[2,2]],[[1,7],[1,8],[2,7],[2,8]],[[7,7],[7,8],[8,7],[8,8]],[[7,1],[7,2],[8,1],[8,2]]];
+const homes=[[[2,2],[2,4],[4,2],[4,4]],[[2,10],[2,12],[4,10],[4,12]],[[10,10],[10,12],[12,10],[12,12]],[[10,2],[10,4],[12,2],[12,4]]];
 const pips={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
 let dragging=null;
 let pieces=colors.map(()=>Array(4).fill(-1)),humanColor=0,turn=0,started=false,phase='idle',last=0,selectedTier=null,clock=null,seconds=10,sixes=0,generation=0;
@@ -21,7 +21,7 @@ function render(){
   const el=document.createElement('div');el.className='cell';el.dataset.row=String(r);el.dataset.col=String(c);
   const track=path.findIndex(([a,b])=>a===r&&b===c);
   const ci=lanes.findIndex(lane=>lane.slice(0,HOME_CELLS).some(([a,b])=>a===r&&b===c));
-  const ribbon=r===4&&c>=1&&c<=2?0:r>=1&&r<=2&&c===4?1:r===4&&c>=6&&c<=7?2:r>=6&&r<=7&&c===4?3:-1;
+  const ribbon=-1;
   if(track<0&&ci<0&&ribbon<0)el.classList.add('void');if(ribbon>=0)el.classList.add(colors[ribbon]);
   if(track>=0&&safe.has(track)){el.classList.add('safe');el.textContent='★'}
   starts.forEach((s,i)=>{if(track===s)el.classList.add(colors[i])});
@@ -40,8 +40,8 @@ function render(){
   el.onclick=()=>{if(!el.dataset.dragged)move(pi)};if(can)enableDrag(el,ci,pi);
   if(p<0){
    const slots=[{x:[.34,.68],y:[.32,.635]},{x:[.315,.655],y:[.32,.635]},{x:[.33,.66],y:[.29,.615]},{x:[.335,.68],y:[.285,.60]}][ci];
-   el.style.left='calc('+slots.x[pi%2]*100+'% - 6cqw)';
-   el.style.top='calc('+slots.y[pi<2?0:1]*100+'% - 9.84cqw)';
+   el.style.left='calc('+slots.x[pi%2]*100+'% - 4cqw)';
+   el.style.top='calc('+slots.y[pi<2?0:1]*100+'% - 6.56cqw)';
    document.querySelector('.well-'+colors[ci]).append(el);
   }else cell.append(el);
  }));
