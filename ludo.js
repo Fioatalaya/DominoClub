@@ -61,3 +61,9 @@ function showVictory(ci){const overlay=document.querySelector('#victoryOverlay')
 document.querySelector('#victoryContinue').onclick=()=>document.querySelector('#victoryOverlay').classList.add('hidden');document.querySelector('#victoryRestart').onclick=()=>{document.querySelector('#victoryOverlay').classList.add('hidden');document.querySelector('#newGame').click()};
 
 const soundToggle=document.querySelector('#soundToggle');let ludoMuted=false;soundToggle.onclick=()=>{ludoMuted=!ludoMuted;window.DCSound?.setMuted(ludoMuted);soundToggle.textContent=ludoMuted?'Sonido: desactivado':'Sonido: activado';soundToggle.setAttribute('aria-pressed',String(!ludoMuted));if(!ludoMuted)playSound('select')};
+
+const boardZoom=document.querySelector('#boardZoom'),boardViewport=document.querySelector('.board-viewport'),boardViewControls=document.querySelector('#boardViewControls');
+boardZoom.onclick=()=>{const expanded=boardViewport.classList.toggle('enlarged');boardZoom.setAttribute('aria-pressed',String(expanded));boardZoom.textContent=expanded?'Ver tablero completo':'Ampliar casillas';if(!expanded)boardViewport.scrollLeft=0;};
+const showBoardView=()=>boardViewControls.classList.toggle('hidden',document.querySelector('#boardWrap').classList.contains('hidden'));
+document.querySelector('#startGame').addEventListener('click',showBoardView);
+document.querySelector('#newGame').addEventListener('click',()=>{boardViewport.classList.remove('enlarged');boardViewport.scrollLeft=0;boardZoom.setAttribute('aria-pressed','false');boardZoom.textContent='Ampliar casillas';showBoardView();});
