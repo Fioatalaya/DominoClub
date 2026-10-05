@@ -111,8 +111,8 @@ const soundToggle=document.querySelector('#soundToggle');let ludoMuted=false;sou
 
 
 function resetBoardView(){
- const viewport=document.querySelector('.board-viewport');viewport.classList.add('is-zoomed');viewport.scrollLeft=0;viewport.scrollTop=0;
- document.querySelector('#boardViewToggle').textContent='Ver tablero completo';document.querySelector('#boardViewToggle').setAttribute('aria-pressed','true');document.querySelector('#boardViewHint').textContent='Casillas +25% · desliza';
+ const viewport=document.querySelector('.board-viewport');viewport.classList.remove('is-zoomed');viewport.scrollLeft=0;viewport.scrollTop=0;
+ document.querySelector('#boardViewToggle').textContent='Ampliar casillas';document.querySelector('#boardViewToggle').setAttribute('aria-pressed','false');document.querySelector('#boardViewHint').textContent='Tablero completo';
 }
 document.querySelector('#boardViewToggle').onclick=()=>{
  const viewport=document.querySelector('.board-viewport'),zoomed=viewport.classList.toggle('is-zoomed');
