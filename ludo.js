@@ -1,3 +1,34 @@
+
+function renderStacks(){
+ board.querySelectorAll('.cell').forEach(cell=>{
+  const pawns=[...cell.querySelectorAll(':scope > .piece')];
+  if(pawns.length<2)return;
+  const badge=document.createElement('button');badge.className='stack-count';
+  badge.textContent=String(pawns.length);
+  badge.setAttribute('aria-label',pawns.length+' fichas en esta casilla. Ver fichas');
+  const choose=()=>{
+   const dialog=document.querySelector('#notice'),text=document.querySelector('#noticeText');
+   text.replaceChildren();
+   const heading=document.createElement('span');heading.textContent='Hay '+pawns.length+' fichas en esta casilla. Elige cuál mover:';text.append(heading);
+   pawns.forEach(pawn=>{
+    const ci=colors.findIndex(color=>pawn.classList.contains(color)),pi=Number(pawn.dataset.pawn);
+    const option=document.createElement('button');option.textContent=names[ci]+' · ficha '+(pi+1);
+    option.style.cssText='display:block;width:100%;margin-top:8px';
+    option.disabled=!(started&&phase==='move'&&turn===humanColor&&ci===humanColor&&legal(ci,last).includes(pi));
+    option.onclick=()=>{if(started&&phase==='move'&&turn===humanColor&&ci===humanColor&&legal(ci,last).includes(pi)){dialog.close();move(pi)}};
+    text.append(option);
+   });
+   if(!dialog.open)dialog.showModal();
+  };
+  badge.onclick=choose;
+  pawns.forEach(pawn=>{if(!pawn.disabled)pawn.onclick=()=>{if(!pawn.dataset.dragged)choose()}});
+  cell.append(badge);
+ });
+}
+const stackStyle=document.createElement('style');
+stackStyle.textContent='.stack-count{position:absolute;right:-3px;bottom:-3px;z-index:12;min-width:22px;min-height:22px;padding:1px 4px;border:1px solid white;border-radius:50%;background:#172b46;color:white;font:bold 13px Arial;box-shadow:0 1px 3px #0009;cursor:pointer}.stack-count:focus-visible{outline:3px solid #fff}';
+document.head.append(stackStyle);
+
 const centerOverlay=document.querySelector('.center');
 const board=document.querySelector('#board'),status=document.querySelector('#status'),diceEls=[...document.querySelectorAll('[data-die]')].sort((a,b)=>Number(a.dataset.die)-Number(b.dataset.die));
 const colors=['red','green','yellow','blue'],names=['Rojo','Verde','Amarillo','Azul'];
@@ -45,6 +76,7 @@ function render(){
    document.querySelector('.well-'+colors[ci]).append(el);
   }else{cell.append(el);}
  }));
+ renderStacks();
  activate();
 }
 function activate(){[...document.querySelectorAll('.pd')].sort((a,b)=>Number(a.dataset.player)-Number(b.dataset.player)).forEach((el,i)=>{el.classList.toggle('active',started&&turn===i);el.querySelector('b').textContent=i===humanColor?'Tú':names[i];el.querySelector('.player-progress').innerHTML=pieces[i].map(p=>p===FINISH?'<span class="goal-pawn '+colors[i]+'"><span class="pawn-art"><img src="assets/ludo-pawns-standing.webp?v=25" alt="Ficha completada"></span></span>':'<span class="goal-empty">○</span>').join('')});diceEls.forEach((el,i)=>el.disabled=!(started&&phase==='roll'&&turn===humanColor&&i===turn))}
